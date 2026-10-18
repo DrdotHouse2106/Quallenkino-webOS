@@ -13,6 +13,15 @@ export function backdropUrl(api: Api, item: Item, width = 1280): string | null {
   return null
 }
 
+/** Querformat einer Folge im Stil der Serie: Vorschaubild der Serie, sonst ihr Hintergrund, sonst das Folgenbild. */
+export function seriesThumbUrl(api: Api, item: Item, width = 480): string | null {
+  if (item.ParentThumbItemId && item.ParentThumbImageTag) return imageUrl(api, item.ParentThumbItemId, 'Thumb', item.ParentThumbImageTag, `maxWidth=${width}`)
+  if (item.ParentBackdropItemId && item.ParentBackdropImageTags?.length) {
+    return imageUrl(api, item.ParentBackdropItemId, 'Backdrop', item.ParentBackdropImageTags[0], `maxWidth=${width}`)
+  }
+  return thumbUrl(api, item, width)
+}
+
 /** Querformat für Karten: Vorschaubild, sonst Hintergrund, bei Folgen das Folgenbild. */
 export function thumbUrl(api: Api, item: Item, width = 480): string | null {
   const size = `maxWidth=${width}`

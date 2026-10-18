@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.4 – 2026-10-18
+
+- **Kürzlich hinzugefügt:** Ist von einer Serie nur eine Folge neu, erscheint die Folge selbst. Der Infobereich zeigt dann „S3:F5 · Folgentitel“ und die Beschreibung der Folge. Die Karte behält das Bild der Serie. Bei mehreren neuen Folgen bleibt es bei der Serie.
+
 ## 1.0.3 – 2026-10-18
 
 - **Staffelkarten öffnen die Serie** mit dieser Staffel vorausgewählt; BACK führt zur Serie zurück.

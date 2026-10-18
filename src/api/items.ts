@@ -1,4 +1,5 @@
 import { request } from './http'
+import { seriesThumbUrl } from './images'
 
 /** Die Felder eines Titels, die die App braucht (Auszug aus BaseItemDto). */
 export interface Item {
@@ -103,8 +104,13 @@ export const resume = (api: Api, limit = 30) =>
 export const nextUp = (api: Api, limit = 30) =>
   items(api, `/Shows/NextUp?userId=${api.userId}&limit=${limit}&enableResumable=false&Fields=${FIELDS}&${IMAGES}`)
 
+/**
+ * Kürzlich hinzugefügt: Serien mit mehreren neuen Folgen als Serie, eine einzelne neue Folge als Folge
+ * (der Infobereich zeigt dann deren Beschreibung). Die Karte der Folge im Stil der Serie.
+ */
 export const latest = (api: Api, limit = 30) =>
-  items(api, `/Users/${api.userId}/Items/Latest?limit=${limit}&IncludeItemTypes=Movie,Series&Fields=${FIELDS}&${IMAGES}`)
+  items(api, `/Users/${api.userId}/Items/Latest?limit=${limit}&IncludeItemTypes=Movie,Episode&GroupItems=true&Fields=${FIELDS}&${IMAGES}`)
+    .then(list => list.map(i => (i.Type === 'Episode' ? { ...i, ImageUrl: seriesThumbUrl(api, i) ?? undefined } : i)))
 
 /** Empfehlungen des Plugins Local Recommendations (ohne Plugin: leer). */
 export const recommendations = (api: Api, type: 'movies' | 'series', limit = 30) =>
