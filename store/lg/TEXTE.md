@@ -9,7 +9,7 @@ Unterlagen für die LG Seller Lounge (webOS TV). Die genauen Bildgrößen und Pf
 | App-Symbol 80×80 (im Paket) | `public/icon.png` |
 | App-Symbol 130×130 (im Paket) | `public/largeIcon.png` |
 | Startbild 1920×1080 (im Paket) | `public/splash.png` |
-| Symbol groß 320×320 | `assets/quallenkino-icon-320.png` |
+| Store-Symbol 400×400 (Seller Lounge verlangt mindestens 400×400) | `assets/quallenkino-icon-400.png` (auch 512×512: `assets/quallenkino-icon-512.png`) |
 | Screenshots 1920×1080 | `store/lg/screenshots/01-…11-*.png` |
 
 Screenshots:
