@@ -1,5 +1,14 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.3.0 – 2026-10-18
+
+- **Detailseite (Etappe 3):** Hintergrundbild mit Logo bzw. Titel, Begründung, Eckdaten, Beschreibung und Tagline. Nach zwei Sekunden läuft der Trailer vom Server im Hintergrund, abgedunkelt und mit Ton bei 75 %.
+- Knöpfe: Abspielen bzw. Fortsetzen (Wiedergabe folgt in Etappe 4), Trailer (Vollbild, „Zurück“ beendet), **Gefällt mir / Nichts für mich**. Folgen werden über ihre Serie bewertet, wie in der Android-App.
+- Serien: Staffel-Auswahl und Folgen der gewählten Staffel. Dazu die Reihen „Darsteller und Crew“ (Foto oder Initialen, Rolle) und „Das könnte dir auch gefallen“.
+- **Personenseite:** Foto, Geburtstag und -ort, Biografie, Filme und Serien auf dem Server (neueste zuerst).
+- **Suche** (Navigation links): Ergebnisse schon beim Tippen, getrennt nach Filmen, Serien und Personen. „Runter“ bzw. „Zurück“ nach dem Tippen führt zu den Treffern.
+- „Mehr Infos“ im Banner und OK auf eine Karte öffnen die Detailseite. „Zurück“ kehrt dorthin zurück, wo man war, mit derselben Auswahl.
+
 ## 0.2.0 – 2026-10-18
 
 - **Startseite (Etappe 2):** großer Infobereich mit Logo bzw. Titel, Begründung der Empfehlung („Weil du … geschaut hast“), Eckdaten und Beschreibung; Bild oben rechts, nach links und unten in Schwarz auslaufend.

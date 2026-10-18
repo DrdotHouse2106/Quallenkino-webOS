@@ -8,7 +8,7 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
-Version 0.2 – stage 2 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added. Next: details, player, live TV, worlds, requests.
+Version 0.3 – stage 3 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search. Next: player, live TV, worlds, requests.
 
 ## Install (Developer Mode)
 

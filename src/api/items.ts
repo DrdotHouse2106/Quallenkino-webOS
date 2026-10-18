@@ -26,7 +26,22 @@ export interface Item {
   SeriesThumbImageTag?: string
   SeriesPrimaryImageTag?: string
   LocalTrailerCount?: number
-  UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean }
+  UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null }
+  Taglines?: string[]
+  People?: Person[]
+  PremiereDate?: string
+  /** Personen: Rolle in einem Titel bzw. Geburtsdatum/-ort auf der Personenseite. */
+  Role?: string
+  ProductionLocations?: string[]
+  ChildCount?: number
+}
+
+export interface Person {
+  Id: string
+  Name: string
+  Role?: string
+  Type?: string
+  PrimaryImageTag?: string
 }
 
 interface QueryResult {
@@ -79,6 +94,61 @@ export async function byIds(api: Api, ids: string[]): Promise<Item[]> {
 }
 
 export const item = (api: Api, id: string) => get<Item>(api, `/Users/${api.userId}/Items/${id}`)
+
+/** Vollständiger Titel für die Detailseite (mit Besetzung, Taglines, Bewertung). */
+export const fullItem = (api: Api, id: string) =>
+  get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=${FIELDS},People,Taglines,ProductionLocations,ChildCount`)
+
+/** Ähnliche Titel („Das könnte dir auch gefallen“). */
+export const similar = (api: Api, id: string, limit = 20) =>
+  items(api, `/Items/${id}/Similar?userId=${api.userId}&limit=${limit}&Fields=${FIELDS}&${IMAGES}`).catch(() => [] as Item[])
+
+export const seasons = (api: Api, seriesId: string) =>
+  items(api, `/Shows/${seriesId}/Seasons?userId=${api.userId}&${IMAGES}`).catch(() => [] as Item[])
+
+export const episodes = (api: Api, seriesId: string, seasonId: string) =>
+  items(api, `/Shows/${seriesId}/Episodes?userId=${api.userId}&seasonId=${seasonId}&Fields=${FIELDS}&${IMAGES}`).catch(() => [] as Item[])
+
+/** Filme bzw. Serien mit dieser Person, neueste zuerst. */
+export const personItems = (api: Api, personId: string, type: 'Movie' | 'Series') =>
+  items(api, `/Users/${api.userId}/Items?PersonIds=${personId}&IncludeItemTypes=${type}&Recursive=true&SortBy=PremiereDate,ProductionYear,SortName&SortOrder=Descending&limit=60&Fields=${FIELDS}&${IMAGES}`).catch(() => [] as Item[])
+
+/** Suche in Filmen und Serien. */
+export const searchItems = (api: Api, term: string, type: 'Movie' | 'Series') =>
+  items(api, `/Users/${api.userId}/Items?searchTerm=${encodeURIComponent(term)}&IncludeItemTypes=${type}&Recursive=true&limit=40&Fields=${FIELDS}&${IMAGES}`)
+
+/** Personen suchen (Schauspieler, Regie). */
+export const searchPeople = (api: Api, term: string) =>
+  items(api, `/Persons?userId=${api.userId}&searchTerm=${encodeURIComponent(term)}&limit=20&${IMAGES}`).catch(() => [] as Item[])
+
+/**
+ * Daumen hoch/runter: true = gefällt mir, false = nichts für mich, null = entfernen.
+ * Folgen werden über ihre Serie bewertet (fließt so in die Empfehlungen ein).
+ */
+export async function setRating(api: Api, id: string, likes: boolean | null): Promise<boolean | null> {
+  const path = `/UserItems/${id}/Rating?userId=${api.userId}`
+  const result = likes === null
+    ? await request<{ Likes?: boolean | null }>(api.url, path, { method: 'DELETE', token: api.token })
+    : await request<{ Likes?: boolean | null }>(api.url, `${path}&likes=${likes}`, { method: 'POST', token: api.token })
+  return result?.Likes ?? null
+}
+
+/** Was bewertet wird: bei Folgen die Serie, sonst der Titel. */
+export function ratingTarget(target: Item): string | null {
+  if (target.Type === 'Episode' || target.Type === 'Season') return target.SeriesId ?? null
+  if (target.Type === 'Movie' || target.Type === 'Series') return target.Id
+  return null
+}
+
+/** Personen der Besetzung als Karten (Schauspieler zuerst, dann Regie, Drehbuch). */
+export function castOf(target: Item, limit = 30): Item[] {
+  const order: Record<string, number> = { Actor: 0, GuestStar: 1, Director: 2, Writer: 3 }
+  return (target.People ?? [])
+    .filter(p => p.Type === undefined || p.Type in order)
+    .sort((a, b) => (order[a.Type ?? 'Actor'] ?? 9) - (order[b.Type ?? 'Actor'] ?? 9))
+    .slice(0, limit)
+    .map(p => ({ Id: p.Id, Name: p.Name, Type: 'Person', Role: p.Role || (p.Type === 'Director' ? 'Regie' : p.Type === 'Writer' ? 'Drehbuch' : undefined), ImageTags: p.PrimaryImageTag ? { Primary: p.PrimaryImageTag } : undefined }))
+}
 
 /** Neueste Filme und Serien mit Hintergrundbild (für das Banner ohne Plugin). */
 export const newestWithBackdrop = (api: Api, limit = 8) =>

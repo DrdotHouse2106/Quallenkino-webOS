@@ -1,10 +1,11 @@
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
 import type { ServerInfo } from '../api/server'
 import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
 import { onBack } from '../nav/keys'
+import { useRouter } from '../nav/router'
 import { About } from '../ui/About'
 import { Logo } from '../ui/Logo'
 import { toast } from '../ui/Toast'
@@ -20,14 +21,17 @@ const TRAILER_DELAY_MS = 3_000
 const FOCUS_DEBOUNCE_MS = 500
 
 interface Props {
+  api: Api
   server: ServerInfo
   session: Session
+  /** Eine Seite liegt darüber: keine Trailer, kein Wechsel, kein eigenes „Zurück“. */
+  covered: boolean
   onSwitchProfile: () => void
   onSignOut: () => void
 }
 
-export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Props) {
-  const api: Api = useMemo(() => ({ url: server.url, token: session.token, userId: session.userId }), [server.url, session])
+export function HomeScreen({ api, server, session, covered, onSwitchProfile, onSignOut }: Props) {
+  const router = useRouter()
   const { billboard, billboardDone, rows, reasons } = useHomeData(api)
 
   const [index, setIndex] = useState(0)
@@ -70,7 +74,7 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
   // Trailer-Vorschau: nur solange das Banner ausgewählt ist, nach kurzer Zeit auf demselben Titel
   useEffect(() => {
     setTrailerUrl(null)
-    if (!stableFocus || !billboardItem) return
+    if (!stableFocus || !billboardItem || covered) return
     let active = true
     const timer = setTimeout(async () => {
       const url = await localTrailerUrl(api, billboardItem)
@@ -80,14 +84,14 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
       active = false
       clearTimeout(timer)
     }
-  }, [stableFocus, billboardItem?.Id])
+  }, [stableFocus, billboardItem?.Id, covered])
 
   // Vorschläge wechseln – während ein Trailer läuft, erst nach dessen Ende
   useEffect(() => {
-    if (!stableFocus || trailerPlaying || billboard.length < 2) return
+    if (!stableFocus || trailerPlaying || billboard.length < 2 || covered) return
     const timer = setTimeout(() => setIndex(i => (i + 1) % billboard.length), ROTATION_MS)
     return () => clearTimeout(timer)
-  }, [stableFocus, trailerPlaying, index, billboard.length])
+  }, [stableFocus, trailerPlaying, index, billboard.length, covered])
 
   // Fehlende Beschreibung (manche Reihen liefern keine) beim Fokus nachladen
   useEffect(() => {
@@ -105,13 +109,14 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
   }, [shown?.Id])
 
   useEffect(() => onBack(() => {
+    if (covered) return false
     if (showAbout) {
       setShowAbout(false)
       return true
     }
     onSwitchProfile()
     return true
-  }), [showAbout])
+  }), [showAbout, covered])
 
   function step(delta: number): boolean {
     if (billboard.length < 2) return false
@@ -136,7 +141,7 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
       <HeroBackdrop
         api={api}
         item={shown}
-        trailerUrl={billboardFocused || stableFocus ? trailerUrl : null}
+        trailerUrl={!covered && (billboardFocused || stableFocus) ? trailerUrl : null}
         onTrailerEnd={() => setTrailerUrl(null)}
         onTrailerPlaying={setTrailerPlaying}
       />
@@ -145,6 +150,7 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
         onRight={() => setFocus(billboard.length ? 'bb-play' : rows[0] ? `row-${rows[0].key}` : 'bb-play')}
         items={[
           { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : session.name.charAt(0).toUpperCase(), onPress: onSwitchProfile },
+          { id: 'search', label: t.railSearch, icon: '⌕', onPress: () => router.push({ name: 'search' }) },
           { id: 'home', label: t.railHome, icon: '⌂', active: true, onPress: () => setFocus('bb-play') },
           { id: 'about', label: t.railAbout, icon: 'i', onPress: () => setShowAbout(true) },
         ]}
@@ -159,7 +165,7 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
             onFocusChange={setBillboardFocused}
             onStep={step}
             onPlay={() => toast(t.comingPlayer)}
-            onInfo={() => toast(t.comingDetails)}
+            onInfo={() => billboardItem && router.push({ name: 'details', id: billboardItem.Id })}
             onTrailer={playTrailerNow}
             count={billboard.length}
             current={index % Math.max(billboard.length, 1)}
@@ -167,7 +173,7 @@ export function HomeScreen({ server, session, onSwitchProfile, onSignOut }: Prop
         </div>
         <div class="qk-rows">
           {rows.map(row => (
-            <Row key={row.key} api={api} row={row} onFocusItem={setRowItem} onOpen={() => toast(t.comingDetails)} />
+            <Row key={row.key} api={api} row={row} onFocusItem={setRowItem} onOpen={opened => router.push({ name: 'details', id: opened.Id })} />
           ))}
         </div>
       </div>

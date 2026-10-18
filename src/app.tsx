@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks'
 import type { ServerInfo } from './api/server'
 import { checkSession, type Session, type UserSummary } from './api/users'
-import { HomeScreen } from './home/HomeScreen'
+import { Shell } from './home/Shell'
 import { LoginScreen } from './screens/LoginScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ServerScreen } from './screens/ServerScreen'
@@ -62,7 +62,7 @@ export function App() {
       return <LoginScreen server={server} username={view.username} onSignedIn={signedIn} onBack={() => setView({ name: 'profiles' })} />
     case 'home':
       return (
-        <HomeScreen
+        <Shell
           server={server}
           session={view.session}
           onSwitchProfile={() => setView({ name: 'profiles' })}
