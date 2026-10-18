@@ -3,6 +3,7 @@ import type { Api, Item } from '../api/items'
 import { primaryUrl, thumbUrl } from '../api/images'
 import { progress, title } from './format'
 import { Img } from '../ui/Img'
+import { worldBackdrop, worldLogo } from '../api/worlds'
 
 /** Initialen für Personen ohne Foto (Vor- und Nachname). */
 export function initials(name: string): string {
@@ -14,7 +15,7 @@ export interface RowData {
   key: string
   title: string
   items: Item[]
-  kind: 'cards' | 'top10' | 'posters' | 'people' | 'episodes'
+  kind: 'cards' | 'top10' | 'posters' | 'people' | 'episodes' | 'worlds'
 }
 
 interface RowProps {
@@ -84,6 +85,19 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     onFocus: layout => onFocus(layout.node as HTMLElement),
   })
   const percent = progress(item)
+  if (item.World) {
+    // Welt: Hintergrund eines Titels abgedunkelt, darauf das Logo (vom Server) bzw. der Name
+    const logo = worldLogo(api, item.World)
+    const backdrop = worldBackdrop(api, item.World)
+    return (
+      <div ref={ref} class={`qk-card qk-world ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+        {backdrop && <img class="qk-world-backdrop" src={backdrop} alt="" loading="lazy" />}
+        <div class="qk-world-shade" />
+        <Img src={logo} fallback={<span class="qk-world-name large">{item.World.Name}</span>} />
+        {logo && <span class="qk-world-name">{item.World.Name}</span>}
+      </div>
+    )
+  }
   if (rank !== undefined) {
     const poster = primaryUrl(api, item, 240)
     return (

@@ -13,6 +13,7 @@ import { HeroBackdrop, HeroInfo } from './Hero'
 import { Rail } from './Rail'
 import { Row } from './Rows'
 import { useHomeData } from './useHomeData'
+import { worldBackdrop, worldLogo, type World } from '../api/worlds'
 import { startPlayback } from '../player/start'
 import { loadSettings } from '../settings'
 
@@ -71,19 +72,22 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
   }, [billboard.length, billboardDone, rows.length])
 
   // Trailer-Vorschau: nur solange das Banner ausgewählt ist, nach kurzer Zeit auf demselben Titel
+  // – oder solange eine Welt ausgewählt ist (Trailer eines Titels der Welt)
+  const world = !billboardFocused ? rowItem?.World ?? null : null
+  const trailerSource: Item | null = stableFocus ? billboardItem : world?.TrailerItemId ? { Id: world.TrailerItemId, LocalTrailerCount: 1 } : null
   useEffect(() => {
     setTrailerUrl(null)
-    if (!stableFocus || !billboardItem || covered || !loadSettings().trailers) return
+    if (!trailerSource || covered || !loadSettings().trailers) return
     let active = true
     const timer = setTimeout(async () => {
-      const url = await localTrailerUrl(api, billboardItem)
+      const url = await localTrailerUrl(api, trailerSource)
       if (active) setTrailerUrl(url)
     }, TRAILER_DELAY_MS)
     return () => {
       active = false
       clearTimeout(timer)
     }
-  }, [stableFocus, billboardItem?.Id, covered])
+  }, [trailerSource?.Id, covered])
 
   // Vorschläge wechseln – während ein Trailer läuft, erst nach dessen Ende
   useEffect(() => {
@@ -94,7 +98,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
 
   // Fehlende Beschreibung (manche Reihen liefern keine) beim Fokus nachladen
   useEffect(() => {
-    if (!shown || shown.Overview || overviews[shown.Id] !== undefined) return
+    if (!shown || shown.World || shown.Overview || overviews[shown.Id] !== undefined) return
     let active = true
     const timer = setTimeout(() => {
       loadItem(api, shown.Id)
@@ -136,7 +140,8 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
       <HeroBackdrop
         api={api}
         item={shown}
-        trailerUrl={!covered && (billboardFocused || stableFocus) ? trailerUrl : null}
+        image={world ? worldBackdrop(api, world, 1280) : undefined}
+        trailerUrl={!covered && (billboardFocused || stableFocus || world) ? trailerUrl : null}
         onTrailerEnd={() => setTrailerUrl(null)}
         onTrailerPlaying={setTrailerPlaying}
       />
@@ -153,7 +158,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
       />
       <div class="qk-home-main">
         <div class="qk-home-top">
-          {shown ? <HeroInfo api={api} item={shown} reason={reason} overview={overviews[shown.Id]} /> : <div class="qk-hero-info"><Logo size={96} /><p class="qk-muted">{t.loadingHome}</p></div>}
+          {world ? <WorldInfo api={api} world={world} /> : shown ? <HeroInfo api={api} item={shown} reason={reason} overview={overviews[shown.Id]} /> : <div class="qk-hero-info"><Logo size={96} /><p class="qk-muted">{t.loadingHome}</p></div>}
           <BillboardButtons
             visible={billboardFocused}
             hasTrailer={!!billboardItem?.LocalTrailerCount}
@@ -233,6 +238,19 @@ function BillboardButton({ focusKey, label, icon, dimmed, onPress, onArrow }: Bi
     <div ref={ref} class={`qk-bb-button ${focused ? 'focused' : ''} ${dimmed ? 'dimmed' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
       <Icon name={icon} />
       {label}
+    </div>
+  )
+}
+
+/** Infobereich einer Welt: Logo (bzw. Name) und Zahl der Titel. */
+function WorldInfo({ api, world }: { api: Api; world: World }) {
+  const logo = worldLogo(api, world)
+  const [failed, setFailed] = useState(false)
+  return (
+    <div class="qk-hero-info" key={world.Id}>
+      {logo && !failed ? <img class="qk-hero-logo qk-world-logo" src={logo} alt={world.Name} onError={() => setFailed(true)} /> : null}
+      <div class={logo && !failed ? 'qk-hero-subtitle' : 'qk-hero-title'}>{world.Name}</div>
+      {world.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}</div> : null}
     </div>
   )
 }

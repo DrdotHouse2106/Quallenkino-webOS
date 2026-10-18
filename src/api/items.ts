@@ -54,6 +54,8 @@ export interface Item {
   CurrentProgram?: Item
   ProviderIds?: Record<string, string>
   Studios?: { Id?: string; Name: string }[]
+  /** Nur in der App: Karte einer Welt (Startseite). */
+  World?: import('./worlds').World
 }
 
 export interface Person {

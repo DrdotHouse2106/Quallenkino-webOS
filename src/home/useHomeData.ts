@@ -13,6 +13,7 @@ import {
 } from '../api/items'
 import { backdropUrl } from '../api/images'
 import { tvForYou } from '../api/livetv'
+import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
 import type { RowData } from './Rows'
@@ -69,6 +70,7 @@ export function useHomeData(api: Api) {
       ['recs-movies', t.rowRecommendedMovies, 'cards', () => recommendations(api, 'movies')],
       ['recs-series', t.rowRecommendedSeries, 'cards', () => recommendations(api, 'series')],
       ['tv', t.rowTvForYou, 'cards', () => tvForYou(api)],
+      ['worlds', t.rowWorlds, 'worlds', () => worlds(api).then(list => list.map(worldCard))],
       ['top10', t.rowTop10, 'top10', () => top10(api)],
       ['latest', t.rowLatest, 'cards', () => latest(api)],
     ]
@@ -86,7 +88,7 @@ export function useHomeData(api: Api) {
     }
   }, [api.url, api.userId, api.token])
 
-  const order = ['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'top10', 'latest']
+  const order = ['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest']
   const orderedRows = order.map(key => rows[key]).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
   return { billboard, billboardDone, rows: orderedRows, reasons }
 }
