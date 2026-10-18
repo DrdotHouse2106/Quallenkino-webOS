@@ -25,7 +25,7 @@ Die App speichert auf dem Fernseher die Serveradresse, die Anmeldung pro Profil 
 ## Dienste Dritter
 
 - **Bilder von TMDB**: Für Titel, die noch nicht auf deinem Server sind (z. B. unter „Entdecken“), lädt die App Plakate direkt von `image.tmdb.org`. Dabei erfährt TMDB die IP-Adresse deines Anschlusses. Es gelten die Datenschutzbestimmungen von TMDB.
-- **YouTube-Trailer**: Trailer von YouTube zeigt die App mit dem offiziellen YouTube-Player. Dieser wird über eine kleine Seite bei GitHub Pages (`drdothouse2106.github.io`) eingebettet. Dabei erhalten GitHub und Google/YouTube die üblichen Verbindungsdaten (u. a. IP-Adresse); für YouTube gelten die Datenschutzbestimmungen von Google. Ausschalten: Einstellungen → Trailer-Vorschau „Aus“.
+- **YouTube-Trailer**: Trailer von YouTube zeigt die App mit dem offiziellen YouTube-Player. Dieser wird über eine kleine Seite bei GitHub Pages (`drdothouse2106.github.io`) eingebettet. Dabei erhalten GitHub und Google/YouTube die üblichen Verbindungsdaten (u. a. IP-Adresse); für YouTube gelten die Datenschutzbestimmungen von Google. Mit Einstellungen → Trailer-Vorschau „Aus“ startet kein Trailer mehr von selbst; YouTube wird dann nur noch geladen, wenn du die Taste „Trailer“ drückst.
 
 Die App enthält keine Dienste Dritter für Werbung oder Analyse.
 

@@ -25,7 +25,7 @@ The app stores the server address, the sign-in per profile (an access token, not
 ## Third-party services
 
 - **Images from TMDB**: for titles not yet on your server (e.g. under "Discover"), the app loads posters directly from `image.tmdb.org`. TMDB thereby learns your connection's IP address; TMDB's privacy policy applies.
-- **YouTube trailers**: YouTube trailers are shown with the official YouTube player, embedded through a small page on GitHub Pages (`drdothouse2106.github.io`). GitHub and Google/YouTube receive the usual connection data (including the IP address); Google's privacy policy applies to YouTube. To turn this off: Settings → Trailer preview "Off".
+- **YouTube trailers**: YouTube trailers are shown with the official YouTube player, embedded through a small page on GitHub Pages (`drdothouse2106.github.io`). GitHub and Google/YouTube receive the usual connection data (including the IP address); Google's privacy policy applies to YouTube. With Settings → Trailer preview "Off", no trailer starts on its own; YouTube is then only loaded when you press the "Trailer" button.
 
 The app contains no third-party services for advertising or analytics.
 
