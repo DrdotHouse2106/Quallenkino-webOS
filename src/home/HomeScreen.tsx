@@ -153,11 +153,14 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
       />
       <Rail
         preferred={t.railHome}
-        onRight={() => setFocus(billboard.length ? 'bb-play' : rows[0] ? `row-${rows[0].key}` : 'bb-play')}
+        onRight={() => router.resume() || setFocus(billboard.length ? 'bb-play' : rows[0] ? `row-${rows[0].key}` : 'bb-play')}
         items={[
           { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: onSwitchProfile },
           { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
-          { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => setFocus('bb-play') },
+          { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => {
+            router.forget()
+            setFocus('bb-play')
+          } },
           { id: 'livetv', label: t.railLiveTv, icon: <Icon name="liveTv" />, onPress: () => router.push({ name: 'guide' }) },
           ...(seerr ? [{ id: 'discover', label: t.railDiscover, icon: <Icon name="add" />, onPress: () => router.push({ name: 'discover' }) }] : []),
           { id: 'settings', label: t.railSettings, icon: <Icon name="settings" />, onPress: () => router.push({ name: 'settings' }) },

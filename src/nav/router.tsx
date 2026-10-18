@@ -7,6 +7,7 @@ export type Page =
   | { name: 'person'; id: string }
   | { name: 'search' }
   | { name: 'trailer'; url: string }
+  | { name: 'youtube'; key: string }
   | { name: 'player'; id: string; startTicks?: number }
   | { name: 'settings' }
   | { name: 'guide' }
@@ -23,8 +24,12 @@ export interface Router {
   replace: (page: Page) => void
   /** Zur Navigation links (Startseite), Fokus auf den Eintrag mit dieser Beschriftung. */
   toRail: (label: string) => void
+  /** Den per „Links“ verlassenen Bereich wieder öffnen; false, wenn es keinen gibt. */
+  resume: () => boolean
+  /** Den verlassenen Bereich vergessen (z. B. „Startseite“ gewählt). */
+  forget: () => void
 }
 
-export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {}, replace: () => {}, toRail: () => {} })
+export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {}, replace: () => {}, toRail: () => {}, resume: () => false, forget: () => {} })
 
 export const useRouter = () => useContext(RouterContext)

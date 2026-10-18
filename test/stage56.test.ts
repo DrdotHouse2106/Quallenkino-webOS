@@ -5,6 +5,7 @@ import { pickTrailer, statusOf, toResult } from '../src/api/jellyseerr'
 import { collectionTitle } from '../src/api/worlds'
 import { guideStart, programAt } from '../src/livetv/GuidePage'
 import { pickAudio, pickSubtitle } from '../src/player/tracks'
+import { youtubeKey } from '../src/pages/YouTubePage'
 
 describe('Live-TV', () => {
   const now = new Date(2026, 9, 18, 18, 0)
@@ -93,5 +94,14 @@ describe('Welten und Einstellungen', () => {
     expect(pickSubtitle(source, 1, 'smart')).toBe(4)
     expect(pickSubtitle(source, 1, 'always')).toBe(3)
     expect(pickSubtitle(source, 2, 'off')).toBe(-1)
+  })
+})
+
+describe('YouTube', () => {
+  it('Id aus Trailer-Adressen', () => {
+    expect(youtubeKey('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+    expect(youtubeKey('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
+    expect(youtubeKey('https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0')).toBe('dQw4w9WgXcQ')
+    expect(youtubeKey('https://vimeo.com/123')).toBeNull()
   })
 })

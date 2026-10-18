@@ -327,3 +327,8 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-season-chip { padding: 10px 18px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); font-size: 22px; }
 .qk-season-picker { left: 50%; right: auto; width: 640px; transform: translateX(-50%); }
 .qk-season-picker-actions { display: flex; gap: 12px; margin-top: 16px; }
+
+/* YouTube-Trailer: offizieller Player bildschirmfüllend, nichts darüber */
+.qk-youtube-page { background: #000; }
+.qk-youtube, .qk-youtube iframe, .qk-youtube > div { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.qk-youtube-focus { position: absolute; width: 0; height: 0; overflow: hidden; }

@@ -26,6 +26,7 @@ export interface Item {
   SeriesThumbImageTag?: string
   SeriesPrimaryImageTag?: string
   LocalTrailerCount?: number
+  RemoteTrailers?: { Url?: string; Name?: string }[]
   UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null; IsFavorite?: boolean }
   Taglines?: string[]
   People?: Person[]
@@ -124,7 +125,7 @@ export const item = (api: Api, id: string) => get<Item>(api, `/Users/${api.userI
 
 /** Vollständiger Titel für die Detailseite (mit Besetzung, Taglines, Bewertung). */
 export const fullItem = (api: Api, id: string) =>
-  get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=${FIELDS},People,Taglines,ProductionLocations,ChildCount`)
+  get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=${FIELDS},People,Taglines,ProductionLocations,ChildCount,RemoteTrailers`)
 
 /** Ähnliche Titel („Das könnte dir auch gefallen“). */
 export const similar = (api: Api, id: string, limit = 20) =>

@@ -1,4 +1,4 @@
-import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
+import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
 import {
   castOf,
@@ -21,7 +21,9 @@ import { toast } from '../ui/Toast'
 import { ActionButton } from './ActionButton'
 import { Page } from './Page'
 import { startPlayback } from '../player/start'
+import { youtubeKey } from './YouTubePage'
 import { loadSettings } from '../settings'
+import { focusSoon } from '../nav/focus'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -51,7 +53,7 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
       if (!active) return
       setItem(loaded)
       setLikes(loaded.UserData?.Likes ?? null)
-      requestAnimationFrame(() => setFocus('d-play'))
+      focusSoon('d-play')
     }).catch(() => active && setFailed(true))
     loadSimilar(api, id).then(list => active && setSimilar(list))
     return () => {
@@ -101,7 +103,10 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
   async function openTrailer() {
     if (!item) return
     const url = await localTrailerUrl(api, item)
-    if (url) router.push({ name: 'trailer', url })
+    if (url) return router.push({ name: 'trailer', url })
+    // Ohne Trailer auf dem Server: YouTube-Trailer aus den Metadaten im eigenen Fenster
+    const key = remoteTrailerKey(item)
+    if (key) router.push({ name: 'youtube', key })
     else toast(t.noTrailer)
   }
 
@@ -121,7 +126,7 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
             <ButtonRow>
               <ActionButton focusKey="d-play" icon="play" label={resumable ? t.resume : t.play} onPress={() => startPlayback(api, router, item)} />
               {resumable && <ActionButton focusKey="d-restart" icon="replay" label={t.fromStart} onPress={() => startPlayback(api, router, item, true)} />}
-              <ActionButton focusKey="d-trailer" icon="trailer" label={t.trailer} dimmed={!item.LocalTrailerCount} onPress={openTrailer} />
+              <ActionButton focusKey="d-trailer" icon="trailer" label={t.trailer} dimmed={!item.LocalTrailerCount && !remoteTrailerKey(item)} onPress={openTrailer} />
               {ratingTarget(item) && <ActionButton focusKey="d-like" icon="thumbUp" label={t.like} active={likes === true} onPress={() => rate(true)} />}
               {ratingTarget(item) && <ActionButton focusKey="d-dislike" icon="thumbDown" label={t.dislike} active={likes === false} onPress={() => rate(false)} />}
             </ButtonRow>
@@ -166,4 +171,15 @@ function SeasonTabs({ seasons, current, onPick }: { seasons: Item[]; current: st
       </div>
     </FocusContext.Provider>
   )
+}
+
+/** YouTube-Trailer aus den Metadaten (deutscher zuerst, wenn der Name es verrät). */
+function remoteTrailerKey(item: Item): string | null {
+  const trailers = item.RemoteTrailers ?? []
+  const german = trailers.find(tr => /deutsch|german/i.test(tr.Name ?? ''))
+  for (const trailer of german ? [german, ...trailers] : trailers) {
+    const key = youtubeKey(trailer.Url)
+    if (key) return key
+  }
+  return null
 }

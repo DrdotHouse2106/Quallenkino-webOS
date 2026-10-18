@@ -1,4 +1,3 @@
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
 import type { Api } from '../api/items'
 import { backdropUrl } from '../api/images'
@@ -8,6 +7,7 @@ import { Row } from '../home/Rows'
 import { t } from '../i18n'
 import { useRouter } from '../nav/router'
 import { Page } from './Page'
+import { focusSoon } from '../nav/focus'
 
 /**
  * Seite einer Welt (wie Android): Logo bzw. Name fest oben, darunter „Für dich in dieser Welt“,
@@ -29,7 +29,7 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
       worldSections(api, found).then(result => {
         if (!active) return
         setSections(result)
-        if (result.length) requestAnimationFrame(() => setFocus(`row-w-${result[0].key}`))
+        if (result.length) focusSoon(`row-w-${result[0].key}`)
       })
     })
     return () => {

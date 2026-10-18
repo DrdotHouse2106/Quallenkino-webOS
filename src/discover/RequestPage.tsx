@@ -24,7 +24,7 @@ import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { Icon } from '../ui/Icon'
 import { toast } from '../ui/Toast'
-import { openYouTube } from '../platform/youtube'
+import { focusSoon } from '../nav/focus'
 
 /**
  * Titel aus Jellyseerr: Eckdaten, Regie bzw. Idee, Beschreibung; „In Jellyfin öffnen“, wenn er schon
@@ -46,7 +46,7 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
       .then(loaded => {
         if (!active) return
         setInfo(loaded)
-        requestAnimationFrame(() => setFocus('r-buttons'))
+        focusSoon('r-buttons')
         if (loaded.status === 'available' || loaded.status === 'partial') jellyfinItem(api, loaded).then(found => active && setLocal(found))
       })
       .catch(() => active && setFailed(true))
@@ -76,11 +76,11 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
     }
   }
 
-  /** Trailer vom eigenen Server, sonst in der YouTube-App des Fernsehers. */
+  /** Trailer vom eigenen Server, sonst der YouTube-Trailer im eigenen Fenster. */
   async function playTrailer() {
     const url = local?.LocalTrailerCount ? await localTrailerUrl(api, local) : null
     if (url) return router.push({ name: 'trailer', url })
-    if (info?.trailer && !(await openYouTube(info.trailer.key))) toast(t.youtubeMissing)
+    if (info?.trailer) router.push({ name: 'youtube', key: info.trailer.key })
   }
 
   const meta = info

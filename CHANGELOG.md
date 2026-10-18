@@ -1,5 +1,12 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.3 – 2026-10-18
+
+- **YouTube-Trailer in Quallenkino:** statt in die YouTube-App zu wechseln, läuft der Trailer im eigenen Fenster mit dem offiziellen YouTube-Player (bildschirmfüllend, nichts darüber, Ton bei 75 %). OK bzw. Play/Pause hält an, „Zurück“ schließt, am Ende geht es von selbst zurück. Nur wenn der Player nicht geht (nicht einbettbar, keine Verbindung), öffnet sich die YouTube-App.
+- **Trailer auf der Detailseite:** Gibt es keinen Trailer auf dem Server, läuft der YouTube-Trailer aus den Metadaten im selben Fenster.
+- **Navigation:** „Rechts“ aus der Navigation führt zurück in den Bereich, aus dem man mit „Links“ gekommen ist (z. B. Entdecken).
+- Startfokus auf Detailseiten wird bei Bedarf ein zweites Mal gesetzt (nach schnellem Tastendruck war er manchmal weg).
+
 ## 0.6.2 – 2026-10-18
 
 - **Personen aus der Live-TV-Besetzung:** Gibt es die Person auf dem Server (ohne eigene Titel), wird ihre TMDB-Id genutzt und direkt die passende Jellyseerr-Seite geöffnet – auch wenn mehrere Personen gleich heißen. Ohne Server-Eintrag gewinnt bei gleichen Namen die Schauspielerin bzw. der Schauspieler mit der größten Bekanntheit.

@@ -1,4 +1,3 @@
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
 import { item as loadItem, personItems, type Api, type Item } from '../api/items'
 import { primaryUrl } from '../api/images'
@@ -8,6 +7,7 @@ import { t } from '../i18n'
 import { useRouter } from '../nav/router'
 import { Page } from './Page'
 import { Img } from '../ui/Img'
+import { focusSoon } from '../nav/focus'
 
 /** „1952-06-07T00:00:00Z“ → „7.6.1952“. */
 export function formatDate(iso?: string): string | null {
@@ -31,8 +31,8 @@ export function PersonPage({ api, id }: { api: Api; id: string }) {
   // Fokus auf die erste Reihe, sobald es Titel gibt
   useEffect(() => {
     if (movies === null || series === null) return
-    if (movies.length) requestAnimationFrame(() => setFocus('row-p-movies'))
-    else if (series.length) requestAnimationFrame(() => setFocus('row-p-series'))
+    if (movies.length) focusSoon('row-p-movies')
+    else if (series.length) focusSoon('row-p-series')
   }, [movies === null, series === null])
 
   const photo = person ? primaryUrl(api, person, 400) : null

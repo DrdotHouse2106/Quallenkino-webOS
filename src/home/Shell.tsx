@@ -1,14 +1,16 @@
-import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation'
+import { getCurrentFocusKey } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { reasons as loadReasons, type Api } from '../api/items'
 import type { ServerInfo } from '../api/server'
 import type { Session } from '../api/users'
 import { RouterContext, type Page } from '../nav/router'
+import { focusSoon } from '../nav/focus'
 import { DetailsPage } from '../pages/DetailsPage'
 import { PersonPage } from '../pages/PersonPage'
 import { SearchPage } from '../pages/SearchPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { TrailerPage } from '../pages/TrailerPage'
+import { YouTubePage } from '../pages/YouTubePage'
 import { PlayerPage } from '../player/PlayerPage'
 import { GuidePage } from '../livetv/GuidePage'
 import { ProgramPage } from '../livetv/ProgramPage'
@@ -27,17 +29,6 @@ interface Props {
 }
 
 /**
- * Fokus zurücksetzen, sobald die Seite darunter wieder sichtbar ist. Auf langsamen Fernsehern ist das
- * nach einem Bild noch nicht immer so – dann ein zweiter Versuch.
- */
-function restoreFocus(key: string) {
-  requestAnimationFrame(() => setFocus(key))
-  setTimeout(() => {
-    if (getCurrentFocusKey() !== key) setFocus(key)
-  }, 200)
-}
-
-/**
  * Angemeldeter Bereich: Startseite unten, darüber gestapelte Seiten (Details, Person, Suche, Trailer).
  * „Zurück“ schließt die oberste Seite und setzt den Fokus dorthin, wo er vorher war.
  */
@@ -45,6 +36,8 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
   const api: Api = useMemo(() => ({ url: server.url, token: session.token, userId: session.userId }), [server.url, session])
   const [stack, setStack] = useState<Page[]>([])
   const focusMemory = useRef<string[]>([])
+  /** Bereich (z. B. Entdecken), aus dem es per „Links“ in die Navigation ging – „Rechts“ führt zurück. */
+  const railReturn = useRef<Page | null>(null)
   const [reasons, setReasons] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -53,20 +46,35 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
 
   const router = useMemo(() => ({
     push: (page: Page) => {
+      railReturn.current = null
       focusMemory.current.push(getCurrentFocusKey())
       setStack(s => [...s, page])
     },
     pop: () => {
       setStack(s => s.slice(0, -1))
       const previous = focusMemory.current.pop()
-      if (previous) restoreFocus(previous)
+      if (previous) focusSoon(previous)
     },
     toRail: (label: string) => {
-      setStack([])
+      setStack(s => {
+        railReturn.current = s[0] ?? null
+        return []
+      })
       focusMemory.current = []
-      restoreFocus(`rail-${label}`)
+      focusSoon(`rail-${label}`)
     },
     replace: (page: Page) => setStack(s => [...s.slice(0, -1), page]),
+    resume: () => {
+      const page = railReturn.current
+      if (!page) return false
+      railReturn.current = null
+      focusMemory.current.push(getCurrentFocusKey())
+      setStack([page])
+      return true
+    },
+    forget: () => {
+      railReturn.current = null
+    },
   }), [])
 
   return (
@@ -83,6 +91,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
             {page.name === 'person' && <PersonPage api={api} id={page.id} />}
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
+            {page.name === 'youtube' && <YouTubePage videoKey={page.key} />}
             {page.name === 'settings' && <SettingsPage server={server} session={session} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} onChangeServer={onChangeServer} />}
             {page.name === 'guide' && <GuidePage api={api} />}
             {page.name === 'program' && <ProgramPage api={api} id={page.id} />}

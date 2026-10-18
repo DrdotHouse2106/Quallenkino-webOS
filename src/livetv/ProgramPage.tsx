@@ -1,4 +1,3 @@
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
 import { get, item as loadItem, personItems, searchPeople, type Api, type Item } from '../api/items'
 import { thumbUrl } from '../api/images'
@@ -13,6 +12,7 @@ import { useRouter } from '../nav/router'
 import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { toast } from '../ui/Toast'
+import { focusSoon } from '../nav/focus'
 
 /** Person zu einem Namen aus den Programmdaten: nur bei genau passendem Namen. */
 async function findPerson(api: Api, name: string): Promise<Item | null> {
@@ -38,7 +38,7 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
       .then(loaded => {
         if (!active) return
         setProgram(loaded)
-        requestAnimationFrame(() => setFocus('p-watch'))
+        focusSoon('p-watch')
         if (loaded.ChannelId) loadItem(api, loaded.ChannelId).then(c => active && setChannel(c)).catch(() => {})
       })
       .catch(() => active && setFailed(true))

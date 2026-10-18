@@ -1,4 +1,3 @@
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
 import type { Api } from '../api/items'
 import { person as loadPerson, profileUrl, resultCard, type PersonDetails } from '../api/jellyseerr'
@@ -10,6 +9,7 @@ import { useRouter } from '../nav/router'
 import { formatDate } from '../pages/PersonPage'
 import { Page } from '../pages/Page'
 import { Img } from '../ui/Img'
+import { focusSoon } from '../nav/focus'
 
 /** Person aus Jellyseerr (z. B. aus der Besetzung einer Sendung): Foto, Geburtstag, Biografie, Filme, Serien. */
 export function SeerrPersonPage({ api, id }: { api: Api; id: number }) {
@@ -22,7 +22,7 @@ export function SeerrPersonPage({ api, id }: { api: Api; id: number }) {
       .then(loaded => {
         setPerson(loaded)
         const first = loaded.movies.length ? 'row-sp-movies' : 'row-sp-series'
-        requestAnimationFrame(() => setFocus(first))
+        focusSoon(first)
       })
       .catch(() => setFailed(true))
   }, [id])
