@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.3 – 2026-10-18
+
+- **Intro überspringen** landet genau am Ende des Intros. Springt der Fernseher zu früh (Schlüsselbild bzw. HLS-Abschnitt), setzt die App nach.
+- **Abspann mit nächster Folge:** Statt „Überspringen“ (5 s) erscheint gleich die Karte „Nächste Folge“ mit sichtbarem 10-Sekunden-Countdown. Nach „Zurück“ bleibt „Abspann überspringen“.
+- **Trailer auf der Detailseite** erscheint erst, wenn wirklich Bilder laufen. Kann der Fernseher den Trailer nicht abspielen, bleibt das Hintergrundbild (kein schwarzes Feld mehr).
+
 ## 0.4.2 – 2026-10-18
 
 - **AC3/E-AC3 wieder direkt:** In 0.4.1 wurde ein Film mit Dolby-Digital-Ton umgerechnet, wenn er weitere Tonspuren hatte. Umgerechnet wird jetzt nur noch, wenn die gewählte Spur DTS oder TrueHD ist oder beim Wechsel auf eine andere Spur das Umschalten im Fernseher nicht geht.

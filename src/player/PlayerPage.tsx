@@ -240,18 +240,40 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   const ticks = time * TICKS_PER_SECOND
   const activeSegment = segmentList.find(s => ticks >= s.StartTicks && ticks < s.EndTicks - TICKS_PER_SECOND)
   const segmentKey = activeSegment ? `${activeSegment.Type}-${activeSegment.StartTicks}` : null
-  const showSkip = !!activeSegment && segmentKey !== dismissed && !dialog
   const outroStarted = segmentList.some(s => s.Type === 'Outro' && ticks >= s.StartTicks)
   const showNext = !!next && !nextCancelled && !dialog && duration > 0 && (outroStarted || duration - time <= NEXT_BEFORE_END_S)
+  // Beim Abspann mit nächster Folge übernimmt die Karte „Nächste Folge“ (10-s-Countdown)
+  const showSkip = !!activeSegment && segmentKey !== dismissed && !dialog && !(activeSegment.Type === 'Outro' && showNext)
 
   function skip() {
     if (!activeSegment) return
-    if (activeSegment.Type === 'Outro' && next) {
+    if (activeSegment.Type === 'Outro' && next && !nextCancelled) {
       playNext()
       return
     }
-    if (video.current) video.current.currentTime = activeSegment.EndTicks / TICKS_PER_SECOND
+    seekExact(activeSegment.EndTicks / TICKS_PER_SECOND)
     setDismissed(segmentKey)
+  }
+
+  /**
+   * Genau an eine Stelle springen. Bei HLS bzw. Schlüsselbildern landet der Fernseher manchmal einige
+   * Sekunden zu früh – dann nach dem Sprung noch einmal nachsetzen (höchstens zweimal).
+   */
+  const seekTarget = useRef<{ time: number; tries: number } | null>(null)
+  function seekExact(seconds: number) {
+    const element = video.current
+    if (!element) return
+    seekTarget.current = { time: seconds, tries: 0 }
+    element.currentTime = seconds
+  }
+  function onSeeked() {
+    const element = video.current
+    const target = seekTarget.current
+    if (!element || !target) return
+    if (element.currentTime < target.time - 0.5 && target.tries < 2) {
+      target.tries++
+      element.currentTime = target.time
+    } else seekTarget.current = null
   }
 
   function playNext() {
@@ -345,6 +367,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source)) applyAudioTrack(stream, audio)
           }}
           onTimeUpdate={() => setTime(video.current?.currentTime ?? 0)}
+          onSeeked={onSeeked}
           onPlaying={() => {
             setPaused(false)
             if (!started.current) {
@@ -367,7 +390,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       {!stream && !error && <div class="qk-player-loading">{t.loading}</div>}
       {error && <div class="qk-player-loading qk-error">{error}</div>}
 
-      {showSkip && activeSegment && <SkipButton key={segmentKey} label={activeSegment.Type === 'Outro' ? (next ? t.nextEpisode : t.skipCredits) : activeSegment.Type === 'Recap' ? t.skipRecap : t.skipIntro} onSkip={skip} />}
+      {showSkip && activeSegment && <SkipButton key={segmentKey} label={activeSegment.Type === 'Outro' ? t.skipCredits : activeSegment.Type === 'Recap' ? t.skipRecap : t.skipIntro} onSkip={skip} />}
       {!showSkip && showNext && next && <NextPanel item={next} onPlay={playNext} />}
 
       <div class={`qk-osd ${osd ? 'visible' : ''}`}>
