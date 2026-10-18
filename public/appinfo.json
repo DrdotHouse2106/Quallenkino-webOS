@@ -1,0 +1,17 @@
+{
+  "id": "de.drdothouse.quallenkino",
+  "version": "0.1.0",
+  "vendor": "DrdotHouse2106",
+  "type": "web",
+  "main": "index.html",
+  "title": "Quallenkino",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "splashBackground": "splash.png",
+  "bgColor": "#0B0E14",
+  "iconColor": "#5A86DB",
+  "resolution": "1920x1080",
+  "disableBackHistoryAPI": true,
+  "handlesRelaunch": false,
+  "requiredACG": []
+}

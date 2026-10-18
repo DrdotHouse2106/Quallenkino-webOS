@@ -1,0 +1,57 @@
+name: Quallenkino webOS / Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'GitHub-Release v{Version aus package.json} anlegen'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten
+        run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Bauen
+        run: npm run build
+
+      - name: IPK packen
+        run: |
+          npx ares-package dist -o out
+          VERSION=$(node -p "require('./package.json').version")
+          cp out/*.ipk "out/quallenkino-webos-v${VERSION}.ipk"
+          cp out/*.ipk out/quallenkino-webos.ipk
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quallenkino-webos-${{ env.VERSION }}
+          path: out/quallenkino-webos-v*.ipk
+
+      - name: Release
+        if: github.event_name == 'workflow_dispatch' && inputs.release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NOTES=$(awk "/^## ${VERSION}/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md)
+          gh release create "v${VERSION}" out/quallenkino-webos-v${VERSION}.ipk out/quallenkino-webos.ipk \
+            --title "Quallenkino webOS ${VERSION}" --notes "${NOTES:-Quallenkino webOS ${VERSION}}"

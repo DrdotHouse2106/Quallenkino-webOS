@@ -1,0 +1,25 @@
+{
+  "name": "quallenkino-webos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Quallenkino für LG-Fernseher (webOS) – eigenständige TV-App für Jellyfin-Server",
+  "license": "GPL-2.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node scripts/appinfo.mjs",
+    "test": "vitest run",
+    "package": "ares-package dist -o out"
+  },
+  "dependencies": {
+    "@noriginmedia/norigin-spatial-navigation": "3.3.0",
+    "preact": "10.29.8"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "2.10.6",
+    "@webos-tools/cli": "3.2.6",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  }
+}

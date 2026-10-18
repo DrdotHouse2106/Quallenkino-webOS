@@ -1,0 +1,94 @@
+/* Quallenkino – Erscheinungsbild für 1920×1080 (webOS skaliert selbst auf 4K) */
+:root {
+  --qk-bg: #0b0e14;
+  --qk-surface: #161b24;
+  --qk-text: #ffffff;
+  --qk-muted: #a9b1c2;
+  --qk-accent-from: #7f76d6;
+  --qk-accent-to: #2e96e0;
+  --qk-error: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--qk-bg);
+  color: var(--qk-text);
+  font-family: 'LG Smart UI', 'Museo Sans', 'Segoe UI', Roboto, sans-serif;
+  font-size: 28px;
+  cursor: default;
+}
+
+h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
+
+.qk-screen { width: 100%; height: 100%; padding: 80px 120px; position: relative; }
+.qk-center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.qk-muted { color: var(--qk-muted); margin: 8px 0; }
+.qk-error { color: var(--qk-error); margin-top: 24px; }
+.qk-title-large { font-size: 72px; margin-bottom: 56px; }
+
+.qk-form { display: flex; flex-direction: column; align-items: stretch; gap: 24px; width: 760px; margin-top: 40px; }
+.qk-actions { display: flex; gap: 24px; margin-top: 40px; }
+
+/* Knöpfe: ausgewählt = weiß mit dunkler Schrift, leicht vergrößert */
+.qk-button {
+  padding: 20px 40px;
+  border-radius: 12px;
+  background: var(--qk-surface);
+  color: var(--qk-text);
+  font-weight: 600;
+  text-align: center;
+  transition: transform 120ms ease, background 120ms ease;
+}
+.qk-button.focused { background: #fff; color: #0b0e14; transform: scale(1.05); }
+.qk-link { background: transparent; color: var(--qk-muted); margin-top: 64px; font-weight: 400; }
+.qk-link.focused { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+.qk-input { border-radius: 12px; border: 3px solid transparent; background: var(--qk-surface); }
+.qk-input.focused { border-color: #fff; }
+.qk-input input {
+  width: 100%;
+  padding: 20px 28px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--qk-text);
+  font: inherit;
+}
+
+/* „Wer schaut gerade?“ */
+.qk-profiles { display: flex; gap: 48px; justify-content: center; flex-wrap: wrap; max-width: 1600px; }
+.qk-profile { background: transparent; padding: 12px; }
+.qk-profile.focused { background: transparent; color: #fff; transform: scale(1.08); }
+.qk-avatar {
+  width: 220px;
+  height: 220px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 110px;
+  font-weight: 700;
+  overflow: hidden;
+  border: 5px solid transparent;
+}
+.qk-profile.focused .qk-avatar { border-color: #fff; }
+.qk-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.qk-avatar-add { background: var(--qk-surface); color: var(--qk-muted); }
+.qk-profile-name { margin-top: 18px; font-size: 32px; color: var(--qk-muted); }
+.qk-profile.focused .qk-profile-name { color: #fff; }
+
+.qk-code {
+  font-size: 120px;
+  font-weight: 700;
+  letter-spacing: 24px;
+  background: linear-gradient(90deg, var(--qk-accent-from), var(--qk-accent-to));
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.qk-about { position: absolute; bottom: 48px; left: 0; right: 0; text-align: center; color: var(--qk-muted); font-size: 22px; line-height: 1.6; }

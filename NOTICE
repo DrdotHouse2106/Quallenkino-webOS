@@ -1,0 +1,16 @@
+Quallenkino für webOS
+Copyright (C) 2026 DrdotHouse2106
+Lizenz: GPL-2.0 (siehe LICENSE)
+
+Übernommener Code aus anderen Projekten
+=======================================
+
+jellyfin-web – https://github.com/jellyfin/jellyfin-web – GPL-2.0
+  (noch keine Dateien übernommen; ab Etappe 4: Abspiel-Fähigkeiten/DeviceProfile,
+  Direct Play/Transcoding, Untertitel. Jede Datei bekommt einen Herkunftshinweis.)
+
+Verwendete Bibliotheken
+=======================
+
+Preact – MIT
+@noriginmedia/norigin-spatial-navigation – MIT
