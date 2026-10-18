@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.0 – 2026-10-18
+
+- **Erste Version für den LG Content Store.** Inhaltlich wie 0.7.5; der LG Content Store verlangt eine Versionsnummer ab 1.0.0.
+
 ## 0.7.5 – 2026-10-18
 
 - **„Als Nächstes“ doppelt nicht mehr „Weiterschauen“:** angefangene Folgen kommen nicht mehr mit (`enableResumable=false`, wie in der Android-App), und Serien, die schon in „Weiterschauen“ stehen, fallen weg.

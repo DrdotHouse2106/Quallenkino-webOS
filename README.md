@@ -14,7 +14,7 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
-Version **0.7** – alle 7 Etappen:
+Version **1.0** – alle 7 Etappen:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung
 - [x] Server verbinden (https/http und Standard-Ports werden selbst ausprobiert)
