@@ -32,7 +32,7 @@ export default defineConfig({
     assetsInlineLimit: 0,
     modulePreload: false,
     rollupOptions: {
-      output: { format: 'iife', inlineDynamicImports: true },
+      output: { format: 'iife' },
     },
   },
   test: {

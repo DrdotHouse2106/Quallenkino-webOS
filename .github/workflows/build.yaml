@@ -38,8 +38,9 @@ jobs:
         run: |
           npx ares-package dist -o out
           VERSION=$(node -p "require('./package.json').version")
-          cp out/*.ipk "out/quallenkino-webos-v${VERSION}.ipk"
-          cp out/*.ipk out/quallenkino-webos.ipk
+          IPK=$(ls out/*.ipk | head -1)
+          cp "$IPK" "out/quallenkino-webos-v${VERSION}.ipk"
+          cp "$IPK" out/quallenkino-webos.ipk
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
