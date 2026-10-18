@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.4 – 2026-10-18
+
+- **YouTube-Trailer wie in der Android-App:** Auf Detailseiten ohne Trailer auf dem Server (Jellyfin-Titel mit YouTube-Trailer in den Metadaten, Entdecken-Titel aus Jellyseerr) startet der Trailer nach 2 s **automatisch oben rechts** – als freies 16:9-Rechteck mit dem offiziellen Player, nichts liegt darüber, die Sprache steht darunter („EN“, „OmU“). Bei Fehlern oder am Ende verschwindet er. Abschaltbar mit „Trailer-Vorschau“ in den Einstellungen.
+- **Vollbild nur auf Wunsch:** Das eigene Trailer-Fenster öffnet sich nur mit dem Knopf „Trailer“.
+- Entdecken-Titel, die schon auf dem Server liegen, zeigen deren Trailer automatisch im Hintergrund.
+
 ## 0.6.3 – 2026-10-18
 
 - **YouTube-Trailer in Quallenkino:** statt in die YouTube-App zu wechseln, läuft der Trailer im eigenen Fenster mit dem offiziellen YouTube-Player (bildschirmfüllend, nichts darüber, Ton bei 75 %). OK bzw. Play/Pause hält an, „Zurück“ schließt, am Ende geht es von selbst zurück. Nur wenn der Player nicht geht (nicht einbettbar, keine Verbindung), öffnet sich die YouTube-App.

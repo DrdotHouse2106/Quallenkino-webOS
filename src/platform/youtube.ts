@@ -27,3 +27,38 @@ export function openYouTube(key: string): Promise<boolean> {
     )
   })
 }
+
+export interface YTPlayer {
+  playVideo(): void
+  pauseVideo(): void
+  getPlayerState(): number
+  setVolume(volume: number): void
+  getIframe(): HTMLIFrameElement
+  destroy(): void
+}
+
+interface YTNamespace {
+  Player: new (element: HTMLElement, options: Record<string, unknown>) => YTPlayer
+}
+
+type YTWindow = Window & { YT?: YTNamespace; onYouTubeIframeAPIReady?: () => void }
+
+/** Offizielle YouTube-IFrame-API einmal laden. */
+export function loadYouTubeApi(): Promise<YTNamespace> {
+  const win = window as YTWindow
+  if (win.YT?.Player) return Promise.resolve(win.YT)
+  return new Promise((resolve, reject) => {
+    const previous = win.onYouTubeIframeAPIReady
+    win.onYouTubeIframeAPIReady = () => {
+      previous?.()
+      if (win.YT) resolve(win.YT)
+    }
+    if (!document.querySelector('script[data-youtube-api]')) {
+      const script = document.createElement('script')
+      script.src = 'https://www.youtube.com/iframe_api'
+      script.dataset.youtubeApi = 'true'
+      script.onerror = () => reject(new Error('YouTube-API nicht erreichbar'))
+      document.head.appendChild(script)
+    }
+  })
+}

@@ -22,6 +22,7 @@ import { ActionButton } from './ActionButton'
 import { Page } from './Page'
 import { startPlayback } from '../player/start'
 import { youtubeKey } from './YouTubePage'
+import { YouTubeInline } from '../ui/YouTubeInline'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 
@@ -116,6 +117,8 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
   return (
     <Page focusKey="details" class="qk-details">
       {item && <HeroBackdrop api={api} item={item} trailerUrl={covered ? null : trailerUrl} onTrailerEnd={() => setTrailerUrl(null)} onTrailerPlaying={() => {}} />}
+      {/* Ohne Trailer auf dem Server: YouTube-Trailer oben rechts (wie Android) */}
+      {item && !item.LocalTrailerCount && !covered && loadSettings().trailers && remoteTrailerKey(item) && <YouTubeInline key={item.Id} videoKey={remoteTrailerKey(item)!} />}
       <div class="qk-page-main">
         {failed && <p class="qk-error">{t.detailsFailed}</p>}
         {item && (

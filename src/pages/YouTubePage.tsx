@@ -5,47 +5,12 @@ import { t } from '../i18n'
 import { Keys } from '../nav/keys'
 import { focusSoon } from '../nav/focus'
 import { useRouter } from '../nav/router'
-import { openYouTube } from '../platform/youtube'
+import { loadYouTubeApi, openYouTube, type YTPlayer } from '../platform/youtube'
 import { toast } from '../ui/Toast'
 import { Page } from './Page'
 
 /** Kommt der Player bis dahin nicht in Gang (z. B. ohne Internet), wird die YouTube-App versucht. */
 const READY_TIMEOUT_MS = 10_000
-
-interface YTPlayer {
-  playVideo(): void
-  pauseVideo(): void
-  getPlayerState(): number
-  setVolume(volume: number): void
-  getIframe(): HTMLIFrameElement
-  destroy(): void
-}
-
-interface YTNamespace {
-  Player: new (element: HTMLElement, options: Record<string, unknown>) => YTPlayer
-}
-
-type YTWindow = Window & { YT?: YTNamespace; onYouTubeIframeAPIReady?: () => void }
-
-/** Offizielle YouTube-IFrame-API einmal laden. */
-function loadApi(): Promise<YTNamespace> {
-  const win = window as YTWindow
-  if (win.YT?.Player) return Promise.resolve(win.YT)
-  return new Promise((resolve, reject) => {
-    const previous = win.onYouTubeIframeAPIReady
-    win.onYouTubeIframeAPIReady = () => {
-      previous?.()
-      if (win.YT) resolve(win.YT)
-    }
-    if (!document.querySelector('script[data-youtube-api]')) {
-      const script = document.createElement('script')
-      script.src = 'https://www.youtube.com/iframe_api'
-      script.dataset.youtubeApi = 'true'
-      script.onerror = () => reject(new Error('YouTube-API nicht erreichbar'))
-      document.head.appendChild(script)
-    }
-  })
-}
 
 /**
  * YouTube-Trailer im eigenen Fenster (wie die Android-App): der offizielle Player bildschirmfüllend,
@@ -67,7 +32,7 @@ export function YouTubePage({ videoKey }: { videoKey: string }) {
       openYouTube(videoKey).then(opened => opened || toast(t.youtubeMissing))
     }
     const timer = setTimeout(() => ready || fallback(), READY_TIMEOUT_MS)
-    loadApi()
+    loadYouTubeApi()
       .then(YT => {
         if (closed || !host.current) return
         player.current = new YT.Player(host.current, {

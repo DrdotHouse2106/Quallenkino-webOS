@@ -24,6 +24,8 @@ import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { Icon } from '../ui/Icon'
 import { toast } from '../ui/Toast'
+import { YouTubeInline } from '../ui/YouTubeInline'
+import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 
 /**
@@ -31,7 +33,7 @@ import { focusSoon } from '../nav/focus'
  * da ist, sonst „Anfragen“ (Serien: alle offenen oder ausgewählte Staffeln). Darunter Staffeln mit
  * Stand, Besetzung und „Das könnte dir auch gefallen“.
  */
-export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: number }) {
+export function RequestPage({ api, type, id, covered }: { api: Api; type: MediaType; id: number; covered: boolean }) {
   const router = useRouter()
   const [info, setInfo] = useState<Details | null>(null)
   const [local, setLocal] = useState<Item | null>(null)
@@ -39,6 +41,19 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
   const [picking, setPicking] = useState(false)
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
+  const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
+
+  // Trailer vom Server automatisch im Hintergrund (nach 2 s, wie Android); sonst YouTube oben rechts
+  useEffect(() => {
+    setTrailerUrl(null)
+    if (!local?.LocalTrailerCount || covered || !loadSettings().trailers) return
+    let active = true
+    const timer = setTimeout(() => localTrailerUrl(api, local).then(url => active && setTrailerUrl(url)), 2_000)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [local?.Id, covered])
 
   useEffect(() => {
     let active = true
@@ -96,7 +111,8 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
 
   return (
     <Page focusKey="request" class="qk-details" onBackPress={() => (picking ? (setPicking(false), requestAnimationFrame(() => setFocus('r-buttons')), true) : false)}>
-      <HeroBackdrop api={api} item={null} image={backdropImage(info?.backdropPath)} trailerUrl={null} onTrailerEnd={() => {}} onTrailerPlaying={() => {}} />
+      <HeroBackdrop api={api} item={null} image={backdropImage(info?.backdropPath)} trailerUrl={covered ? null : trailerUrl} onTrailerEnd={() => setTrailerUrl(null)} onTrailerPlaying={() => {}} />
+      {info?.trailer && !local?.LocalTrailerCount && !covered && loadSettings().trailers && <YouTubeInline key={info.trailer.key} videoKey={info.trailer.key} label={info.trailer.label || undefined} />}
       <div class="qk-page-main">
         {failed && <p class="qk-error">{t.detailsFailed}</p>}
         {info && (
