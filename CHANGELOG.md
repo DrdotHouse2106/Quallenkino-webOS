@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.5 – 2026-10-18
+
+- **„Als Nächstes“ doppelt nicht mehr „Weiterschauen“:** angefangene Folgen kommen nicht mehr mit (`enableResumable=false`, wie in der Android-App), und Serien, die schon in „Weiterschauen“ stehen, fallen weg.
+- **Abmelden über das Profil:** Der Profil-Eintrag in der Navigation öffnet eine Auswahl „Profil wechseln“ / „Abmelden“. Bei „Wer schaut gerade?“ steht unter jedem auf diesem Fernseher angemeldeten Profil „Abmelden“ („Runter“ von der Kachel).
+- **Bildschirmschoner ohne schwarzen Moment:** Er erscheint erst, wenn das erste Bild geladen ist; bis dahin bleibt die Seite stehen.
+
 ## 0.7.4 – 2026-10-18
 
 - Bildschirmschoner kommt ab Werk nach **2 Minuten** (vorher 5). Wer die Zeit in den Einstellungen selbst gewählt hat, behält sie.

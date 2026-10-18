@@ -7,6 +7,7 @@ import { guideStart, programAt } from '../src/livetv/GuidePage'
 import { pickAudio, pickSubtitle } from '../src/player/tracks'
 import { youtubeKey } from '../src/pages/YouTubePage'
 import { pickTeaser } from '../src/home/Screensaver'
+import { withoutResumed } from '../src/home/useHomeData'
 import { blockSystemScreensaver } from '../src/platform/systemScreensaver'
 
 describe('Live-TV', () => {
@@ -123,5 +124,13 @@ describe('LG-Bildschirmschoner', () => {
     expect(blockSystemScreensaver(true, 5)).toBe(true)
     expect(blockSystemScreensaver(true, 0)).toBe(false)
     expect(blockSystemScreensaver(false, 5)).toBe(false)
+  })
+})
+
+describe('Startseite', () => {
+  it('„Als Nächstes“ ohne Titel und Serien aus „Weiterschauen“', () => {
+    const row = (key: string, items: { Id: string; SeriesId?: string }[]) => ({ key, title: key, kind: 'cards' as const, items })
+    const result = withoutResumed(row('nextup', [{ Id: 'e1', SeriesId: 's1' }, { Id: 'e2', SeriesId: 's2' }, { Id: 'm1' }]), row('resume', [{ Id: 'e9', SeriesId: 's1' }, { Id: 'm1' }]))
+    expect(result?.items.map(i => i.Id)).toEqual(['e2'])
   })
 })

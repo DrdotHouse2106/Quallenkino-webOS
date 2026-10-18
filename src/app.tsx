@@ -58,6 +58,8 @@ export function App() {
           onOther={() => setView({ name: 'login' })}
           onChangeServer={() => setView({ name: 'server' })}
           onEmpty={() => setView({ name: 'login', direct: true })}
+          signedIn={state.sessions.map(s => s.userId)}
+          onSignOut={user => setState(s => withoutSession(s, user.Id))}
         />
       )
     case 'login':

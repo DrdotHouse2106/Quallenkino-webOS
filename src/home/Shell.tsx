@@ -105,7 +105,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
   return (
     <RouterContext.Provider value={router}>
       <div class={stack.length ? 'qk-covered' : ''}>
-        <HomeScreen api={api} session={session} covered={stack.length > 0 || idle} onSwitchProfile={onSwitchProfile} />
+        <HomeScreen api={api} session={session} covered={stack.length > 0 || idle} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} />
       </div>
       {stack.map((page, index) => {
         // Verdeckt: eine Seite liegt darüber oder der Bildschirmschoner läuft (dann keine Trailer)

@@ -20,6 +20,17 @@ import type { RowData } from './Rows'
 
 const BILLBOARD_SIZE = 8
 
+/**
+ * „Als Nächstes“ ohne das, was schon in „Weiterschauen“ steht – weder dieselbe Folge noch eine
+ * weitere Folge derselben Serie (sonst sind beide Reihen fast gleich).
+ */
+export function withoutResumed(nextup: RowData | undefined, resume: RowData | undefined): RowData | undefined {
+  if (!nextup || !resume) return nextup
+  const ids = new Set(resume.items.map(i => i.Id))
+  const series = new Set(resume.items.map(i => i.SeriesId).filter(Boolean))
+  return { ...nextup, items: nextup.items.filter(i => !ids.has(i.Id) && !(i.SeriesId && series.has(i.SeriesId))) }
+}
+
 /** Banner-Vorschläge: zuerst aus den Empfehlungen, sonst die neuesten Filme und Serien. */
 async function loadBillboard(api: Api): Promise<Item[]> {
   const [movies, series] = await Promise.all([recommendations(api, 'movies', BILLBOARD_SIZE / 2), recommendations(api, 'series', BILLBOARD_SIZE / 2)])
@@ -89,6 +100,6 @@ export function useHomeData(api: Api) {
   }, [api.url, api.userId, api.token])
 
   const order = ['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest']
-  const orderedRows = order.map(key => rows[key]).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
+  const orderedRows = order.map(key => (key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
   return { billboard, billboardDone, rows: orderedRows, reasons }
 }

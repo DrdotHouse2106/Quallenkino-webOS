@@ -113,9 +113,18 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
     }
   }, [item?.Id, index])
 
+  // Sichtbar erst, wenn das erste Bild geladen ist – bis dahin bleibt die Seite darunter stehen
+  // (sonst kurz Schwarz mit Uhr). Ohne Titel gleich sichtbar (nur Uhr).
+  const ready = loaded !== null || list?.length === 0
+
   // Jede Taste beendet den Bildschirmschoner; OK öffnet den Titel. Die Taste löst sonst nichts aus.
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (!ready) {
+        // Noch nicht zu sehen: einfach abbrechen, die Taste wirkt normal
+        onClose()
+        return
+      }
       event.preventDefault()
       event.stopImmediatePropagation()
       if (event.keyCode === 13 && item) onOpen(item)
@@ -123,12 +132,12 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
     }
     window.addEventListener('keydown', handler, true)
     return () => window.removeEventListener('keydown', handler, true)
-  }, [item?.Id])
+  }, [item?.Id, ready])
 
   const backdrop = item ? backdropUrl(api, item, 1920) : null
   const logo = item ? logoUrl(api, item) : null
   return (
-    <div class="qk-screensaver" onClick={onClose}>
+    <div class={`qk-screensaver ${ready ? '' : 'pending'}`} onClick={onClose}>
       {/* Erst zeigen, wenn das Bild geladen ist (sonst kurz nur Logo auf Schwarz) */}
       {backdrop && <img key={`${item!.Id}-${index}`} class={`qk-screensaver-image ${loaded === backdrop ? 'loaded' : ''}`} src={backdrop} alt="" onLoad={() => setLoaded(backdrop)} />}
       {trailer && <TrailerVideo key={trailer} url={trailer} volume={loadSettings().screensaverVolume} onEnded={() => setIndex(i => i + 1)} onPlayingChange={() => {}} />}

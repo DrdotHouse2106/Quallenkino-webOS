@@ -101,7 +101,7 @@ export const resume = (api: Api, limit = 30) =>
   items(api, `/UserItems/Resume?userId=${api.userId}&limit=${limit}&MediaTypes=Video&Fields=${FIELDS}&${IMAGES}`)
 
 export const nextUp = (api: Api, limit = 30) =>
-  items(api, `/Shows/NextUp?userId=${api.userId}&limit=${limit}&Fields=${FIELDS}&${IMAGES}`)
+  items(api, `/Shows/NextUp?userId=${api.userId}&limit=${limit}&enableResumable=false&Fields=${FIELDS}&${IMAGES}`)
 
 export const latest = (api: Api, limit = 30) =>
   items(api, `/Users/${api.userId}/Items/Latest?limit=${limit}&IncludeItemTypes=Movie,Series&Fields=${FIELDS}&${IMAGES}`)

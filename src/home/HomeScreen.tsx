@@ -31,9 +31,10 @@ interface Props {
   /** Eine Seite liegt darüber: keine Trailer, kein Wechsel, kein eigenes „Zurück“. */
   covered: boolean
   onSwitchProfile: () => void
+  onSignOut: () => void
 }
 
-export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
+export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }: Props) {
   const router = useRouter()
   const { billboard, billboardDone, rows, reasons } = useHomeData(api)
 
@@ -119,22 +120,23 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
   }, [shown?.Id])
 
   // „Zurück“ auf der Startseite: fragen, ob die App beendet werden soll (Vorgabe für LG-Apps)
-  const [exitAsked, setExitAsked] = useState(false)
-  const focusBeforeExit = useRef<string | null>(null)
+  // Profil in der Navigation: „Profil wechseln“ oder „Abmelden“
+  const [dialog, setDialog] = useState<'exit' | 'profile' | null>(null)
+  const focusBeforeDialog = useRef<string | null>(null)
+  function openDialog(which: 'exit' | 'profile') {
+    focusBeforeDialog.current = getCurrentFocusKey()
+    setDialog(which)
+  }
+  function closeDialog() {
+    setDialog(null)
+    if (focusBeforeDialog.current) focusSoon(focusBeforeDialog.current)
+  }
   useEffect(() => onBack(() => {
     if (covered) return false
-    if (exitAsked) {
-      closeExit()
-      return true
-    }
-    focusBeforeExit.current = getCurrentFocusKey()
-    setExitAsked(true)
+    if (dialog) closeDialog()
+    else openDialog('exit')
     return true
-  }), [covered, exitAsked])
-  function closeExit() {
-    setExitAsked(false)
-    if (focusBeforeExit.current) focusSoon(focusBeforeExit.current)
-  }
+  }), [covered, dialog])
 
   function step(delta: number): boolean {
     if (billboard.length < 2) return false
@@ -168,7 +170,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
         preferred={t.railHome}
         onRight={() => router.resume() || setFocus(billboard.length ? 'bb-play' : rows[0] ? `row-${rows[0].key}` : 'bb-play')}
         items={[
-          { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: onSwitchProfile },
+          { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: () => openDialog('profile') },
           { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
           { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => {
             router.forget()
@@ -202,14 +204,26 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
         </div>
       </div>
       <Clock />
-      {exitAsked && (
-        <ExitDialog
-          onExit={() => window.close()}
-          onSwitchProfile={() => {
-            setExitAsked(false)
-            onSwitchProfile()
-          }}
-          onCancel={closeExit}
+      {dialog === 'exit' && (
+        <ChoiceDialog
+          title={t.exitTitle}
+          initial="cancel"
+          choices={[
+            { key: 'exit', label: t.exitApp, onPress: () => window.close() },
+            { key: 'profile', label: t.switchProfile, onPress: () => { setDialog(null); onSwitchProfile() } },
+            { key: 'cancel', label: t.cancel, onPress: closeDialog },
+          ]}
+        />
+      )}
+      {dialog === 'profile' && (
+        <ChoiceDialog
+          title={session.name}
+          initial="switch"
+          choices={[
+            { key: 'switch', label: t.switchProfile, onPress: () => { setDialog(null); onSwitchProfile() } },
+            { key: 'signout', label: t.signOut, onPress: () => { setDialog(null); onSignOut() } },
+            { key: 'cancel', label: t.cancel, onPress: closeDialog },
+          ]}
         />
       )}
     </div>
@@ -288,19 +302,23 @@ function WorldInfo({ api, world }: { api: Api; world: World }) {
   )
 }
 
-/** „Quallenkino beenden?“ – Beenden, Profil wechseln oder zurück zur Startseite. */
-function ExitDialog({ onExit, onSwitchProfile, onCancel }: { onExit: () => void; onSwitchProfile: () => void; onCancel: () => void }) {
-  const { ref, focusKey } = useFocusable({ focusKey: 'exit-dialog', isFocusBoundary: true, trackChildren: true })
-  useEffect(() => focusSoon('exit-cancel'), [])
+interface Choice {
+  key: string
+  label: string
+  onPress: () => void
+}
+
+/** Kleine Auswahl über der Startseite (Beenden, Profil); „Zurück“ schließt sie (bei der Startseite). */
+function ChoiceDialog({ title, choices, initial }: { title: string; choices: Choice[]; initial: string }) {
+  const { ref, focusKey } = useFocusable({ focusKey: 'choice-dialog', isFocusBoundary: true, trackChildren: true })
+  useEffect(() => focusSoon(`choice-${initial}`), [])
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} class="qk-overlay">
         <Logo size={120} />
-        <h1>{t.exitTitle}</h1>
+        <h1>{title}</h1>
         <div class="qk-actions">
-          <DialogButton focusKey="exit-yes" label={t.exitApp} onPress={onExit} />
-          <DialogButton focusKey="exit-profile" label={t.switchProfile} onPress={onSwitchProfile} />
-          <DialogButton focusKey="exit-cancel" label={t.cancel} onPress={onCancel} />
+          {choices.map(choice => <DialogButton key={choice.key} focusKey={`choice-${choice.key}`} label={choice.label} onPress={choice.onPress} />)}
         </div>
       </div>
     </FocusContext.Provider>
