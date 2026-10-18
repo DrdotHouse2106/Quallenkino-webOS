@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.6 – 2026-10-18
+
+- **Personenseiten mit ganzer Filmografie (wie Android):** Für alle Personen – aus Detailseiten, Suche und Live-TV – zeigt die Seite mit Jellyseerr und bekannter TMDB-Id alle Filme und Serien. Jedes Plakat zeigt den Stand: **Verfügbar**, **Teilweise**, **Angefragt**. Oben die Reihe **„In deiner Bibliothek“** (verfügbare zuerst).
+- OK auf einen Titel, der schon auf dem Server liegt, öffnet dessen Jellyfin-Detailseite; sonst die Jellyseerr-Detailseite zum Anfragen. Ohne Jellyseerr oder TMDB-Id bleibt es bei der Personenseite des Servers.
+
 ## 0.6.5 – 2026-10-18
 
 - **YouTube auf dem LG:** Der Fernseher führt die App unter `file://` aus; YouTube bettet dort nicht ein (Fehler 153, fehlende Herkunft). Der offizielle Player liegt deshalb auf einer kleinen Seite bei GitHub Pages (`site/yt.html`), die Quallenkino einbettet – für die Vorschau oben rechts und das Vollbild-Fenster. Die Seite zeigt nur den Player und meldet bereit/läuft/Ende/Fehler an die App.

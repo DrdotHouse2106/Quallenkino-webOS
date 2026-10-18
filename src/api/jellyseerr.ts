@@ -34,8 +34,16 @@ function call<T>(api: Api, path: string, body?: unknown): Promise<T> {
   return request<T>(api.url, ROOT + path, { token: api.token, timeoutMs: 10_000, method: body === undefined ? 'GET' : 'POST', body })
 }
 
-/** Ist Jellyseerr über das Plugin erreichbar und der Benutzer dort bekannt? */
-export async function available(api: Api): Promise<boolean> {
+const availability = new Map<string, Promise<boolean>>()
+
+/** Ist Jellyseerr über das Plugin erreichbar und der Benutzer dort bekannt? (Einmal je Sitzung.) */
+export function available(api: Api): Promise<boolean> {
+  const key = `${api.url}|${api.userId}`
+  if (!availability.has(key)) availability.set(key, checkAvailable(api))
+  return availability.get(key)!
+}
+
+async function checkAvailable(api: Api): Promise<boolean> {
   try {
     const [status, user] = await Promise.all([
       call<{ active?: boolean }>(api, '/status'),
@@ -313,7 +321,8 @@ export function resultCard(result: Result): Item {
     Overview: result.overview,
     ImageUrl: posterUrl(result.posterPath),
     Badge: badge(result.status),
-    Seerr: { type: result.type, id: result.id },
+    // Schon auf dem Server: OK öffnet dort die Detailseite
+    Seerr: { type: result.type, id: result.id, jellyfinId: result.status === 'available' || result.status === 'partial' ? result.jellyfinId : undefined },
   }
 }
 

@@ -59,7 +59,7 @@ export interface Item {
   ImageUrl?: string | null
   Badge?: { label: string; color: string }
   /** Nur in der App: Eintrag aus Jellyseerr (Titel bzw. Person). */
-  Seerr?: { type: 'movie' | 'tv' | 'person'; id: number }
+  Seerr?: { type: 'movie' | 'tv' | 'person'; id: number; jellyfinId?: string }
   /** Nur in der App: Karte einer Welt (Startseite). */
   World?: import('./worlds').World
 }

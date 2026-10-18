@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'preact/hooks'
-import { item as loadItem, personItems, type Api, type Item } from '../api/items'
+import { get, item as loadItem, personItems, type Api, type Item } from '../api/items'
+import { available as seerrAvailable } from '../api/jellyseerr'
+import { SeerrPersonPage } from '../discover/SeerrPersonPage'
 import { primaryUrl } from '../api/images'
 import { cleanOverview } from '../home/format'
 import { initials, Row } from '../home/Rows'
@@ -15,8 +17,32 @@ export function formatDate(iso?: string): string | null {
   return match ? `${Number(match[3])}.${Number(match[2])}.${match[1]}` : null
 }
 
-/** Personenseite: Foto, Geburtstag, Biografie und die Filme und Serien auf dem Server. */
+/**
+ * Personenseite. Mit Jellyseerr und bekannter TMDB-Id die ganze Filmografie mit Stand (wie Android);
+ * sonst Foto, Geburtstag, Biografie und die Filme und Serien auf dem Server.
+ */
 export function PersonPage({ api, id }: { api: Api; id: string }) {
+  const [seerrId, setSeerrId] = useState<number | null | undefined>(undefined)
+  useEffect(() => {
+    let active = true
+    Promise.all([
+      seerrAvailable(api),
+      get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=ProviderIds`).catch(() => null),
+    ]).then(([seerr, person]) => {
+      const tmdb = Number(person?.ProviderIds?.Tmdb)
+      if (active) setSeerrId(seerr && tmdb > 0 ? tmdb : null)
+    })
+    return () => {
+      active = false
+    }
+  }, [id])
+  if (seerrId === undefined) return <Page focusKey="person" class="qk-person-page"><div class="qk-page-main"><p class="qk-muted">{t.loading}</p></div></Page>
+  if (seerrId) return <SeerrPersonPage api={api} id={seerrId} />
+  return <ServerPersonPage api={api} id={id} />
+}
+
+/** Personenseite nur mit dem Server: Foto, Geburtstag, Biografie und die Filme und Serien dort. */
+function ServerPersonPage({ api, id }: { api: Api; id: string }) {
   const router = useRouter()
   const [person, setPerson] = useState<Item | null>(null)
   const [movies, setMovies] = useState<Item[] | null>(null)

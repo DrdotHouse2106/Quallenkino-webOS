@@ -106,6 +106,7 @@ export const t = {
   seerrEpisodes: (n: number) => `${n} ${n === 1 ? 'Folge' : 'Folgen'}`,
   seerrSeasonCount: (n: number) => `${n} ${n === 1 ? 'Staffel' : 'Staffeln'}`,
   seerrDirector: 'Regie',
+  inLibrary: 'In deiner Bibliothek',
   youtubeMissing: 'Die YouTube-App ließ sich nicht öffnen.',
   seerrCreator: 'Idee',
   worldCount: (count: number) => `${count} Titel`,
