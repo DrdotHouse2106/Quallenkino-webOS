@@ -116,12 +116,12 @@ export function PlayerPage({ api, id, startTicks }: Props) {
    * schaltet die App über video.audioTracks um. Geht das nicht oder kann der Fernseher den Ton nicht
    * (DTS, TrueHD), rechnet der Server um.
    */
-  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number, transcode = false) {
+  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number, transcode = false, switching = false) {
     const startTicks = Math.round(position * TICKS_PER_SECOND)
     const info = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode })
     let next = streamFor(api, id, info, { audio: audioIndex, transcode })
     if (!next) throw new Error('nicht abspielbar')
-    if (next.method !== 'Transcode' && !directAudioPossible(next, audioIndex)) {
+    if (next.method !== 'Transcode' && !directAudioPossible(next, audioIndex, switching)) {
       const forced = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode: true })
       next = streamFor(api, id, forced, { audio: audioIndex, transcode: true }) ?? next
     }
@@ -132,11 +132,16 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     loadCues(next, subtitleIndex)
   }
 
-  /** Kann diese Tonspur ohne Umrechnung laufen? */
-  function directAudioPossible(current: Stream, audioIndex: number | undefined): boolean {
+  /**
+   * Kann diese Tonspur ohne Umrechnung laufen? Umgerechnet wird nur, wenn der Fernseher den Ton der
+   * gewählten Spur nicht kann (DTS, TrueHD) – oder wenn auf eine andere Spur gewechselt wird und das
+   * Umschalten im Fernseher (audioTracks) fehlt. Beim Start bleibt es sonst beim direkten Abspielen.
+   */
+  function directAudioPossible(current: Stream, audioIndex: number | undefined, switching: boolean): boolean {
     const track = audioStreams(current.source).find(s => s.Index === audioIndex)
     if (!track) return true
     if (!canPlayAudio(track.Codec)) return false
+    if (!switching) return true
     return audioIndex === fileDefaultAudio(current.source) || (supportsAudioTracks() && audioTrackPosition(current.source, audioIndex) >= 0)
   }
 
@@ -336,10 +341,8 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             if (!element) return
             setDuration(Number.isFinite(element.duration) && element.duration > 0 ? element.duration : (stream.source.RunTimeTicks ?? 0) / TICKS_PER_SECOND)
             if (startAt.current > 1 && element.currentTime < startAt.current - 1) element.currentTime = startAt.current
-            // Andere Tonspur als die der Datei: umschalten, sonst (kein audioTracks) vom Server umrechnen lassen
-            if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source) && !applyAudioTrack(stream, audio)) {
-              open(audio, subtitle, Math.max(element.currentTime, startAt.current), true).catch(() => setError(t.playbackFailed))
-            }
+            // Andere Tonspur als die der Datei: im Fernseher umschalten, wenn er das kann
+            if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source)) applyAudioTrack(stream, audio)
           }}
           onTimeUpdate={() => setTime(video.current?.currentTime ?? 0)}
           onPlaying={() => {
@@ -397,7 +400,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
               setAudio(index)
               return
             }
-            open(index, subtitle, position(), stream.method !== 'Transcode').catch(() => setError(t.playbackFailed))
+            open(index, subtitle, position(), stream.method !== 'Transcode', true).catch(() => setError(t.playbackFailed))
           }}
           onSubtitle={index => {
             setDialog(false)

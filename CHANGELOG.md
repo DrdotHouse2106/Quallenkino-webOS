@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.2 – 2026-10-18
+
+- **AC3/E-AC3 wieder direkt:** In 0.4.1 wurde ein Film mit Dolby-Digital-Ton umgerechnet, wenn er weitere Tonspuren hatte. Umgerechnet wird jetzt nur noch, wenn die gewählte Spur DTS oder TrueHD ist oder beim Wechsel auf eine andere Spur das Umschalten im Fernseher nicht geht.
+- **Untertitel:** Die App lädt immer die ganze Untertitel-Datei als WebVTT ab Anfang (vorher teils SRT ab der Startposition, nur wenige Zeilen). SRT-Zeiten werden ebenfalls gelesen.
+
 ## 0.4.1 – 2026-10-18
 
 Korrekturen nach dem ersten Test auf einem LG-Fernseher:

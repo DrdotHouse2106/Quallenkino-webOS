@@ -101,12 +101,11 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
   return null
 }
 
-/** Untertitel-Datei als WebVTT (der Server wandelt SRT um). */
+/**
+ * Untertitel-Datei als WebVTT, immer die ganze Datei ab 0 – nicht die DeliveryUrl des Servers
+ * (die kann SRT sein oder nur einen Ausschnitt ab der Startposition enthalten).
+ */
 export function subtitleUrl(api: Api, itemId: string, source: MediaSource, stream: MediaStream): string {
-  if (stream.DeliveryUrl) {
-    const url = base(api) + stream.DeliveryUrl
-    return /api_key=/i.test(url) ? url : url + (url.includes('?') ? '&' : '?') + `api_key=${encodeURIComponent(api.token)}`
-  }
   return `${base(api)}/Videos/${itemId}/${source.Id}/Subtitles/${stream.Index}/0/Stream.vtt?api_key=${encodeURIComponent(api.token)}`
 }
 

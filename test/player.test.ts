@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle } from '../src/player/tracks'
 import { canPlayAudio } from '../src/player/profile'
-import { streamFor } from '../src/player/playback'
+import { streamFor, subtitleUrl } from '../src/player/playback'
 
 const source = (streams: object[], extra: object = {}) => ({ Id: 'ms', MediaStreams: streams as never, ...extra })
 
@@ -92,5 +92,17 @@ describe('Tonspur wechseln', () => {
     expect(canPlayAudio('dts')).toBe(false)
     expect(canPlayAudio('truehd')).toBe(false)
     expect(canPlayAudio('EAC3')).toBe(true)
+  })
+})
+
+describe('Untertitel laden', () => {
+  it('immer die ganze Datei als WebVTT, nicht die DeliveryUrl', () => {
+    const url = subtitleUrl({ url: 'http://srv/', token: 't', userId: 'u' }, 'i', { Id: 'ms' }, { Index: 3, Type: 'Subtitle', DeliveryUrl: '/Videos/i/ms/Subtitles/3/930000000/Stream.subrip' })
+    expect(url).toBe('http://srv/Videos/i/ms/Subtitles/3/0/Stream.vtt?api_key=t')
+  })
+
+  it('SRT-Zeiten mit Komma werden gelesen', () => {
+    const cues = parseVtt('1\n00:01:33,120 --> 00:01:35,000\nHallo\n\n2\n00:01:36,000 --> 00:01:38,500\nWelt')
+    expect(cues).toEqual([{ start: 93.12, end: 95, text: 'Hallo' }, { start: 96, end: 98.5, text: 'Welt' }])
   })
 })

@@ -61,6 +61,7 @@ export interface Cue {
   text: string
 }
 
+/** Zeit aus WebVTT („00:01:02.500“) oder SRT („00:01:02,500“). */
 function seconds(time: string): number {
   const parts = time.trim().replace(',', '.').split(':').map(Number)
   return parts.reduce((total, part) => total * 60 + part, 0)
