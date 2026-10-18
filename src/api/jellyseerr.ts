@@ -113,6 +113,8 @@ export interface Details extends Result {
   creators: string[]
   cast: { id: number; name: string; character?: string; profilePath?: string }[]
   seasons: { number: number; name: string; episodes?: number; status: Status }[]
+  /** YouTube-Trailer: Schlüssel und Kennzeichnung („“ = deutsch, sonst „OmU“, „EN“ …). */
+  trailer?: { key: string; label: string }
 }
 
 /** Detailseite: Eckdaten, FSK (Deutschland), Regie bzw. Idee, Besetzung, Staffeln mit Stand. */
@@ -141,6 +143,7 @@ export async function details(api: Api, type: MediaType, id: number): Promise<De
     seasons: (raw.seasons ?? [])
       .filter((s: any) => s.seasonNumber > 0)
       .map((s: any) => ({ number: s.seasonNumber, name: s.name || `Staffel ${s.seasonNumber}`, episodes: s.episodeCount, status: statusOf(seasonStatus.get(s.seasonNumber)) })),
+    trailer: pickTrailer(raw.relatedVideos ?? [], raw.originalLanguage),
   }
 }
 
@@ -311,4 +314,30 @@ export function resultCard(result: Result): Item {
 
 export function personCard(person: { id: number; name: string; character?: string; profilePath?: string }): Item {
   return { Id: `seerr-person-${person.id}`, Name: person.name, Role: person.character, ImageUrl: profileUrl(person.profilePath), Seerr: { type: 'person', id: person.id } }
+}
+
+interface Video {
+  site?: string
+  key?: string
+  type?: string
+  name?: string
+  iso_639_1?: string
+  language?: string
+}
+
+const isGerman = (v: Video) => (v.iso_639_1 ?? v.language) === 'de' || /deutsch|german|offiziell|kinostart/i.test(v.name ?? '')
+
+/**
+ * Trailer wie in der Android-App: nur YouTube, Trailer vor Teaser, deutsche zuerst. Fremdsprachige
+ * werden gekennzeichnet: „OmU“ (untertitelt bzw. Japanisch, Koreanisch, Chinesisch), sonst die Sprache.
+ */
+export function pickTrailer(videos: Video[], originalLanguage?: string): { key: string; label: string } | undefined {
+  const usable = videos.filter(v => v.site === 'YouTube' && v.key && (v.type === 'Trailer' || v.type === 'Teaser'))
+  const score = (v: Video) => (isGerman(v) ? 0 : 2) + (v.type === 'Trailer' ? 0 : 1)
+  const best = [...usable].sort((a, b) => score(a) - score(b))[0]
+  if (!best) return undefined
+  if (isGerman(best)) return { key: best.key!, label: '' }
+  const language = best.iso_639_1 ?? best.language
+  const omu = /subtitled|\bsubs?\b|omu/i.test(best.name ?? '') || ['ja', 'ko', 'zh'].includes(originalLanguage ?? '')
+  return { key: best.key!, label: omu ? 'OmU' : !language || language === 'en' ? 'EN' : language.toUpperCase() }
 }

@@ -21,8 +21,10 @@ export interface Router {
   pop: () => void
   /** Oberste Seite ersetzen (z. B. nächste Folge im Player). */
   replace: (page: Page) => void
+  /** Zur Navigation links (Startseite), Fokus auf den Eintrag mit dieser Beschriftung. */
+  toRail: (label: string) => void
 }
 
-export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {}, replace: () => {} })
+export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {}, replace: () => {}, toRail: () => {} })
 
 export const useRouter = () => useContext(RouterContext)

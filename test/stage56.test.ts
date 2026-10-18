@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { airing, creditLines, relative, programProgress } from '../src/api/livetv'
 import { normalizeName } from '../src/api/names'
-import { statusOf, toResult } from '../src/api/jellyseerr'
+import { pickTrailer, statusOf, toResult } from '../src/api/jellyseerr'
 import { collectionTitle } from '../src/api/worlds'
 import { guideStart, programAt } from '../src/livetv/GuidePage'
 import { pickAudio, pickSubtitle } from '../src/player/tracks'
@@ -54,6 +54,18 @@ describe('Jellyseerr', () => {
   it('Ergebnisse: nur Filme und Serien', () => {
     expect(toResult({ id: 1, mediaType: 'person', name: 'X' })).toBeNull()
     expect(toResult({ id: 2, mediaType: 'tv', name: 'Dark', firstAirDate: '2017-12-01', mediaInfo: { status: 5 } })).toMatchObject({ type: 'tv', title: 'Dark', year: '2017', status: 'available' })
+  })
+})
+
+describe('Jellyseerr-Trailer', () => {
+  const yt = (key: string, type: string, name: string, lang?: string) => ({ site: 'YouTube', key, type, name, iso_639_1: lang })
+  it('deutsch zuerst, Trailer vor Teaser', () => {
+    expect(pickTrailer([yt('a', 'Teaser', 'Teaser', 'de'), yt('b', 'Trailer', 'Official Trailer', 'en'), yt('c', 'Trailer', 'Trailer Deutsch', 'en')])).toEqual({ key: 'c', label: '' })
+  })
+  it('Kennzeichnung fremder Sprachen', () => {
+    expect(pickTrailer([yt('a', 'Trailer', 'Official Trailer', 'en')])).toEqual({ key: 'a', label: 'EN' })
+    expect(pickTrailer([yt('a', 'Trailer', 'Trailer', 'ja')], 'ja')).toEqual({ key: 'a', label: 'OmU' })
+    expect(pickTrailer([{ site: 'Vimeo', key: 'x', type: 'Trailer' }])).toBeUndefined()
   })
 })
 

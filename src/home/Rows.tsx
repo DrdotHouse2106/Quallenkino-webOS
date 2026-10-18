@@ -4,6 +4,7 @@ import { primaryUrl, thumbUrl } from '../api/images'
 import { progress, title } from './format'
 import { Img } from '../ui/Img'
 import { worldBackdrop, worldLogo } from '../api/worlds'
+import { clock, dayLabel, programProgress } from '../api/livetv'
 
 /** Initialen für Personen ohne Foto (Vor- und Nachname). */
 export function initials(name: string): string {
@@ -23,6 +24,8 @@ interface RowProps {
   row: RowData
   onFocusItem: (item: Item) => void
   onOpen: (item: Item) => void
+  /** Pfeiltasten an einer Karte; true = normal weiter navigieren. */
+  onArrow?: (direction: string) => boolean
 }
 
 /** Ausgewählte Reihe ganz nach oben schieben, ausgewählte Karte waagerecht ins Bild holen. */
@@ -39,7 +42,7 @@ function scrollIntoPlace(node: HTMLElement) {
   }
 }
 
-export function Row({ api, row, onFocusItem, onOpen }: RowProps) {
+export function Row({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
   const { ref, focusKey } = useFocusable({ focusKey: `row-${row.key}`, trackChildren: true, saveLastFocusedChild: true })
   return (
     <FocusContext.Provider value={focusKey}>
@@ -59,6 +62,7 @@ export function Row({ api, row, onFocusItem, onOpen }: RowProps) {
                 onFocusItem(item)
               }}
               onOpen={() => onOpen(item)}
+              onArrow={onArrow}
             />
           ))}
         </div>
@@ -75,13 +79,15 @@ interface CardProps {
   rank?: number
   onFocus: (node: HTMLElement) => void
   onOpen: () => void
+  onArrow?: (direction: string) => boolean
 }
 
 /** Karte im Querformat ohne Titel (der steht im Infobereich), bei Top 10 Plakat mit großer Zahl. */
-function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
+function Card({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }: CardProps) {
   const { ref, focused, focusSelf } = useFocusable({
     focusKey,
     onEnterPress: onOpen,
+    onArrowPress: direction => (onArrow ? onArrow(direction) : true),
     onFocus: layout => onFocus(layout.node as HTMLElement),
   })
   const percent = progress(item)
@@ -142,10 +148,30 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
       </div>
     )
   }
+  if (item.StartDate && item.ChannelName) {
+    // Sendung: Titel und „Heute 20:15 · Sender“ unter dem Bild (wie Android)
+    return (
+      <div ref={ref} class={`qk-episode ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+        <div class="qk-card">
+          <Img src={image} fallback={<span class="qk-card-title">{item.Name}</span>} />
+          {programProgress(item) !== null && <div class="qk-card-progress"><div style={{ width: `${programProgress(item)}%` }} /></div>}
+        </div>
+        <div class="qk-card-caption">{item.Name}</div>
+        <div class="qk-card-caption muted">{startLine(item)}</div>
+      </div>
+    )
+  }
   return (
     <div ref={ref} class={`qk-card ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
       <Img src={image} fallback={<span class="qk-card-title">{title(item)}</span>} />
       {percent !== null && <div class="qk-card-progress"><div style={{ width: `${percent}%` }} /></div>}
     </div>
   )
+}
+
+/** „Heute 20:15 · Das Erste“ bzw. „Läuft · Das Erste“. */
+function startLine(item: Item): string {
+  const start = new Date(item.StartDate!)
+  const running = programProgress(item) !== null
+  return [running ? 'Läuft' : `${dayLabel(start)} ${clock(start)}`, item.ChannelName].filter(Boolean).join(' · ')
 }

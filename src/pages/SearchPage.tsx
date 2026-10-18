@@ -56,7 +56,7 @@ export function SearchPage({ api }: { api: Api }) {
   }
 
   return (
-    <Page focusKey="search" class="qk-search-page" onBackPress={() => (document.activeElement?.tagName === 'INPUT' ? toResults() : false)}>
+    <Page focusKey="search" class="qk-search-page" rail={t.railSearch} onBackPress={() => (document.activeElement?.tagName === 'INPUT' ? toResults() : false)}>
       <div class="qk-page-main">
         <h1>{t.search}</h1>
         <div class="qk-search-field">

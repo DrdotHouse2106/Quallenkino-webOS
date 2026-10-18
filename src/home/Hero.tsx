@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact'
 import { useState } from 'preact/hooks'
 import type { Api, Item } from '../api/items'
-import { backdropUrl, logoUrl } from '../api/images'
+import { backdropUrl, logoUrl, thumbUrl } from '../api/images'
 import { TrailerVideo } from './TrailerVideo'
 import { cleanOverview, facts, subtitle, title } from './format'
 
@@ -17,7 +17,8 @@ interface HeroBackdropProps {
 
 /** Bild oben rechts (bzw. Trailer), nach links und unten in Schwarz auslaufend. */
 export function HeroBackdrop({ api, item, trailerUrl, onTrailerEnd, onTrailerPlaying, image }: HeroBackdropProps) {
-  const url = image !== undefined ? image : item ? backdropUrl(api, item) : null
+  // Sendungen haben meist kein Hintergrundbild – dann ihr Bild
+  const url = image !== undefined ? image : item ? backdropUrl(api, item) ?? (item.Type === 'Program' ? thumbUrl(api, item, 1280) : null) : null
   return (
     <div class="qk-hero-backdrop">
       {url && <img key={url} class="qk-fade-in" src={url} alt="" />}

@@ -136,10 +136,17 @@ function Guide({ api }: { api: Api }) {
       if (row < channelList.length - 1) setRow(row + 1)
       return false
     }
-    if (index < 0) return direction === 'left'
+    if (index < 0) {
+      if (direction === 'left') router.toRail(t.railLiveTv)
+      return false
+    }
     if (direction === 'left') {
       const previous = list[index - 1]
-      if (!previous?.StartDate || !previous.EndDate || Date.parse(previous.EndDate) <= start.getTime()) return false
+      // Ganz links: zur Navigation (wie Android)
+      if (!previous?.StartDate || !previous.EndDate || Date.parse(previous.EndDate) <= start.getTime()) {
+        router.toRail(t.railLiveTv)
+        return false
+      }
       setCursor(new Date(Math.max(Date.parse(previous.StartDate), start.getTime())))
       return false
     }

@@ -34,7 +34,7 @@ export function SettingsPage({ server, session, onSwitchProfile, onSignOut, onCh
     setSettings(next)
   }
   return (
-    <Page focusKey="settings" class="qk-settings-page">
+    <Page focusKey="settings" class="qk-settings-page" rail={t.railSettings}>
       <div class="qk-page-main">
         <h1>{t.railSettings}</h1>
 

@@ -1,5 +1,15 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.1 – 2026-10-18
+
+Korrekturen nach dem LG-Test von 0.6.0:
+
+- **Personen aus der Live-TV-Besetzung:** Hat die Person auf dem Server keine Titel, öffnet sich ihre Seite aus Jellyseerr mit ganzer Filmografie (anfragbar).
+- **Entdecken:** „Hoch“ aus der ersten Reihe führt ins Suchfeld. „Links“ am linken Rand führt in die Navigation – ebenso in Suche, Programmführer und Einstellungen (wie Android).
+- **Fokus nach „Zurück“** wird zuverlässig auf die vorher gewählte Karte gesetzt (auf langsamen Fernsehern ein zweiter Versuch).
+- **„Heute im TV für dich“:** Karten mit Titel und „Heute 20:15 · Sender“ bzw. „Läuft“ und Fortschritt; im Infobereich das Bild der Sendung.
+- **Trailer auf der Entdecken-Detailseite:** vom eigenen Server, sonst in der YouTube-App des Fernsehers (deutsche zuerst, sonst gekennzeichnet, z. B. „Trailer (OmU)“).
+
 ## 0.6.0 – 2026-10-18
 
 Etappen 5 und 6 – die Navigation links ist jetzt wie in der Android-App: Profil, Suche, Startseite, Live-TV, Entdecken, Einstellungen.

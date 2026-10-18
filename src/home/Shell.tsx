@@ -27,6 +27,17 @@ interface Props {
 }
 
 /**
+ * Fokus zurücksetzen, sobald die Seite darunter wieder sichtbar ist. Auf langsamen Fernsehern ist das
+ * nach einem Bild noch nicht immer so – dann ein zweiter Versuch.
+ */
+function restoreFocus(key: string) {
+  requestAnimationFrame(() => setFocus(key))
+  setTimeout(() => {
+    if (getCurrentFocusKey() !== key) setFocus(key)
+  }, 200)
+}
+
+/**
  * Angemeldeter Bereich: Startseite unten, darüber gestapelte Seiten (Details, Person, Suche, Trailer).
  * „Zurück“ schließt die oberste Seite und setzt den Fokus dorthin, wo er vorher war.
  */
@@ -48,7 +59,12 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
     pop: () => {
       setStack(s => s.slice(0, -1))
       const previous = focusMemory.current.pop()
-      if (previous) requestAnimationFrame(() => setFocus(previous))
+      if (previous) restoreFocus(previous)
+    },
+    toRail: (label: string) => {
+      setStack([])
+      focusMemory.current = []
+      restoreFocus(`rail-${label}`)
     },
     replace: (page: Page) => setStack(s => [...s.slice(0, -1), page]),
   }), [])

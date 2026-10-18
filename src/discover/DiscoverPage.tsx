@@ -65,7 +65,7 @@ export function DiscoverPage({ api }: { api: Api }) {
   }
 
   return (
-    <Page focusKey="discover" class="qk-search-page" onBackPress={() => (document.activeElement?.tagName === 'INPUT' ? toResults() : false)}>
+    <Page focusKey="discover" class="qk-search-page" rail={t.railDiscover} onBackPress={() => (document.activeElement?.tagName === 'INPUT' ? toResults() : false)}>
       <div class="qk-page-main">
         <h1>{t.discoverTitle}</h1>
         <div class="qk-search-field">
@@ -74,7 +74,8 @@ export function DiscoverPage({ api }: { api: Api }) {
         <p class="qk-muted">{shown === null ? t.discoverLoading : shown.length === 0 ? (searching ? t.discoverNothing : '') : searching ? '' : t.discoverHint}</p>
         <div class="qk-rows qk-page-rows">
           {rows.map((items, index) => (
-            <Row key={`${searching}-${index}`} api={api} row={{ key: `discover-${index}`, title: '', items, kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />
+            <Row key={`${searching}-${index}`} api={api} row={{ key: `discover-${index}`, title: '', items, kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)}
+              onArrow={index === 0 ? direction => (direction === 'up' ? (setFocus('discover-input'), false) : true) : undefined} />
           ))}
         </div>
       </div>

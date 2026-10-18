@@ -24,6 +24,7 @@ import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { Icon } from '../ui/Icon'
 import { toast } from '../ui/Toast'
+import { openYouTube } from '../platform/youtube'
 
 /**
  * Titel aus Jellyseerr: Eckdaten, Regie bzw. Idee, Beschreibung; „In Jellyfin öffnen“, wenn er schon
@@ -75,9 +76,11 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
     }
   }
 
+  /** Trailer vom eigenen Server, sonst in der YouTube-App des Fernsehers. */
   async function playTrailer() {
-    const url = local ? await localTrailerUrl(api, local) : null
-    if (url) router.push({ name: 'trailer', url })
+    const url = local?.LocalTrailerCount ? await localTrailerUrl(api, local) : null
+    if (url) return router.push({ name: 'trailer', url })
+    if (info?.trailer && !(await openYouTube(info.trailer.key))) toast(t.youtubeMissing)
   }
 
   const meta = info
@@ -111,8 +114,8 @@ export function RequestPage({ api, type, id }: { api: Api; type: MediaType; id: 
               {local && <ActionButton focusKey="r-open" icon="play" label={t.seerrOpen} onPress={() => openItem(router, local)} />}
               {canRequest && <ActionButton focusKey="r-request" icon="add" label={info.type === 'tv' && info.seasons.length > 1 ? t.seerrRequestAll : t.seerrRequest} onPress={() => send()} />}
               {canRequest && openSeasons.length > 1 && <ActionButton focusKey="r-seasons" label={t.seerrPickSeasons} onPress={() => setPicking(true)} />}
-              {local?.LocalTrailerCount ? <ActionButton focusKey="r-trailer" icon="trailer" label={t.trailer} onPress={playTrailer} /> : null}
-              {!local && !canRequest && <ActionButton focusKey="r-back" label={t.back} onPress={() => router.pop()} />}
+              {local?.LocalTrailerCount || info.trailer ? <ActionButton focusKey="r-trailer" icon="trailer" label={!local?.LocalTrailerCount && info.trailer?.label ? `${t.trailer} (${info.trailer.label})` : t.trailer} onPress={playTrailer} /> : null}
+              {!local && !canRequest && !info.trailer && <ActionButton focusKey="r-back" label={t.back} onPress={() => router.pop()} />}
             </ActionRow>
           </div>
         )}

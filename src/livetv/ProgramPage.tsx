@@ -1,6 +1,6 @@
 import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
-import { item as loadItem, searchPeople, type Api, type Item } from '../api/items'
+import { item as loadItem, personItems, searchPeople, type Api, type Item } from '../api/items'
 import { thumbUrl } from '../api/images'
 import { airing, credits as loadCredits, creditLines, program as loadProgram, setFavorite, type Credits } from '../api/livetv'
 import { normalizeName } from '../api/names'
@@ -61,10 +61,13 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
 
   async function openPerson(name: string) {
     const person = await findPerson(api, name).catch(() => null)
-    if (person) return router.push({ name: 'person', id: person.Id })
-    // Nicht auf dem Server: Person aus Jellyseerr (nur bei eindeutigem Namen)
+    // Mit Titeln auf dem Server: deren Personenseite. Sonst die aus Jellyseerr mit ganzer Filmografie
+    // (anfragbar) – ein Personeneintrag ohne Titel hilft nicht weiter.
+    const owned = person ? (await Promise.all([personItems(api, person.Id, 'Movie'), personItems(api, person.Id, 'Series')])).flat().length : 0
+    if (person && owned > 0) return router.push({ name: 'person', id: person.Id })
     const seerrId = await findSeerrPerson(api, name)
     if (seerrId) router.push({ name: 'seerrPerson', id: seerrId })
+    else if (person) router.push({ name: 'person', id: person.Id })
     else toast(t.personNotFound(name))
   }
 
