@@ -1,4 +1,5 @@
 import type { MediaSource, MediaStream } from './playback'
+import { canPlayAudio } from './profile'
 
 /** Sprachen, die als „eigene Sprache“ gelten (Deutsch). */
 const OWN_LANGUAGES = ['ger', 'deu', 'de', 'german', 'deutsch']
@@ -11,12 +12,17 @@ export const audioStreams = (source: MediaSource) => (source.MediaStreams ?? [])
 export const subtitleStreams = (source: MediaSource) => (source.MediaStreams ?? []).filter(s => s.Type === 'Subtitle')
 
 /**
- * Tonspur: die Vorgabe des Servers, bevorzugt in der eigenen Sprache.
+ * Tonspur in der eigenen Sprache, sonst die Vorgabe des Servers. Unter mehreren deutschen Spuren
+ * gewinnt eine, die der Fernseher selbst kann (AC3 statt DTS) – dann muss nichts umgerechnet werden;
+ * danach die Vorgabe des Servers und die als Standard markierte.
  */
 export function pickAudio(source: MediaSource): number | undefined {
   const audio = audioStreams(source)
-  const own = audio.find(s => isOwnLanguage(s.Language) && s.IsDefault) ?? audio.find(s => isOwnLanguage(s.Language))
-  return (own ?? audio.find(s => s.Index === source.DefaultAudioStreamIndex) ?? audio[0])?.Index
+  const own = audio.filter(s => isOwnLanguage(s.Language))
+  const rank = (s: MediaStream) =>
+    (canPlayAudio(s.Codec) ? 0 : 4) + (s.Index === source.DefaultAudioStreamIndex ? 0 : 2) + (s.IsDefault ? 0 : 1)
+  const best = [...own].sort((a, b) => rank(a) - rank(b) || a.Index - b.Index)[0]
+  return (best ?? audio.find(s => s.Index === source.DefaultAudioStreamIndex) ?? audio[0])?.Index
 }
 
 /**

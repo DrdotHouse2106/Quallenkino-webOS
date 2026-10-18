@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.4 – 2026-10-18
+
+- **Deutsche Tonspur ohne Umrechnung:** Hat ein Film mehrere deutsche Spuren (z. B. DTS und AC3), wählt die App die, die der Fernseher selbst kann; danach die Vorgabe des Servers. Vorher konnte die deutsche DTS-Spur gewinnen, und der Server rechnete um.
+- **Intro überspringen** gleicht den Sprung des Fernsehers zum vorigen Schlüsselbild aus: Landet er zu früh, fragt die App um den Fehlbetrag weiter an.
+- In der Konsole steht beim Start, welche Spur und welche Abspielart gewählt wurden (Fehlersuche).
+
 ## 0.4.3 – 2026-10-18
 
 - **Intro überspringen** landet genau am Ende des Intros. Springt der Fernseher zu früh (Schlüsselbild bzw. HLS-Abschnitt), setzt die App nach.

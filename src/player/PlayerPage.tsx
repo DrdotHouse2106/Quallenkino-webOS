@@ -121,7 +121,18 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     const info = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode })
     let next = streamFor(api, id, info, { audio: audioIndex, transcode })
     if (!next) throw new Error('nicht abspielbar')
-    if (next.method !== 'Transcode' && !directAudioPossible(next, audioIndex, switching)) {
+    const direct = next.method !== 'Transcode' && directAudioPossible(next, audioIndex, switching)
+    // Für die Fehlersuche am Fernseher (Konsole über den Web-Inspector)
+    console.info('[Quallenkino] Wiedergabe', {
+      method: next.method,
+      audio: audioIndex,
+      codec: audioStreams(next.source).find(s => s.Index === audioIndex)?.Codec,
+      fileDefault: fileDefaultAudio(next.source),
+      serverDefault: next.source.DefaultAudioStreamIndex,
+      switching,
+      forceTranscode: next.method !== 'Transcode' && !direct,
+    })
+    if (next.method !== 'Transcode' && !direct) {
       const forced = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode: true })
       next = streamFor(api, id, forced, { audio: audioIndex, transcode: true }) ?? next
     }
@@ -256,23 +267,26 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   }
 
   /**
-   * Genau an eine Stelle springen. Bei HLS bzw. Schlüsselbildern landet der Fernseher manchmal einige
-   * Sekunden zu früh – dann nach dem Sprung noch einmal nachsetzen (höchstens zweimal).
+   * Genau an eine Stelle springen. Der LG springt bei direkt abgespielten Dateien zum vorigen
+   * Schlüsselbild (einige Sekunden zu früh). Dann wird um den Fehlbetrag weiter angefragt, damit das
+   * nächste Schlüsselbild nach dem Ziel getroffen wird (höchstens zweimal).
    */
-  const seekTarget = useRef<{ time: number; tries: number } | null>(null)
+  const seekTarget = useRef<{ time: number; request: number; tries: number } | null>(null)
   function seekExact(seconds: number) {
     const element = video.current
     if (!element) return
-    seekTarget.current = { time: seconds, tries: 0 }
+    seekTarget.current = { time: seconds, request: seconds, tries: 0 }
     element.currentTime = seconds
   }
   function onSeeked() {
     const element = video.current
     const target = seekTarget.current
     if (!element || !target) return
-    if (element.currentTime < target.time - 0.5 && target.tries < 2) {
+    const landed = element.currentTime
+    if (landed < target.time - 0.5 && target.tries < 2) {
       target.tries++
-      element.currentTime = target.time
+      target.request = target.request + (target.time - landed) + 0.5
+      element.currentTime = Math.min(target.request, (duration || element.duration || Infinity) - 1)
     } else seekTarget.current = null
   }
 

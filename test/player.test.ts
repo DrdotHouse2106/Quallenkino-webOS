@@ -27,6 +27,23 @@ describe('Tonspur und Untertitel', () => {
     expect(pickSubtitle(s, 1)).toBe(3)
   })
 
+  it('Mehrere deutsche Spuren: die direkt abspielbare (AC3 vor DTS)', () => {
+    const s = { ...source([
+      { Index: 1, Type: 'Audio', Language: 'ger', Codec: 'dts', IsDefault: true },
+      { Index: 2, Type: 'Audio', Language: 'ger', Codec: 'ac3' },
+      { Index: 3, Type: 'Audio', Language: 'eng', Codec: 'dts' },
+    ]), DefaultAudioStreamIndex: 1 }
+    expect(pickAudio(s)).toBe(2)
+  })
+
+  it('Vorgabe des Servers vor anderer deutscher Spur', () => {
+    const s = { ...source([
+      { Index: 1, Type: 'Audio', Language: 'ger', Codec: 'ac3' },
+      { Index: 2, Type: 'Audio', Language: 'ger', Codec: 'aac', Title: 'Kommentar' },
+    ]), DefaultAudioStreamIndex: 1 }
+    expect(pickAudio(s)).toBe(1)
+  })
+
   it('Ohne passende Untertitel → aus', () => {
     expect(pickSubtitle(source([{ Index: 1, Type: 'Audio', Language: 'eng' }]), 1)).toBe(-1)
   })
