@@ -1,0 +1,37 @@
+/** Einstellungen dieser App auf diesem Fernseher (nicht am Server). */
+
+/** Untertitel beim Start: intelligent (wie Android), immer deutsche oder aus. */
+export type SubtitleMode = 'smart' | 'always' | 'off'
+
+/** Tonspur beim Start: deutsche bevorzugen oder den Originalton. */
+export type AudioMode = 'own' | 'original'
+
+export interface Settings {
+  subtitles: SubtitleMode
+  audio: AudioMode
+  /** Trailer-Vorschau auf Startseite und Detailseite. */
+  trailers: boolean
+}
+
+const KEY = 'qk.settings'
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true }
+let memory: Settings | null = null
+
+export function loadSettings(): Settings {
+  if (memory) return memory
+  try {
+    memory = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }
+  } catch {
+    memory = { ...DEFAULTS }
+  }
+  return memory!
+}
+
+export function saveSettings(next: Settings) {
+  memory = next
+  try {
+    localStorage.setItem(KEY, JSON.stringify(next))
+  } catch {
+    // ohne Speicher gilt die Einstellung bis zum Neustart
+  }
+}

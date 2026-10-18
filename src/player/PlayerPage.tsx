@@ -22,6 +22,7 @@ import {
   type Stream,
 } from './playback'
 import { canPlayAudio } from './profile'
+import { loadSettings } from '../settings'
 import { audioStreams, audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
 const OSD_TIMEOUT_MS = 5_000
@@ -102,8 +103,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         const info = await playbackInfo(api, id, { startTicks: startTicks ?? 0 })
         const source = info.MediaSources?.[0]
         if (!source) throw new Error('keine Quelle')
-        const audioIndex = pickAudio(source)
-        const subtitleIndex = pickSubtitle(source, audioIndex)
+        const settings = loadSettings()
+        const audioIndex = pickAudio(source, settings.audio)
+        const subtitleIndex = pickSubtitle(source, audioIndex, settings.subtitles)
         await open(audioIndex, subtitleIndex, startAt.current)
       } catch {
         if (active) setError(t.playbackFailed)

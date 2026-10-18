@@ -68,6 +68,7 @@ export function App() {
           server={server}
           session={view.session}
           onSwitchProfile={() => setView({ name: 'profiles' })}
+          onChangeServer={() => setView({ name: 'server' })}
           onSignOut={() => {
             setState(s => withoutSession(s, view.session.userId))
             setView({ name: 'profiles' })

@@ -7,6 +7,7 @@ import { RouterContext, type Page } from '../nav/router'
 import { DetailsPage } from '../pages/DetailsPage'
 import { PersonPage } from '../pages/PersonPage'
 import { SearchPage } from '../pages/SearchPage'
+import { SettingsPage } from '../pages/SettingsPage'
 import { TrailerPage } from '../pages/TrailerPage'
 import { PlayerPage } from '../player/PlayerPage'
 import { HomeScreen } from './HomeScreen'
@@ -16,13 +17,14 @@ interface Props {
   session: Session
   onSwitchProfile: () => void
   onSignOut: () => void
+  onChangeServer: () => void
 }
 
 /**
  * Angemeldeter Bereich: Startseite unten, darüber gestapelte Seiten (Details, Person, Suche, Trailer).
  * „Zurück“ schließt die oberste Seite und setzt den Fokus dorthin, wo er vorher war.
  */
-export function Shell({ server, session, onSwitchProfile, onSignOut }: Props) {
+export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
   const api: Api = useMemo(() => ({ url: server.url, token: session.token, userId: session.userId }), [server.url, session])
   const [stack, setStack] = useState<Page[]>([])
   const focusMemory = useRef<string[]>([])
@@ -48,7 +50,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut }: Props) {
   return (
     <RouterContext.Provider value={router}>
       <div class={stack.length ? 'qk-covered' : ''}>
-        <HomeScreen api={api} server={server} session={session} covered={stack.length > 0} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} />
+        <HomeScreen api={api} session={session} covered={stack.length > 0} onSwitchProfile={onSwitchProfile} />
       </div>
       {stack.map((page, index) => {
         const covered = index < stack.length - 1
@@ -59,6 +61,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut }: Props) {
             {page.name === 'person' && <PersonPage api={api} id={page.id} />}
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
+            {page.name === 'settings' && <SettingsPage server={server} session={session} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} onChangeServer={onChangeServer} />}
             {page.name === 'player' && <PlayerPage key={page.id} api={api} id={page.id} startTicks={page.startTicks} />}
           </div>
         )

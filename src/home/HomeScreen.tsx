@@ -1,12 +1,10 @@
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
-import type { ServerInfo } from '../api/server'
 import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
 import { onBack } from '../nav/keys'
 import { useRouter } from '../nav/router'
-import { About } from '../ui/About'
 import { Logo } from '../ui/Logo'
 import { Icon, type IconName } from '../ui/Icon'
 import { toast } from '../ui/Toast'
@@ -15,6 +13,7 @@ import { Rail } from './Rail'
 import { Row } from './Rows'
 import { useHomeData } from './useHomeData'
 import { startPlayback } from '../player/start'
+import { loadSettings } from '../settings'
 
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
 const ROTATION_MS = 9_000
@@ -24,15 +23,13 @@ const FOCUS_DEBOUNCE_MS = 500
 
 interface Props {
   api: Api
-  server: ServerInfo
   session: Session
   /** Eine Seite liegt darüber: keine Trailer, kein Wechsel, kein eigenes „Zurück“. */
   covered: boolean
   onSwitchProfile: () => void
-  onSignOut: () => void
 }
 
-export function HomeScreen({ api, server, session, covered, onSwitchProfile, onSignOut }: Props) {
+export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
   const router = useRouter()
   const { billboard, billboardDone, rows, reasons } = useHomeData(api)
 
@@ -41,7 +38,6 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
   const [billboardFocused, setBillboardFocused] = useState(false)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
   const [trailerPlaying, setTrailerPlaying] = useState(false)
-  const [showAbout, setShowAbout] = useState(false)
   const [overviews, setOverviews] = useState<Record<string, string>>({})
 
   const billboardItem = billboard.length ? billboard[index % billboard.length] : null
@@ -76,7 +72,7 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
   // Trailer-Vorschau: nur solange das Banner ausgewählt ist, nach kurzer Zeit auf demselben Titel
   useEffect(() => {
     setTrailerUrl(null)
-    if (!stableFocus || !billboardItem || covered) return
+    if (!stableFocus || !billboardItem || covered || !loadSettings().trailers) return
     let active = true
     const timer = setTimeout(async () => {
       const url = await localTrailerUrl(api, billboardItem)
@@ -112,13 +108,9 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
 
   useEffect(() => onBack(() => {
     if (covered) return false
-    if (showAbout) {
-      setShowAbout(false)
-      return true
-    }
     onSwitchProfile()
     return true
-  }), [showAbout, covered])
+  }), [covered])
 
   function step(delta: number): boolean {
     if (billboard.length < 2) return false
@@ -136,7 +128,7 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
   }
 
   const reason = shown ? reasons[reasonKey(shown.Id)] : undefined
-  const avatar = session.imageTag ? userImageUrl(server.url, session.userId, session.imageTag, 96) : null
+  const avatar = session.imageTag ? userImageUrl(api.url, session.userId, session.imageTag, 96) : null
 
   return (
     <div class="qk-home">
@@ -154,7 +146,7 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
           { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: onSwitchProfile },
           { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
           { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => setFocus('bb-play') },
-          { id: 'about', label: t.railAbout, icon: <Icon name="info" />, onPress: () => setShowAbout(true) },
+          { id: 'settings', label: t.railSettings, icon: <Icon name="settings" />, onPress: () => router.push({ name: 'settings' }) },
         ]}
       />
       <div class="qk-home-main">
@@ -180,15 +172,6 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
         </div>
       </div>
       <Clock />
-      {showAbout && (
-        <div class="qk-overlay">
-          <Logo size={120} />
-          <About server={server} />
-          <div class="qk-actions">
-            <OverlayButton label={t.signOut} onPress={onSignOut} />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -250,12 +233,6 @@ function BillboardButton({ focusKey, label, icon, dimmed, onPress, onArrow }: Bi
       {label}
     </div>
   )
-}
-
-function OverlayButton({ label, onPress }: { label: string; onPress: () => void }) {
-  const { ref, focused, focusSelf } = useFocusable({ focusKey: 'overlay-button', onEnterPress: onPress })
-  useEffect(() => focusSelf(), [])
-  return <div ref={ref} class={`qk-button ${focused ? 'focused' : ''}`} onClick={onPress}>{label}</div>
 }
 
 /** Uhr oben rechts (24 Stunden). */

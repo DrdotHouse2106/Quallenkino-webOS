@@ -21,6 +21,7 @@ import { toast } from '../ui/Toast'
 import { ActionButton } from './ActionButton'
 import { Page } from './Page'
 import { startPlayback } from '../player/start'
+import { loadSettings } from '../settings'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -74,7 +75,7 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
   // Trailer im Hintergrund (nur vom Server); pausiert, solange eine andere Seite darüber liegt
   useEffect(() => {
     setTrailerUrl(null)
-    if (!item || covered) return
+    if (!item || covered || !loadSettings().trailers) return
     let active = true
     const timer = setTimeout(async () => {
       const url = await localTrailerUrl(api, item)

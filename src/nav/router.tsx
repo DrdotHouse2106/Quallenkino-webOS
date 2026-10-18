@@ -8,6 +8,7 @@ export type Page =
   | { name: 'search' }
   | { name: 'trailer'; url: string }
   | { name: 'player'; id: string; startTicks?: number }
+  | { name: 'settings' }
 
 export interface Router {
   push: (page: Page) => void

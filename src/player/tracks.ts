@@ -1,5 +1,6 @@
 import type { MediaSource, MediaStream } from './playback'
 import { canPlayAudio } from './profile'
+import type { AudioMode, SubtitleMode } from '../settings'
 
 /** Sprachen, die als „eigene Sprache“ gelten (Deutsch). */
 const OWN_LANGUAGES = ['ger', 'deu', 'de', 'german', 'deutsch']
@@ -16,8 +17,14 @@ export const subtitleStreams = (source: MediaSource) => (source.MediaStreams ?? 
  * gewinnt eine, die der Fernseher selbst kann (AC3 statt DTS) – dann muss nichts umgerechnet werden;
  * danach die Vorgabe des Servers und die als Standard markierte.
  */
-export function pickAudio(source: MediaSource): number | undefined {
+export function pickAudio(source: MediaSource, mode: AudioMode = 'own'): number | undefined {
   const audio = audioStreams(source)
+  if (mode === 'original') {
+    // Originalton: erste Spur in fremder Sprache (bei deutschen Filmen gibt es keine → deutsch)
+    const foreign = audio.filter(s => s.Language && !isOwnLanguage(s.Language) && !/kommentar|commentary/i.test(s.Title ?? s.DisplayTitle ?? ''))
+    const pick = foreign.find(s => canPlayAudio(s.Codec)) ?? foreign[0]
+    if (pick) return pick.Index
+  }
   const own = audio.filter(s => isOwnLanguage(s.Language))
   const rank = (s: MediaStream) =>
     (canPlayAudio(s.Codec) ? 0 : 4) + (s.Index === source.DefaultAudioStreamIndex ? 0 : 2) + (s.IsDefault ? 0 : 1)
@@ -28,12 +35,13 @@ export function pickAudio(source: MediaSource): number | undefined {
 /**
  * Intelligente Untertitel (wie in der Android-App): Ton in der eigenen Sprache → keine Untertitel,
  * außer erzwungene. Fremde Sprache → deutsche Untertitel, sonst die Vorgabe des Servers.
- * -1 = aus.
+ * „always“: immer deutsche, „off“: keine. -1 = aus.
  */
-export function pickSubtitle(source: MediaSource, audioIndex: number | undefined): number {
+export function pickSubtitle(source: MediaSource, audioIndex: number | undefined, mode: SubtitleMode = 'smart'): number {
   const subtitles = subtitleStreams(source)
+  if (mode === 'off') return -1
   const audio = audioStreams(source).find(s => s.Index === audioIndex)
-  if (isOwnLanguage(audio?.Language)) {
+  if (mode === 'smart' && isOwnLanguage(audio?.Language)) {
     const forced = subtitles.find(s => s.IsForced && (isOwnLanguage(s.Language) || !s.Language))
     return forced?.Index ?? -1
   }
