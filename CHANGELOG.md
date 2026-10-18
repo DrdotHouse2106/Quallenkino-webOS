@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.3 – 2026-10-18
+
+- **LG-Bildschirmschoner überdeckt Quallenkino nicht mehr:** Solange die App im Vordergrund ist und „Bildschirmschoner nach“ eingeschaltet ist, hält Quallenkino den Schoner des Fernsehers zurück (Anfrage über `com.webos.service.tvpower`, Antwort `ack:false`). Steht der eigene Schoner auf „Aus“, darf der LG-Schoner wie gewohnt kommen.
+
 ## 0.7.2 – 2026-10-18
 
 - **Ton der Teaser im Bildschirmschoner** als Einstellung: Stumm (Standard), Leise oder Normal.

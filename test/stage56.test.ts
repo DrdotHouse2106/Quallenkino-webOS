@@ -7,6 +7,7 @@ import { guideStart, programAt } from '../src/livetv/GuidePage'
 import { pickAudio, pickSubtitle } from '../src/player/tracks'
 import { youtubeKey } from '../src/pages/YouTubePage'
 import { pickTeaser } from '../src/home/Screensaver'
+import { blockSystemScreensaver } from '../src/platform/systemScreensaver'
 
 describe('Live-TV', () => {
   const now = new Date(2026, 9, 18, 18, 0)
@@ -114,5 +115,13 @@ describe('Bildschirmschoner', () => {
     expect(pickTeaser([v('t1', 150)], [v('e1', 90), v('e2', 60)])?.Id).toBe('e2')
     expect(pickTeaser([v('t1', 150)], [v('e1', 600)])?.Id).toBe('t1')
     expect(pickTeaser([], [])).toBeNull()
+  })
+})
+
+describe('LG-Bildschirmschoner', () => {
+  it('nur zurückhalten, wenn die App sichtbar und der eigene Schoner an ist', () => {
+    expect(blockSystemScreensaver(true, 5)).toBe(true)
+    expect(blockSystemScreensaver(true, 0)).toBe(false)
+    expect(blockSystemScreensaver(false, 5)).toBe(false)
   })
 })
