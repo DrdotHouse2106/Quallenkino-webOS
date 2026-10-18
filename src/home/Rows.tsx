@@ -44,7 +44,7 @@ export function Row({ api, row, onFocusItem, onOpen }: RowProps) {
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} class="qk-row">
-        <div class="qk-row-title">{row.title}</div>
+        {row.title && <div class="qk-row-title">{row.title}</div>}
         <div class="qk-row-track">
           {row.items.map((item, index) => (
             <Card
@@ -111,8 +111,12 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     const poster = primaryUrl(api, item, 240)
     return (
       <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
-        <div class="qk-poster-image"><Img src={poster} fallback={<span>{title(item)}</span>} /></div>
+        <div class="qk-poster-image">
+          <Img src={poster} fallback={<span>{title(item)}</span>} />
+          {item.Badge && <span class="qk-badge" style={{ background: item.Badge.color }}>{item.Badge.label}</span>}
+        </div>
         <div class="qk-card-caption">{title(item)}</div>
+        {item.ProductionYear && item.ImageUrl !== undefined ? <div class="qk-card-caption muted">{item.ProductionYear}</div> : null}
       </div>
     )
   }

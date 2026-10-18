@@ -16,6 +16,7 @@ export function backdropUrl(api: Api, item: Item, width = 1280): string | null {
 /** Querformat für Karten: Vorschaubild, sonst Hintergrund, bei Folgen das Folgenbild. */
 export function thumbUrl(api: Api, item: Item, width = 480): string | null {
   const size = `maxWidth=${width}`
+  if (item.ImageUrl !== undefined) return item.ImageUrl
   if (item.ImageTags?.Thumb) return imageUrl(api, item.Id, 'Thumb', item.ImageTags.Thumb, size)
   if (item.Type === 'Episode' && item.ImageTags?.Primary) return imageUrl(api, item.Id, 'Primary', item.ImageTags.Primary, size)
   if (item.ParentThumbItemId && item.ParentThumbImageTag) return imageUrl(api, item.ParentThumbItemId, 'Thumb', item.ParentThumbImageTag, size)
@@ -24,6 +25,7 @@ export function thumbUrl(api: Api, item: Item, width = 480): string | null {
 
 /** Hochformat (Plakat). */
 export function primaryUrl(api: Api, item: Item, width = 300): string | null {
+  if (item.ImageUrl !== undefined) return item.ImageUrl
   return item.ImageTags?.Primary ? imageUrl(api, item.Id, 'Primary', item.ImageTags.Primary, `maxWidth=${width}`) : null
 }
 

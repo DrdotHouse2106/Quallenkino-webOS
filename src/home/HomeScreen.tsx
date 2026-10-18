@@ -14,6 +14,7 @@ import { Rail } from './Rail'
 import { Row } from './Rows'
 import { useHomeData } from './useHomeData'
 import { worldBackdrop, worldLogo, type World } from '../api/worlds'
+import { available as seerrAvailable } from '../api/jellyseerr'
 import { startPlayback } from '../player/start'
 import { loadSettings } from '../settings'
 
@@ -40,6 +41,11 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
   const [billboardFocused, setBillboardFocused] = useState(false)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
   const [trailerPlaying, setTrailerPlaying] = useState(false)
+  /** Jellyseerr erreichbar? Nur dann gibt es „Entdecken“ (wie Android). */
+  const [seerr, setSeerr] = useState(false)
+  useEffect(() => {
+    seerrAvailable(api).then(setSeerr)
+  }, [api])
   const [overviews, setOverviews] = useState<Record<string, string>>({})
 
   const billboardItem = billboard.length ? billboard[index % billboard.length] : null
@@ -153,6 +159,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
           { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
           { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => setFocus('bb-play') },
           { id: 'livetv', label: t.railLiveTv, icon: <Icon name="liveTv" />, onPress: () => router.push({ name: 'guide' }) },
+          ...(seerr ? [{ id: 'discover', label: t.railDiscover, icon: <Icon name="add" />, onPress: () => router.push({ name: 'discover' }) }] : []),
           { id: 'settings', label: t.railSettings, icon: <Icon name="settings" />, onPress: () => router.push({ name: 'settings' }) },
         ]}
       />

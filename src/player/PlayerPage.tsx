@@ -18,6 +18,7 @@ import {
   streamFor,
   subtitleUrl,
   TICKS_PER_SECOND,
+  type PlaybackInfo,
   type Segment,
   type Stream,
 } from './playback'
@@ -107,7 +108,8 @@ export function PlayerPage({ api, id, startTicks }: Props) {
           if (!source) throw new Error('keine Quelle')
           const settings = loadSettings()
           const audioIndex = pickAudio(source, settings.audio)
-          await open(audioIndex, pickSubtitle(source, audioIndex, settings.subtitles), 0)
+          // Die erste Antwort direkt nutzen: jede weitere würde einen zweiten Live-Stream (Tuner) öffnen
+          await open(audioIndex, pickSubtitle(source, audioIndex, settings.subtitles), 0, false, false, info)
           return
         }
         const target = ratingTarget(loaded)
@@ -137,12 +139,14 @@ export function PlayerPage({ api, id, startTicks }: Props) {
    * schaltet die App über video.audioTracks um. Geht das nicht oder kann der Fernseher den Ton nicht
    * (DTS, TrueHD), rechnet der Server um.
    */
-  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number, transcode = false, switching = false) {
+  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number, transcode = false, switching = false, preloaded?: PlaybackInfo) {
     const startTicks = Math.round(position * TICKS_PER_SECOND)
-    const info = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode })
+    const info = preloaded ?? await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode })
     let next = streamFor(api, id, info, { audio: audioIndex, transcode })
     if (!next) throw new Error('nicht abspielbar')
-    const direct = next.method !== 'Transcode' && directAudioPossible(next, audioIndex, switching)
+    // Live-TV entscheidet der Server allein (eine zweite Anfrage würde einen weiteren Tuner belegen)
+    const liveSource = !!preloaded || !!next.source.LiveStreamId || !!next.source.IsInfiniteStream
+    const direct = liveSource || (next.method !== 'Transcode' && directAudioPossible(next, audioIndex, switching))
     // Für die Fehlersuche am Fernseher (Konsole über den Web-Inspector)
     console.info('[Quallenkino] Wiedergabe', {
       method: next.method,

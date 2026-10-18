@@ -54,6 +54,11 @@ export interface Item {
   CurrentProgram?: Item
   ProviderIds?: Record<string, string>
   Studios?: { Id?: string; Name: string }[]
+  /** Nur in der App: fertige Bildadresse (z. B. TMDB-Plakat aus Jellyseerr) und Hinweis oben rechts. */
+  ImageUrl?: string | null
+  Badge?: { label: string; color: string }
+  /** Nur in der App: Eintrag aus Jellyseerr (Titel bzw. Person). */
+  Seerr?: { type: 'movie' | 'tv' | 'person'; id: number }
   /** Nur in der App: Karte einer Welt (Startseite). */
   World?: import('./worlds').World
 }

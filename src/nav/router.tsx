@@ -12,6 +12,9 @@ export type Page =
   | { name: 'guide' }
   | { name: 'program'; id: string }
   | { name: 'world'; id: string }
+  | { name: 'discover' }
+  | { name: 'request'; type: 'movie' | 'tv'; id: number }
+  | { name: 'seerrPerson'; id: number }
 
 export interface Router {
   push: (page: Page) => void

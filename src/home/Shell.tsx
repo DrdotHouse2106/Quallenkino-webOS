@@ -13,6 +13,9 @@ import { PlayerPage } from '../player/PlayerPage'
 import { GuidePage } from '../livetv/GuidePage'
 import { ProgramPage } from '../livetv/ProgramPage'
 import { WorldPage } from '../pages/WorldPage'
+import { DiscoverPage } from '../discover/DiscoverPage'
+import { RequestPage } from '../discover/RequestPage'
+import { SeerrPersonPage } from '../discover/SeerrPersonPage'
 import { HomeScreen } from './HomeScreen'
 
 interface Props {
@@ -68,6 +71,9 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
             {page.name === 'guide' && <GuidePage api={api} />}
             {page.name === 'program' && <ProgramPage api={api} id={page.id} />}
             {page.name === 'world' && <WorldPage api={api} id={page.id} />}
+            {page.name === 'discover' && <DiscoverPage api={api} />}
+            {page.name === 'request' && <RequestPage api={api} type={page.type} id={page.id} />}
+            {page.name === 'seerrPerson' && <SeerrPersonPage api={api} id={page.id} />}
             {page.name === 'player' && <PlayerPage key={page.id} api={api} id={page.id} startTicks={page.startTicks} />}
           </div>
         )

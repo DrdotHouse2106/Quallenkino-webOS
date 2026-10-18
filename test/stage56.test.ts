@@ -1,0 +1,85 @@
+import { describe, expect, it } from 'vitest'
+import { airing, creditLines, relative, programProgress } from '../src/api/livetv'
+import { normalizeName } from '../src/api/names'
+import { statusOf, toResult } from '../src/api/jellyseerr'
+import { collectionTitle } from '../src/api/worlds'
+import { guideStart, programAt } from '../src/livetv/GuidePage'
+import { pickAudio, pickSubtitle } from '../src/player/tracks'
+
+describe('Live-TV', () => {
+  const now = new Date(2026, 9, 18, 18, 0)
+  it('relative Zeit wie Android (ab 59,5 Min. Stunden)', () => {
+    expect(relative(new Date(2026, 9, 18, 18, 20), now)).toBe('in 20 Minuten')
+    expect(relative(new Date(2026, 9, 18, 18, 59, 40), now)).toBe('in 1 Stunde')
+    expect(relative(new Date(2026, 9, 18, 20, 15), now)).toBe('in 2 Stunden')
+    expect(relative(new Date(2026, 9, 18, 17, 59), now)).toBe('vor 1 Minute')
+  })
+
+  it('Zeile unter der Sendung', () => {
+    const later = { Id: 'p', StartDate: new Date(2026, 9, 18, 20, 15).toISOString(), EndDate: new Date(2026, 9, 18, 21, 45).toISOString(), ChannelName: 'Das Erste' }
+    expect(airing(later, now)).toBe('Heute 20:15–21:45 · in 2 Stunden · Das Erste')
+    const running = { Id: 'r', StartDate: new Date(2026, 9, 18, 17, 30).toISOString(), EndDate: new Date(2026, 9, 18, 18, 25).toISOString(), ChannelName: 'ZDF' }
+    expect(airing(running, now)).toBe('Läuft · noch 25 Min. · ZDF')
+    expect(programProgress(running, now.getTime())).toBeCloseTo(54.5, 0)
+  })
+
+  it('Besetzung als Zeilen (höchstens vier Darsteller)', () => {
+    const lines = creditLines({ directors: ['Bora Dağtekin'], actors: [{ name: 'A', role: 'X' }, { name: 'B' }, { name: 'C' }, { name: 'D' }, { name: 'E' }], writers: [] })
+    expect(lines).toEqual(['Regie: Bora Dağtekin', 'Mit: A (X), B, C, D'])
+    expect(creditLines(null)).toEqual([])
+  })
+
+  it('Programmführer: Start auf :00/:30, Sendung zur Zeit', () => {
+    expect(guideStart(new Date(2026, 9, 18, 18, 44)).getMinutes()).toBe(30)
+    const list = [
+      { Id: 'a', StartDate: new Date(2026, 9, 18, 17, 0).toISOString(), EndDate: new Date(2026, 9, 18, 18, 30).toISOString() },
+      { Id: 'b', StartDate: new Date(2026, 9, 18, 18, 30).toISOString(), EndDate: new Date(2026, 9, 18, 19, 0).toISOString() },
+    ]
+    expect(programAt(list, now)).toBe(0)
+    expect(programAt(list, new Date(2026, 9, 18, 18, 45))).toBe(1)
+    expect(programAt([], now)).toBe(-1)
+  })
+
+  it('Namen vergleichbar (M’Barek)', () => {
+    expect(normalizeName('Elyas M’Barek')).toBe(normalizeName("elyas  m'barek"))
+    expect(normalizeName('Zoë Kravitz')).toBe('zoe kravitz')
+  })
+})
+
+describe('Jellyseerr', () => {
+  it('Stand wie Android', () => {
+    expect([5, 4, 3, 2, 1, undefined].map(statusOf)).toEqual(['available', 'partial', 'requested', 'requested', 'none', 'none'])
+  })
+
+  it('Ergebnisse: nur Filme und Serien', () => {
+    expect(toResult({ id: 1, mediaType: 'person', name: 'X' })).toBeNull()
+    expect(toResult({ id: 2, mediaType: 'tv', name: 'Dark', firstAirDate: '2017-12-01', mediaInfo: { status: 5 } })).toMatchObject({ type: 'tv', title: 'Dark', year: '2017', status: 'available' })
+  })
+})
+
+describe('Welten und Einstellungen', () => {
+  it('Sammlungsname ohne „Filmreihe“', () => {
+    expect(collectionTitle('Iron Man Filmreihe')).toBe('Iron Man')
+    expect(collectionTitle('Star Wars Collection')).toBe('Star Wars')
+  })
+
+  const source = {
+    Id: 'm',
+    DefaultAudioStreamIndex: 1,
+    MediaStreams: [
+      { Index: 1, Type: 'Audio', Language: 'ger', Codec: 'ac3' },
+      { Index: 2, Type: 'Audio', Language: 'eng', Codec: 'eac3' },
+      { Index: 3, Type: 'Subtitle', Language: 'ger' },
+      { Index: 4, Type: 'Subtitle', Language: 'ger', IsForced: true },
+    ],
+  }
+  it('Ton: Originalton wählt die fremde Spur', () => {
+    expect(pickAudio(source, 'own')).toBe(1)
+    expect(pickAudio(source, 'original')).toBe(2)
+  })
+  it('Untertitel: intelligent, immer, aus', () => {
+    expect(pickSubtitle(source, 1, 'smart')).toBe(4)
+    expect(pickSubtitle(source, 1, 'always')).toBe(3)
+    expect(pickSubtitle(source, 2, 'off')).toBe(-1)
+  })
+})

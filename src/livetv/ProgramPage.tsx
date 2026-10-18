@@ -4,6 +4,7 @@ import { item as loadItem, searchPeople, type Api, type Item } from '../api/item
 import { thumbUrl } from '../api/images'
 import { airing, credits as loadCredits, creditLines, program as loadProgram, setFavorite, type Credits } from '../api/livetv'
 import { normalizeName } from '../api/names'
+import { findPerson as findSeerrPerson } from '../api/jellyseerr'
 import { cleanOverview } from '../home/format'
 import { HeroBackdrop } from '../home/Hero'
 import { Row } from '../home/Rows'
@@ -60,7 +61,10 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
 
   async function openPerson(name: string) {
     const person = await findPerson(api, name).catch(() => null)
-    if (person) router.push({ name: 'person', id: person.Id })
+    if (person) return router.push({ name: 'person', id: person.Id })
+    // Nicht auf dem Server: Person aus Jellyseerr (nur bei eindeutigem Namen)
+    const seerrId = await findSeerrPerson(api, name)
+    if (seerrId) router.push({ name: 'seerrPerson', id: seerrId })
     else toast(t.personNotFound(name))
   }
 

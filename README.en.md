@@ -8,7 +8,7 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
-Version 0.4 – stage 4 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search, player (direct play or server transcoding, resume, smart subtitles, audio & subtitles dialog, skip intro, next episode). Next: live TV, worlds, requests.
+Version 0.6 – stages 1 to 6 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search, player (direct play or server transcoding, resume, smart subtitles, audio & subtitles dialog, skip intro, next episode), live TV (TV for you today, programme guide with filters and favourite channels, programme details with director and cast, watch a channel), worlds (tiles with logo and trailer, world page), discover & request via Jellyseerr (for you, search, choose seasons), settings (subtitles and audio at start, trailer preview, switch profile/server, sign out, about). Next: polish, screensaver.
 
 ## Install (Developer Mode)
 

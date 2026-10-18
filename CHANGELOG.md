@@ -1,5 +1,17 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.0 – 2026-10-18
+
+Etappen 5 und 6 – die Navigation links ist jetzt wie in der Android-App: Profil, Suche, Startseite, Live-TV, Entdecken, Einstellungen.
+
+- **Live-TV (Etappe 5):** Reihe **„Heute im TV für dich“** auf der Startseite (Plugin Local Recommendations), Zeit und Sender im Infobereich („Heute 20:15–21:45 · in 2 Stunden · Das Erste“).
+- **Programmführer:** Sender untereinander, Sendungen als Zeitleiste ab jetzt (12 Stunden, Linie für „jetzt“), Filter Alle, Favoriten, Filme, Serien, Nachrichten, Kinder, Sport. Oben die ausgewählte Sendung mit **Regie und Darstellern** aus den Programmdaten. Auch bei vielen Sendern flüssig (nur sichtbare Zeilen, Sendungen werden nachgeladen).
+- **Sendungs-Details:** Zeit, Sender, Beschreibung, „Regie: …“ und „Mit: …“, Darsteller und Crew als Kreise; OK auf eine Person öffnet ihre Seite (auf dem Server oder aus Jellyseerr). Knöpfe **Einschalten** und **Lieblingssender**.
+- **Sender im Player:** Leiste mit LIVE, laufender Sendung und Fortschritt; der Server rechnet als HLS um, es wird nur ein Live-Stream geöffnet und beim Beenden wieder geschlossen.
+- **Welten (Etappe 6):** Reihe „Welten“ mit Kacheln (Hintergrund, Logo vom eigenen Server, Name); im Infobereich Logo und Zahl der Titel, nach 3 s der Trailer der Welt. Welt-Seite mit „Für dich in dieser Welt“, „Neu dazugekommen“, den Filmreihen, „Filme“ und „Serien aus der Welt von …“.
+- **Entdecken & Anfragen (Jellyseerr über Jellyfin Enhanced):** „Für dich“ (Empfehlungen zu Favoriten und zuletzt Gesehenem, ohne Titel, die schon da oder angefragt sind; neueste zuerst) und Suche (Jahreszahl am Ende filtert). Plakate mit Stand **Verfügbar / Teilweise / Angefragt**. Detailseite mit Eckdaten, FSK, Regie bzw. Idee, Staffeln mit Stand, Besetzung, Ähnlichem; **Anfragen**, bei Serien **Alle Staffeln anfragen** oder **Staffeln wählen**; „In Jellyfin öffnen“, wenn der Titel schon da ist. Der Punkt „Entdecken“ erscheint nur, wenn Jellyseerr erreichbar ist.
+- **Einstellungen:** Untertitel beim Start (Intelligent, Immer deutsche, Aus), Ton beim Start (Deutsch bevorzugen, Originalton), Trailer-Vorschau an/aus, Profil wechseln, Abmelden, Server wechseln, Über mit Version und TMDB-Hinweis. „Über“ ist aus der Navigation in die Einstellungen gewandert.
+
 ## 0.4.6 – 2026-10-18
 
 - **Überspringen (Intro, Rückblick, Abspann): lieber etwas zu früh als Inhalt verpassen.** Der LG kann nur auf Schlüsselbilder springen; die App fragt das Ende des Abschnitts an und bleibt beim Schlüsselbild davor (die letzten Sekunden des Intros sind noch zu sehen). Nur wenn das mehr als 8 s zu früh ist, wird einmal knapp hinter dem Ziel nachgefragt – schießt das mehr als 1 s darüber hinaus, geht es zurück zur ersten Landung. 0.4.5 konnte einige Sekunden der Folge verschlucken.
