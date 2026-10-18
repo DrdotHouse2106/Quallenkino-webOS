@@ -26,7 +26,7 @@ export interface Item {
   SeriesThumbImageTag?: string
   SeriesPrimaryImageTag?: string
   LocalTrailerCount?: number
-  UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null }
+  UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null; IsFavorite?: boolean }
   Taglines?: string[]
   People?: Person[]
   PremiereDate?: string
@@ -34,6 +34,26 @@ export interface Item {
   Role?: string
   ProductionLocations?: string[]
   ChildCount?: number
+  // Live-TV: Sendungen und Sender
+  ChannelId?: string
+  ChannelName?: string
+  ChannelNumber?: string
+  ChannelPrimaryImageTag?: string
+  Number?: string
+  StartDate?: string
+  EndDate?: string
+  EpisodeTitle?: string
+  IsMovie?: boolean
+  IsSeries?: boolean
+  IsNews?: boolean
+  IsKids?: boolean
+  IsSports?: boolean
+  IsPremiere?: boolean
+  IsLive?: boolean
+  IsRepeat?: boolean
+  CurrentProgram?: Item
+  ProviderIds?: Record<string, string>
+  Studios?: { Id?: string; Name: string }[]
 }
 
 export interface Person {
@@ -59,11 +79,11 @@ export interface Api {
 const FIELDS = 'Overview,Genres,PrimaryImageAspectRatio,ProductionYear,OfficialRating,CommunityRating'
 const IMAGES = 'EnableImageTypes=Primary,Backdrop,Thumb,Logo&ImageTypeLimit=1'
 
-function get<T>(api: Api, path: string): Promise<T> {
+export function get<T>(api: Api, path: string): Promise<T> {
   return request<T>(api.url, path, { token: api.token })
 }
 
-async function items(api: Api, path: string): Promise<Item[]> {
+export async function items(api: Api, path: string): Promise<Item[]> {
   const result = await get<QueryResult | Item[]>(api, path)
   return Array.isArray(result) ? result : result?.Items ?? []
 }

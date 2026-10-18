@@ -10,6 +10,8 @@ import { SearchPage } from '../pages/SearchPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { TrailerPage } from '../pages/TrailerPage'
 import { PlayerPage } from '../player/PlayerPage'
+import { GuidePage } from '../livetv/GuidePage'
+import { ProgramPage } from '../livetv/ProgramPage'
 import { HomeScreen } from './HomeScreen'
 
 interface Props {
@@ -62,6 +64,8 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
             {page.name === 'settings' && <SettingsPage server={server} session={session} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} onChangeServer={onChangeServer} />}
+            {page.name === 'guide' && <GuidePage api={api} />}
+            {page.name === 'program' && <ProgramPage api={api} id={page.id} />}
             {page.name === 'player' && <PlayerPage key={page.id} api={api} id={page.id} startTicks={page.startTicks} />}
           </div>
         )

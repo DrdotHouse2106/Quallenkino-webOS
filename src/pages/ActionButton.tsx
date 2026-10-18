@@ -1,4 +1,5 @@
-import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
+import type { ComponentChildren } from 'preact'
+import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { Icon, type IconName } from '../ui/Icon'
 
 interface Props {
@@ -18,5 +19,15 @@ export function ActionButton({ focusKey, label, icon, active, dimmed, onPress }:
       {icon && <Icon name={icon} />}
       {label}
     </div>
+  )
+}
+
+/** Reihe von Knöpfen; merkt sich den zuletzt gewählten. */
+export function ActionRow({ focusKey, children }: { focusKey: string; children: ComponentChildren }) {
+  const { ref, focusKey: key } = useFocusable({ focusKey, trackChildren: true, saveLastFocusedChild: true })
+  return (
+    <FocusContext.Provider value={key}>
+      <div ref={ref} class="qk-billboard-buttons">{children}</div>
+    </FocusContext.Provider>
   )
 }

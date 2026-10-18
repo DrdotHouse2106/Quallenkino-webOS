@@ -28,6 +28,9 @@ export interface MediaSource {
   DefaultAudioStreamIndex?: number
   DefaultSubtitleStreamIndex?: number
   RunTimeTicks?: number
+  /** Live-TV: geöffneter Live-Stream (beim Stoppen wieder geschlossen). */
+  LiveStreamId?: string
+  IsInfiniteStream?: boolean
 }
 
 export interface PlaybackInfo {
@@ -76,7 +79,9 @@ export function playbackInfo(api: Api, itemId: string, options: { audio?: number
 export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options: { audio?: number; transcode?: boolean } = {}): Stream | null {
   const source = info.MediaSources?.[0]
   if (!source) return null
-  if (!options.transcode && (source.SupportsDirectPlay || source.SupportsDirectStream)) {
+  // Live-TV: die HLS-Umrechnung des Servers läuft auf dem Fernseher am zuverlässigsten
+  const live = !!source.LiveStreamId || !!source.IsInfiniteStream
+  if (!options.transcode && !(live && source.TranscodingUrl) && (source.SupportsDirectPlay || source.SupportsDirectStream)) {
     const params = new URLSearchParams({
       Static: 'true',
       mediaSourceId: source.Id,
@@ -85,6 +90,7 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
       PlaySessionId: info.PlaySessionId,
     })
     if (options.audio !== undefined) params.set('AudioStreamIndex', String(options.audio))
+    if (source.LiveStreamId) params.set('LiveStreamId', source.LiveStreamId)
     const container = (source.Container ?? 'mp4').split(',')[0]
     return {
       url: `${base(api)}/Videos/${itemId}/stream.${container}?${params}`,
@@ -120,6 +126,7 @@ interface Report {
   SubtitleStreamIndex?: number
   IsPaused?: boolean
   CanSeek: boolean
+  LiveStreamId?: string
 }
 
 const report = (api: Api, path: string, body: Report) =>

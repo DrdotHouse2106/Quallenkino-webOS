@@ -5,6 +5,7 @@ import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
 import { onBack } from '../nav/keys'
 import { useRouter } from '../nav/router'
+import { openItem } from '../nav/open'
 import { Logo } from '../ui/Logo'
 import { Icon, type IconName } from '../ui/Icon'
 import { toast } from '../ui/Toast'
@@ -146,6 +147,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
           { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: onSwitchProfile },
           { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
           { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => setFocus('bb-play') },
+          { id: 'livetv', label: t.railLiveTv, icon: <Icon name="liveTv" />, onPress: () => router.push({ name: 'guide' }) },
           { id: 'settings', label: t.railSettings, icon: <Icon name="settings" />, onPress: () => router.push({ name: 'settings' }) },
         ]}
       />
@@ -167,7 +169,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
         </div>
         <div class="qk-rows">
           {rows.map(row => (
-            <Row key={row.key} api={api} row={row} onFocusItem={setRowItem} onOpen={opened => router.push({ name: 'details', id: opened.Id })} />
+            <Row key={row.key} api={api} row={row} onFocusItem={setRowItem} onOpen={opened => openItem(router, opened)} />
           ))}
         </div>
       </div>

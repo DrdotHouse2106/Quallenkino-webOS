@@ -1,4 +1,5 @@
 import type { Item } from '../api/items'
+import { airing } from '../api/livetv'
 
 /** Haupttitel: bei Folgen der Serienname. */
 export function title(item: Item): string {
@@ -15,6 +16,8 @@ export function subtitle(item: Item): string | null {
 /** Eckdaten: Jahr, FSK, Laufzeit, Bewertung, Genres. */
 export function facts(item: Item): string[] {
   const list: string[] = []
+  // Sendung im Fernsehen: zuerst wann und wo
+  if (item.Type === 'Program' || item.StartDate && item.ChannelName) list.push(airing(item))
   if (item.ProductionYear) list.push(String(item.ProductionYear))
   if (item.OfficialRating?.trim()) list.push(item.OfficialRating.trim())
   if (item.RunTimeTicks && item.RunTimeTicks > 0 && item.Type !== 'Series') {

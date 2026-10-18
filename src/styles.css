@@ -272,3 +272,38 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-settings-about { display: flex; align-items: center; gap: 24px; }
 .qk-settings-about .qk-about { position: static; text-align: left; }
 .qk-soon { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; padding: 0 240px; }
+
+/* Programmführer */
+.qk-guide-page .qk-page-main { padding-right: 40px; }
+.qk-guide-head { display: flex; align-items: center; gap: 40px; }
+.qk-guide-head h1 { margin: 0; font-size: 44px; }
+.qk-guide-filters { display: flex; gap: 12px; }
+.qk-chip { padding: 10px 22px; border-radius: 24px; background: rgba(255, 255, 255, 0.12); font-size: 24px; font-weight: 600; }
+.qk-chip.selected { box-shadow: inset 0 0 0 3px var(--qk-accent-to); }
+.qk-chip.focused { background: #fff; color: var(--qk-bg); }
+.qk-guide-info { height: 250px; margin: 20px 0 10px; overflow: hidden; }
+.qk-guide-info-title { font-size: 40px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-guide-info-meta { margin-top: 6px; font-size: 24px; color: var(--qk-muted); }
+.qk-guide-info-credits { margin-top: 6px; font-size: 24px; color: #d6dbe6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-guide-info-overview { margin-top: 8px; font-size: 24px; line-height: 1.35; color: var(--qk-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.qk-guide { position: relative; }
+.qk-guide-times { position: relative; height: 40px; margin-left: 280px; overflow: hidden; }
+.qk-guide-times-track, .qk-guide-programs-track { position: absolute; top: 0; bottom: 0; left: 0; transition: transform 200ms ease; }
+.qk-guide-times span { position: absolute; top: 4px; font-size: 22px; color: var(--qk-muted); white-space: nowrap; }
+.qk-guide-row { display: flex; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.qk-guide-channel { flex: 0 0 280px; display: flex; align-items: center; gap: 14px; padding-right: 12px; }
+.qk-guide-row.current .qk-guide-channel { color: #fff; font-weight: 700; }
+.qk-guide-channel-logo { flex: 0 0 96px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(255, 255, 255, 0.08); font-size: 22px; color: var(--qk-muted); }
+.qk-guide-channel-logo img { max-width: 88px; max-height: 50px; object-fit: contain; }
+.qk-guide-channel-name { font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-guide-programs { position: relative; flex: 1; overflow: hidden; }
+.qk-guide-cell { position: absolute; top: 6px; bottom: 6px; padding: 8px 12px; border-radius: 8px; background: var(--qk-surface); overflow: hidden; }
+.qk-guide-cell.past { opacity: 0.55; }
+.qk-guide-cell.dimmed { opacity: 0.3; }
+.qk-guide-cell.selected { background: #fff; color: var(--qk-bg); opacity: 1; }
+.qk-guide-cell-title { font-size: 22px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-guide-cell-time { font-size: 18px; opacity: 0.7; }
+.qk-guide-empty { position: absolute; top: 30px; left: 12px; color: var(--qk-muted); font-size: 22px; }
+.qk-guide-now { position: absolute; top: 0; bottom: 0; width: 3px; background: #e50914; }
+.qk-live-badge { padding: 2px 10px; border-radius: 6px; background: #e50914; color: #fff; font-weight: 700; }
+.qk-hero-credits { margin-top: 10px; font-size: 26px; color: #d6dbe6; }

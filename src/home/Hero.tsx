@@ -11,11 +11,13 @@ interface HeroBackdropProps {
   trailerUrl: string | null
   onTrailerEnd: () => void
   onTrailerPlaying: (playing: boolean) => void
+  /** Anderes Bild statt des Hintergrundbilds (z. B. Bild einer Sendung). */
+  image?: string | null
 }
 
 /** Bild oben rechts (bzw. Trailer), nach links und unten in Schwarz auslaufend. */
-export function HeroBackdrop({ api, item, trailerUrl, onTrailerEnd, onTrailerPlaying }: HeroBackdropProps) {
-  const url = item ? backdropUrl(api, item) : null
+export function HeroBackdrop({ api, item, trailerUrl, onTrailerEnd, onTrailerPlaying, image }: HeroBackdropProps) {
+  const url = image !== undefined ? image : item ? backdropUrl(api, item) : null
   return (
     <div class="qk-hero-backdrop">
       {url && <img key={url} class="qk-fade-in" src={url} alt="" />}

@@ -1,6 +1,6 @@
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
-import { fullItem, ratingTarget, setRating, type Api, type Item } from '../api/items'
+import { fullItem, get, ratingTarget, setRating, type Api, type Item } from '../api/items'
 import { subtitle as episodeSubtitle, title as itemTitle } from '../home/format'
 import { t } from '../i18n'
 import { isBack, Keys } from '../nav/keys'
@@ -22,6 +22,7 @@ import {
   type Stream,
 } from './playback'
 import { canPlayAudio } from './profile'
+import { programProgress, timeRange } from '../api/livetv'
 import { loadSettings } from '../settings'
 import { audioStreams, audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
@@ -81,6 +82,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   const [next, setNext] = useState<Item | null>(null)
   const [nextCancelled, setNextCancelled] = useState(false)
   const [likes, setLikes] = useState<boolean | null>(null)
+  /** Live-TV: die gerade laufende Sendung. */
+  const [nowOn, setNowOn] = useState<Item | null>(null)
+  const live = item?.Type === 'TvChannel'
   const startAt = useRef((startTicks ?? 0) / TICKS_PER_SECOND)
   const started = useRef(false)
   /** Nach „gestoppt“ keine Meldungen mehr (beim Schließen feuert das Video noch „pause“). */
@@ -95,6 +99,17 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         const loaded = await fullItem(api, id)
         if (!active) return
         setItem(loaded)
+        if (loaded.Type === 'TvChannel') {
+          // Sender: laufende Sendung für die Leiste; kein Fortsetzen, keine Abschnitte
+          loadChannel(api, id).then(channel => active && setNowOn(channel.CurrentProgram ?? null)).catch(() => {})
+          const info = await playbackInfo(api, id)
+          const source = info.MediaSources?.[0]
+          if (!source) throw new Error('keine Quelle')
+          const settings = loadSettings()
+          const audioIndex = pickAudio(source, settings.audio)
+          await open(audioIndex, pickSubtitle(source, audioIndex, settings.subtitles), 0)
+          return
+        }
         const target = ratingTarget(loaded)
         if (target === loaded.Id) setLikes(loaded.UserData?.Likes ?? null)
         else if (target) fullItem(api, target).then(series => active && setLikes(series.UserData?.Likes ?? null)).catch(() => {})
@@ -209,7 +224,8 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     AudioStreamIndex: audio,
     SubtitleStreamIndex: subtitle,
     IsPaused: isPaused,
-    CanSeek: true,
+    CanSeek: !live,
+    LiveStreamId: stream.source.LiveStreamId,
   }
 
   // Fortschritt melden; beim Verlassen „gestoppt“ an der aktuellen Stelle
@@ -248,7 +264,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
 
   function seekBy(seconds: number) {
     const element = video.current
-    if (!element) return
+    if (!element || live) return
     seekTarget.current = null
     element.currentTime = Math.max(0, Math.min((duration || element.duration || 0) - 1, element.currentTime + seconds))
     showOsd()
@@ -380,7 +396,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   }
 
   const name = item ? itemTitle(item) : ''
-  const sub = item ? episodeSubtitle(item) : null
+  const sub = live ? (nowOn ? [timeRange(nowOn), nowOn.Name].filter(Boolean).join('  ·  ') : null) : item ? episodeSubtitle(item) : null
   const cue = cueAt(cues, time)
 
   return (
@@ -434,10 +450,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       <div class={`qk-osd ${osd ? 'visible' : ''}`}>
         <div class="qk-osd-title">{name}</div>
         {sub && <div class="qk-osd-subtitle">{sub}</div>}
-        <SeekBar time={time} duration={duration} paused={paused} onSeek={seekBy} onToggle={togglePause} />
+        {live ? <LiveBar program={nowOn} paused={paused} onToggle={togglePause} /> : <SeekBar time={time} duration={duration} paused={paused} onSeek={seekBy} onToggle={togglePause} />}
         <OsdButtons
           hasNext={!!next}
-          canRate={!!item && !!ratingTarget(item)}
+          canRate={!live && !!item && !!ratingTarget(item)}
           likes={likes}
           onRate={rate}
           onTracks={() => {
@@ -477,6 +493,22 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         />
       )}
     </Page>
+  )
+}
+
+const loadChannel = (api: Api, id: string) => get<Item>(api, `/LiveTv/Channels/${id}?userId=${api.userId}`)
+
+/** Live-TV: statt der Zeitleiste der Fortschritt der laufenden Sendung; OK pausiert. */
+function LiveBar({ program, paused, onToggle }: { program: Item | null; paused: boolean; onToggle: () => void }) {
+  const { ref, focused } = useFocusable({ focusKey: 'player-bar', onEnterPress: onToggle })
+  const percent = program ? programProgress(program) ?? 0 : 0
+  return (
+    <div ref={ref} class={`qk-seek ${focused ? 'focused' : ''}`}>
+      <span class="qk-seek-state"><Icon name={paused ? 'play' : 'pause'} size={30} /></span>
+      <span class="qk-seek-time qk-live-badge">LIVE</span>
+      <div class="qk-seek-track"><div class="qk-seek-fill" style={{ width: `${percent}%` }} /></div>
+      <span class="qk-seek-time">{program?.EndDate ? timeRange(program).split('–')[1] : ''}</span>
+    </div>
   )
 }
 
