@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.2 – 2026-10-18
+
+- **Personen aus der Live-TV-Besetzung:** Gibt es die Person auf dem Server (ohne eigene Titel), wird ihre TMDB-Id genutzt und direkt die passende Jellyseerr-Seite geöffnet – auch wenn mehrere Personen gleich heißen. Ohne Server-Eintrag gewinnt bei gleichen Namen die Schauspielerin bzw. der Schauspieler mit der größten Bekanntheit.
+
 ## 0.6.1 – 2026-10-18
 
 Korrekturen nach dem LG-Test von 0.6.0:

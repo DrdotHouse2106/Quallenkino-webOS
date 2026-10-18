@@ -205,13 +205,18 @@ export async function person(api: Api, id: number): Promise<PersonDetails> {
 
 const rank = (r: Result) => (r.year && r.posterPath ? Number(r.year) : -1)
 
-/** Person zu einem Namen (Live-TV-Besetzung): nur bei genau einem gleichen Namen. */
+/**
+ * Person zu einem Namen (Live-TV-Besetzung): gleicher Name; bei mehreren die Schauspieler zuerst,
+ * dann die bekannteste (popularity).
+ */
 export async function findPerson(api: Api, name: string): Promise<number | null> {
   try {
-    const response = await call<{ results?: (RawResult & { name?: string })[] }>(api, `/search?query=${encodeURIComponent(name)}&page=1&language=de`)
+    type PersonResult = RawResult & { name?: string; popularity?: number; knownForDepartment?: string }
+    const response = await call<{ results?: PersonResult[] }>(api, `/search?query=${encodeURIComponent(name)}&page=1&language=de`)
     const wanted = normalizeName(name)
     const matches = (response?.results ?? []).filter(r => r.mediaType === 'person' && normalizeName(r.name ?? '') === wanted)
-    return matches.length === 1 ? matches[0].id : null
+    const score = (r: PersonResult) => (r.knownForDepartment === 'Acting' ? 1_000_000 : 0) + (r.popularity ?? 0)
+    return matches.sort((a, b) => score(b) - score(a))[0]?.id ?? null
   } catch {
     return null
   }

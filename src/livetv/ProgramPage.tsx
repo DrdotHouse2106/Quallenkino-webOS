@@ -1,6 +1,6 @@
 import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useState } from 'preact/hooks'
-import { item as loadItem, personItems, searchPeople, type Api, type Item } from '../api/items'
+import { get, item as loadItem, personItems, searchPeople, type Api, type Item } from '../api/items'
 import { thumbUrl } from '../api/images'
 import { airing, credits as loadCredits, creditLines, program as loadProgram, setFavorite, type Credits } from '../api/livetv'
 import { normalizeName } from '../api/names'
@@ -65,7 +65,9 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
     // (anfragbar) – ein Personeneintrag ohne Titel hilft nicht weiter.
     const owned = person ? (await Promise.all([personItems(api, person.Id, 'Movie'), personItems(api, person.Id, 'Series')])).flat().length : 0
     if (person && owned > 0) return router.push({ name: 'person', id: person.Id })
-    const seerrId = await findSeerrPerson(api, name)
+    // Die Person auf dem Server kennt ihre TMDB-Id – damit ist sie in Jellyseerr eindeutig
+    const tmdb = person ? (await get<Item>(api, `/Users/${api.userId}/Items/${person.Id}?Fields=ProviderIds`).catch(() => null))?.ProviderIds?.Tmdb : undefined
+    const seerrId = tmdb ? Number(tmdb) : await findSeerrPerson(api, name)
     if (seerrId) router.push({ name: 'seerrPerson', id: seerrId })
     else if (person) router.push({ name: 'person', id: person.Id })
     else toast(t.personNotFound(name))
