@@ -14,13 +14,13 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
-Version **0.1** – Etappe 1 von 7:
+Version **0.2** – Etappe 2 von 7:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung
 - [x] Server verbinden (https/http und Standard-Ports werden selbst ausprobiert)
 - [x] „Wer schaut gerade?“ mit Profil-Kacheln, Anmeldung per Passwort oder Quick Connect, Anmeldung pro Profil gemerkt
 - [x] Installationspaket (IPK) per GitHub Actions
-- [ ] Startseite: Banner mit Trailer und Begründungen, Weiterschauen, Als Nächstes, Für dich, Top 10
+- [x] Startseite: Banner mit Trailer und Begründungen, Weiterschauen, Als Nächstes, Für dich, Top 10, Kürzlich hinzugefügt
 - [ ] Detailseite mit Auto-Trailer, Personenseite, Suche
 - [ ] Player: Direct Play/Transcoding, Ton und Untertitel, Intro überspringen, Nächste Folge
 - [ ] Live-TV: Heute im TV für dich, Programmführer mit Besetzung

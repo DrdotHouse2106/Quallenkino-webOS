@@ -1,6 +1,7 @@
 import { render } from 'preact'
 import { init } from '@noriginmedia/norigin-spatial-navigation'
 import { App } from './app'
+import { ToastHost } from './ui/Toast'
 import { installBackHandling } from './nav/keys'
 import './styles.css'
 
@@ -8,4 +9,10 @@ import './styles.css'
 init({ debug: false, visualDebug: false, shouldFocusDOMNode: false })
 installBackHandling()
 
-render(<App />, document.getElementById('app')!)
+render(
+  <>
+    <App />
+    <ToastHost />
+  </>,
+  document.getElementById('app')!,
+)

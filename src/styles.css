@@ -92,3 +92,78 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 }
 
 .qk-about { position: absolute; bottom: 48px; left: 0; right: 0; text-align: center; color: var(--qk-muted); font-size: 22px; line-height: 1.6; }
+
+/* ---------- Startseite ---------- */
+.qk-home { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+
+.qk-hero-backdrop { position: absolute; top: 0; right: 0; width: 70%; height: 68%; }
+.qk-hero-backdrop img, .qk-hero-backdrop .qk-trailer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.qk-trailer { opacity: 0; transition: opacity 600ms ease; background: #000; }
+.qk-trailer.visible { opacity: 1; }
+.qk-hero-shade-left { position: absolute; inset: 0; background: linear-gradient(90deg, var(--qk-bg) 0%, rgba(11, 14, 20, 0.55) 35%, rgba(11, 14, 20, 0) 70%); }
+.qk-hero-shade-bottom { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 14, 20, 0) 50%, var(--qk-bg) 100%); }
+
+.qk-fade-in { animation: qk-fade 500ms ease; }
+@keyframes qk-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.qk-home-main { position: absolute; top: 0; bottom: 0; left: 120px; right: 0; display: flex; flex-direction: column; }
+.qk-home-top { height: 500px; padding: 56px 0 0 28px; flex-shrink: 0; }
+
+.qk-hero-info { width: 50%; display: flex; flex-direction: column; gap: 12px; animation: qk-fade 400ms ease; }
+.qk-hero-logo { max-height: 140px; max-width: 560px; object-fit: contain; object-position: left center; align-self: flex-start; }
+.qk-hero-title { font-size: 64px; font-weight: 700; line-height: 1.1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.qk-hero-subtitle { font-size: 30px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-hero-reason { font-size: 26px; font-weight: 700; color: #46d369; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-hero-facts { font-size: 24px; color: #b8bfcc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-hero-overview { font-size: 26px; line-height: 1.4; color: #dde1e8; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.qk-hero-overview.short { -webkit-line-clamp: 2; }
+
+.qk-billboard-buttons { display: flex; align-items: center; gap: 16px; margin-top: 24px; transition: opacity 250ms ease; }
+.qk-billboard-buttons.hidden { opacity: 0; }
+.qk-bb-button { display: flex; align-items: center; gap: 12px; padding: 14px 32px; border-radius: 10px; background: rgba(255, 255, 255, 0.18); font-weight: 700; transition: transform 120ms ease; }
+.qk-bb-button.focused { background: #fff; color: #0b0e14; transform: scale(1.05); }
+.qk-bb-button.dimmed { opacity: 0.4; }
+.qk-bb-icon { font-size: 24px; }
+.qk-dots { display: flex; gap: 8px; margin-left: 20px; }
+.qk-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); }
+.qk-dots span.active { background: #fff; width: 14px; height: 14px; }
+
+.qk-rows { position: relative; flex: 1; overflow: hidden; scroll-behavior: smooth; padding-left: 12px; }
+.qk-row { padding-bottom: 28px; }
+.qk-row-title { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.qk-row-track { position: relative; display: flex; gap: 20px; overflow: hidden; scroll-behavior: smooth; padding: 14px 64px 18px 24px; }
+
+.qk-card { position: relative; flex: 0 0 auto; width: 320px; height: 180px; border-radius: 8px; overflow: hidden; background: var(--qk-surface); transition: transform 150ms ease; }
+.qk-card img { width: 100%; height: 100%; object-fit: cover; }
+.qk-card.focused { transform: scale(1.08); box-shadow: 0 0 0 4px #fff; z-index: 1; }
+.qk-card-title { display: flex; align-items: center; justify-content: center; height: 100%; padding: 12px; text-align: center; color: var(--qk-muted); }
+.qk-card-progress { position: absolute; left: 12px; right: 12px; bottom: 10px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.3); }
+.qk-card-progress div { height: 100%; border-radius: 3px; background: #e50914; }
+
+.qk-top10 { position: relative; flex: 0 0 auto; width: 300px; height: 225px; transition: transform 150ms ease; }
+.qk-top10-rank {
+  position: absolute; left: 0; bottom: -18px; font-size: 200px; font-weight: 900; line-height: 1;
+  color: #2b2b2b; -webkit-text-stroke: 4px #d0d0d0;
+}
+.qk-top10-poster { position: absolute; right: 0; top: 0; width: 150px; height: 225px; border-radius: 6px; overflow: hidden; background: var(--qk-surface); }
+.qk-top10-poster img { width: 100%; height: 100%; object-fit: cover; }
+.qk-top10.focused { transform: scale(1.06); z-index: 1; }
+.qk-top10.focused .qk-top10-poster { box-shadow: 0 0 0 4px #fff; }
+
+/* Navigation am linken Rand */
+.qk-rail { position: absolute; top: 0; bottom: 0; left: 0; width: 120px; padding: 220px 0 0 24px; display: flex; flex-direction: column; gap: 12px; z-index: 2; transition: width 200ms ease, background 200ms ease; }
+.qk-rail.open { width: 360px; background: linear-gradient(90deg, rgba(0, 0, 0, 0.92) 70%, rgba(0, 0, 0, 0)); }
+.qk-rail-item { display: flex; align-items: center; gap: 20px; height: 72px; padding: 0 12px; border-radius: 12px; color: var(--qk-muted); white-space: nowrap; }
+.qk-rail-icon { width: 48px; height: 48px; flex: 0 0 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.qk-rail-icon img { width: 100%; height: 100%; object-fit: cover; }
+.qk-rail-label { opacity: 0; transition: opacity 150ms ease; }
+.qk-rail.open .qk-rail-label { opacity: 1; }
+.qk-rail-item.active { color: #fff; }
+.qk-rail-item.focused { background: #fff; color: #0b0e14; }
+
+.qk-clock { position: absolute; top: 32px; right: 56px; font-size: 30px; font-weight: 600; text-shadow: 0 0 8px rgba(0, 0, 0, 0.8); }
+
+.qk-overlay { position: absolute; inset: 0; z-index: 5; background: rgba(5, 7, 10, 0.94); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+.qk-overlay .qk-about { position: static; }
+
+.qk-toast { position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 10; padding: 18px 36px; border-radius: 12px; background: rgba(30, 36, 48, 0.96); font-size: 26px; }

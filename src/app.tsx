@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks'
 import type { ServerInfo } from './api/server'
 import { checkSession, type Session, type UserSummary } from './api/users'
-import { HomeScreen } from './screens/HomeScreen'
+import { HomeScreen } from './home/HomeScreen'
 import { LoginScreen } from './screens/LoginScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ServerScreen } from './screens/ServerScreen'

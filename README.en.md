@@ -8,7 +8,7 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
-Version 0.1 – stage 1 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, IPK built by GitHub Actions. Next: home screen, details, player, live TV, worlds, requests.
+Version 0.2 – stage 2 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added. Next: details, player, live TV, worlds, requests.
 
 ## Install (Developer Mode)
 
