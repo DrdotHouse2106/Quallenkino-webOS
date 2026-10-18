@@ -1,5 +1,12 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.0 – 2026-10-18
+
+Etappe 7 – damit sind alle geplanten Etappen fertig.
+
+- **Bildschirmschoner (wie Android):** nach einigen Minuten ohne Tastendruck (Einstellungen: 2, 5 oder 10 Minuten oder aus; Standard 5) persönliche Titel – Empfehlungen und angefangene Filme – als Hintergrundbild mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr. Liegt ein Trailer auf dem Server, läuft er ohne Ton. OK öffnet den gezeigten Titel, jede andere Taste beendet. Während der Wiedergabe kommt er nie; Trailer im Hintergrund pausieren, solange er läuft.
+- **„Quallenkino beenden?“:** „Zurück“ auf der Startseite fragt jetzt (Beenden, Profil wechseln, Abbrechen) statt direkt zur Profilauswahl zu springen – so verlangt es LG für Apps im Store.
+
 ## 0.6.6 – 2026-10-18
 
 - **Personenseiten mit ganzer Filmografie (wie Android):** Für alle Personen – aus Detailseiten, Suche und Live-TV – zeigt die Seite mit Jellyseerr und bekannter TMDB-Id alle Filme und Serien. Jedes Plakat zeigt den Stand: **Verfügbar**, **Teilweise**, **Angefragt**. Oben die Reihe **„In deiner Bibliothek“** (verfügbare zuerst).

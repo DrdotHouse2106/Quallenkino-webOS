@@ -23,6 +23,7 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
   { key: 'subtitles', title: t.settingsSubtitles, options: [{ value: 'smart', label: t.subtitlesSmart }, { value: 'always', label: t.subtitlesAlways }, { value: 'off', label: t.subtitlesOff }] },
   { key: 'audio', title: t.settingsAudio, options: [{ value: 'own', label: t.audioOwn }, { value: 'original', label: t.audioOriginal }] },
   { key: 'trailers', title: t.settingsTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
+  { key: 'screensaver', title: t.settingsScreensaver, options: [{ value: 2, label: t.minutes(2) }, { value: 5, label: t.minutes(5) }, { value: 10, label: t.minutes(10) }, { value: 0, label: t.trailersOff }] },
 ]
 
 /** Einstellungen: Untertitel, Ton und Trailer, Konto (Profil, Abmelden, Server) und „Über“. */

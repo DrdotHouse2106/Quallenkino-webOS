@@ -1,10 +1,11 @@
-import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
+import { FocusContext, getCurrentFocusKey, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
 import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
 import { onBack } from '../nav/keys'
 import { useRouter } from '../nav/router'
+import { focusSoon } from '../nav/focus'
 import { openItem } from '../nav/open'
 import { Logo } from '../ui/Logo'
 import { Icon, type IconName } from '../ui/Icon'
@@ -117,11 +118,23 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
     }
   }, [shown?.Id])
 
+  // „Zurück“ auf der Startseite: fragen, ob die App beendet werden soll (Vorgabe für LG-Apps)
+  const [exitAsked, setExitAsked] = useState(false)
+  const focusBeforeExit = useRef<string | null>(null)
   useEffect(() => onBack(() => {
     if (covered) return false
-    onSwitchProfile()
+    if (exitAsked) {
+      closeExit()
+      return true
+    }
+    focusBeforeExit.current = getCurrentFocusKey()
+    setExitAsked(true)
     return true
-  }), [covered])
+  }), [covered, exitAsked])
+  function closeExit() {
+    setExitAsked(false)
+    if (focusBeforeExit.current) focusSoon(focusBeforeExit.current)
+  }
 
   function step(delta: number): boolean {
     if (billboard.length < 2) return false
@@ -189,6 +202,16 @@ export function HomeScreen({ api, session, covered, onSwitchProfile }: Props) {
         </div>
       </div>
       <Clock />
+      {exitAsked && (
+        <ExitDialog
+          onExit={() => window.close()}
+          onSwitchProfile={() => {
+            setExitAsked(false)
+            onSwitchProfile()
+          }}
+          onCancel={closeExit}
+        />
+      )}
     </div>
   )
 }
@@ -263,6 +286,30 @@ function WorldInfo({ api, world }: { api: Api; world: World }) {
       {world.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}</div> : null}
     </div>
   )
+}
+
+/** „Quallenkino beenden?“ – Beenden, Profil wechseln oder zurück zur Startseite. */
+function ExitDialog({ onExit, onSwitchProfile, onCancel }: { onExit: () => void; onSwitchProfile: () => void; onCancel: () => void }) {
+  const { ref, focusKey } = useFocusable({ focusKey: 'exit-dialog', isFocusBoundary: true, trackChildren: true })
+  useEffect(() => focusSoon('exit-cancel'), [])
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div ref={ref} class="qk-overlay">
+        <Logo size={120} />
+        <h1>{t.exitTitle}</h1>
+        <div class="qk-actions">
+          <DialogButton focusKey="exit-yes" label={t.exitApp} onPress={onExit} />
+          <DialogButton focusKey="exit-profile" label={t.switchProfile} onPress={onSwitchProfile} />
+          <DialogButton focusKey="exit-cancel" label={t.cancel} onPress={onCancel} />
+        </div>
+      </div>
+    </FocusContext.Provider>
+  )
+}
+
+function DialogButton({ focusKey, label, onPress }: { focusKey: string; label: string; onPress: () => void }) {
+  const { ref, focused, focusSelf } = useFocusable({ focusKey, onEnterPress: onPress })
+  return <div ref={ref} class={`qk-button ${focused ? 'focused' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>{label}</div>
 }
 
 /** Uhr oben rechts (24 Stunden). */

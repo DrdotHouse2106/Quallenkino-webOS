@@ -5,6 +5,9 @@ import type { ServerInfo } from '../api/server'
 import type { Session } from '../api/users'
 import { RouterContext, type Page } from '../nav/router'
 import { focusSoon } from '../nav/focus'
+import { openItem } from '../nav/open'
+import { loadSettings } from '../settings'
+import { Screensaver } from './Screensaver'
 import { DetailsPage } from '../pages/DetailsPage'
 import { PersonPage } from '../pages/PersonPage'
 import { SearchPage } from '../pages/SearchPage'
@@ -44,6 +47,28 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
     loadReasons(api).then(setReasons)
   }, [api])
 
+  // Bildschirmschoner nach einiger Zeit ohne Tastendruck – nicht während der Wiedergabe
+  const [idle, setIdle] = useState(false)
+  const top = stack[stack.length - 1]?.name
+  const playing = top === 'player' || top === 'trailer' || top === 'youtube'
+  useEffect(() => {
+    if (playing) return
+    let timer: ReturnType<typeof setTimeout>
+    const restart = () => {
+      clearTimeout(timer)
+      const minutes = loadSettings().screensaver
+      if (minutes > 0) timer = setTimeout(() => setIdle(true), minutes * 60_000)
+    }
+    restart()
+    window.addEventListener('keydown', restart, true)
+    window.addEventListener('mousemove', restart)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('keydown', restart, true)
+      window.removeEventListener('mousemove', restart)
+    }
+  }, [playing])
+
   const router = useMemo(() => ({
     push: (page: Page) => {
       railReturn.current = null
@@ -80,10 +105,11 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
   return (
     <RouterContext.Provider value={router}>
       <div class={stack.length ? 'qk-covered' : ''}>
-        <HomeScreen api={api} session={session} covered={stack.length > 0} onSwitchProfile={onSwitchProfile} />
+        <HomeScreen api={api} session={session} covered={stack.length > 0 || idle} onSwitchProfile={onSwitchProfile} />
       </div>
       {stack.map((page, index) => {
-        const covered = index < stack.length - 1
+        // Verdeckt: eine Seite liegt darüber oder der Bildschirmschoner läuft (dann keine Trailer)
+        const covered = index < stack.length - 1 || idle
         // Nur die oberste Seite ist sichtbar; die darunter bleiben erhalten (Fokus, Daten)
         return (
           <div key={index} class={`qk-layer ${covered ? 'hidden' : ''}`}>
@@ -103,6 +129,16 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
           </div>
         )
       })}
+      {idle && !playing && (
+        <Screensaver
+          api={api}
+          onClose={() => setIdle(false)}
+          onOpen={item => {
+            setIdle(false)
+            openItem(router, item)
+          }}
+        />
+      )}
     </RouterContext.Provider>
   )
 }

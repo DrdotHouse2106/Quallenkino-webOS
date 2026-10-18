@@ -9,13 +9,15 @@ interface Props {
   url: string
   onEnded: () => void
   onPlayingChange: (playing: boolean) => void
+  /** Ohne Ton (Bildschirmschoner). */
+  muted?: boolean
 }
 
 /**
  * Trailer-Vorschau ohne Bedienelemente; erst sichtbar, sobald wirklich Bilder laufen (Größe bekannt,
  * Zeit läuft), sanft eingeblendet. Sonst bliebe auf dem Fernseher ein schwarzes Feld stehen.
  */
-export function TrailerVideo({ url, onEnded, onPlayingChange }: Props) {
+export function TrailerVideo({ url, onEnded, onPlayingChange, muted }: Props) {
   const video = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -23,6 +25,7 @@ export function TrailerVideo({ url, onEnded, onPlayingChange }: Props) {
     const element = video.current
     if (!element) return
     element.volume = TRAILER_VOLUME
+    element.muted = !!muted
     const watchdog = setTimeout(() => {
       if (!(element.videoWidth > 0 && element.currentTime > 0.2)) {
         onPlayingChange(false)

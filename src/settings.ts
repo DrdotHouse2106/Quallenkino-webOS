@@ -11,10 +11,12 @@ export interface Settings {
   audio: AudioMode
   /** Trailer-Vorschau auf Startseite und Detailseite. */
   trailers: boolean
+  /** Bildschirmschoner nach so vielen Minuten ohne Tastendruck; 0 = aus. */
+  screensaver: number
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 5 }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {

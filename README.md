@@ -14,7 +14,7 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
-Version **0.6** – Etappen 1 bis 6 von 7:
+Version **0.7** – alle 7 Etappen:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung
 - [x] Server verbinden (https/http und Standard-Ports werden selbst ausprobiert)
@@ -26,7 +26,11 @@ Version **0.6** – Etappen 1 bis 6 von 7:
 - [x] Live-TV: „Heute im TV für dich“, Programmführer (Filter, Lieblingssender), Sendungs-Details mit Regie und Darstellern, Sender einschalten
 - [x] Welten (Kacheln mit Logo und Trailer, Welt-Seite), Entdecken & Anfragen über Jellyseerr (Für dich, Suche, Staffeln wählen)
 - [x] Einstellungen: Untertitel und Ton beim Start, Trailer-Vorschau, Profil/Server wechseln, Abmelden, Über
-- [ ] Feinschliff, Bildschirmschoner
+- [x] Bildschirmschoner mit persönlichen Titeln und Trailern, „Quallenkino beenden?“ bei „Zurück“ auf der Startseite, YouTube-Trailer im eigenen Fenster und automatisch oben rechts
+
+## YouTube-Trailer
+
+Der Fernseher führt die App unter `file://` aus; YouTube bettet dort nicht ein. Der offizielle Player liegt deshalb auf einer kleinen Seite bei GitHub Pages ([`site/yt.html`](site/yt.html)), die die App einbettet – ohne den Player zu überdecken oder zu beschneiden.
 
 ## Download
 

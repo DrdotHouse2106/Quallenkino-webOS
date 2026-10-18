@@ -16,6 +16,7 @@ function useRailOnLeftEdge(label: string | undefined, page: { current: HTMLEleme
     const handler = (event: KeyboardEvent) => {
       // Nur wenn diese Seite oben liegt (der Fokus in ihr ist), nicht in Textfeldern
       if (event.keyCode !== 37 || document.activeElement?.tagName === 'INPUT' || !page.current?.querySelector('.focused')) return
+      if (document.querySelector('.qk-screensaver')) return
       const before = getCurrentFocusKey()
       setTimeout(() => {
         if (getCurrentFocusKey() === before) router.toRail(label)
