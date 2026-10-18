@@ -110,9 +110,9 @@ export const latest = (api: Api, limit = 30) =>
 export const recommendations = (api: Api, type: 'movies' | 'series', limit = 30) =>
   items(api, `/LocalRecs/Recommendations?type=${type}&limit=${limit}`).catch(() => [] as Item[])
 
-/** Top 10 aller Benutzer der letzten 60 Tage (Plugin). */
+/** Top 10 aller Benutzer der letzten 180 Tage (Plugin). */
 export const top10 = (api: Api) =>
-  items(api, '/LocalRecs/Top10?type=all&days=60&limit=10').catch(() => [] as Item[])
+  items(api, '/LocalRecs/Top10?type=all&days=180&limit=10').catch(() => [] as Item[])
 
 /** Titel in der angegebenen Reihenfolge mit allen Feldern laden. */
 export async function byIds(api: Api, ids: string[]): Promise<Item[]> {

@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.2 – 2026-10-18
+
+- „Top 10 bei euch“ zählt jetzt die letzten 180 Tage statt 60 (wie die Android-App).
+
 ## 1.0.1 – 2026-10-18
 
 - **Lange Beschriftungen enden mit „…“** statt hart abgeschnitten zu werden (z. B. lange Tonspur-Namen in „Ton & Untertitel“, Knöpfe, Profilnamen) – Vorgabe der LG-Prüfung („Correct Text“).
