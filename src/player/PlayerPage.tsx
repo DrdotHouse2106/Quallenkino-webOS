@@ -36,6 +36,8 @@ const NEXT_COUNTDOWN_S = 10
 const NEXT_BEFORE_END_S = 30
 /** So lange nach dem Sprung wird geprüft, wo der Fernseher wirklich gelandet ist. */
 const SEEK_CHECK_S = 1.2
+/** Erst ab so viel zu früh wird einmal nachgefragt (sehr großer Abstand der Schlüsselbilder). */
+const SEEK_MAX_EARLY_S = 8
 /** Bild-Untertitel kann nur der Server ins Bild rechnen. */
 const IMAGE_SUBTITLES = ['pgssub', 'pgs', 'dvdsub', 'dvbsub', 'ass', 'ssa']
 
@@ -270,18 +272,19 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   }
 
   /**
-   * Genau an eine Stelle springen. Der LG springt bei direkt abgespielten Dateien zum vorigen
-   * Schlüsselbild (einige Sekunden zu früh), meldet bei „seeked“ aber noch die angefragte Zeit.
-   * Deshalb wird erst gut eine Sekunde nach dem Wiederanlauf gemessen: erwartet wäre Anfrage plus
-   * gelaufene Zeit. Fehlt mehr als eine halbe Sekunde, wird um den Fehlbetrag weiter angefragt
-   * (höchstens zweimal).
+   * An eine Stelle springen (Intro-, Rückblick-, Abspann-Ende). Der LG springt bei direkt abgespielten
+   * Dateien zum vorigen Schlüsselbild und meldet bei „seeked“ trotzdem die angefragte Zeit. Lieber
+   * etwas zu früh landen als Inhalt verpassen: Die Landung wird gut eine Sekunde nach dem Wiederanlauf
+   * gemessen; nur wenn sie mehr als 8 s zu früh ist, wird einmal knapp hinter dem Ziel nachgefragt –
+   * schießt das über das Ziel hinaus, geht es zurück zur ersten Landung.
    */
-  const seekTarget = useRef<{ time: number; request: number; tries: number; since: number | null } | null>(null)
+  const seekTarget = useRef<{ time: number; first: number; retried: boolean; since: number | null } | null>(null)
   function seekExact(seconds: number) {
     const element = video.current
     if (!element) return
-    seekTarget.current = { time: seconds, request: seconds, tries: 0, since: null }
-    element.currentTime = seconds
+    const request = seconds + 0.3
+    seekTarget.current = { time: seconds, first: request, retried: false, since: null }
+    element.currentTime = request
   }
   /** Ab hier läuft die Uhr für die Messung (nach „seeked“ bzw. erneut nach „playing“, falls gepuffert wurde). */
   function startSeekClock() {
@@ -294,12 +297,14 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     const elapsed = (performance.now() - target.since) / 1000
     if (elapsed < SEEK_CHECK_S) return
     const landed = element.currentTime - elapsed * (element.playbackRate || 1)
-    const missing = target.time - landed
-    if (missing > 0.5 && target.tries < 2) {
-      target.tries++
-      target.request = target.request + missing + 0.5
+    if (!target.retried && landed < target.time - SEEK_MAX_EARLY_S) {
+      target.retried = true
       target.since = null
-      element.currentTime = Math.min(target.request, (duration || element.duration || Infinity) - 1)
+      element.currentTime = target.time + 0.5
+    } else if (target.retried && landed > target.time + 1) {
+      // Zu weit: zurück zur ersten (frühen) Landung
+      seekTarget.current = null
+      element.currentTime = target.first
     } else seekTarget.current = null
   }
 

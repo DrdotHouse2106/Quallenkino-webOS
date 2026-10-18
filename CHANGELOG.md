@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.6 – 2026-10-18
+
+- **Überspringen (Intro, Rückblick, Abspann): lieber etwas zu früh als Inhalt verpassen.** Der LG kann nur auf Schlüsselbilder springen; die App fragt das Ende des Abschnitts an und bleibt beim Schlüsselbild davor (die letzten Sekunden des Intros sind noch zu sehen). Nur wenn das mehr als 8 s zu früh ist, wird einmal knapp hinter dem Ziel nachgefragt – schießt das mehr als 1 s darüber hinaus, geht es zurück zur ersten Landung. 0.4.5 konnte einige Sekunden der Folge verschlucken.
+
 ## 0.4.5 – 2026-10-18
 
 - **Intro überspringen auf dem LG:** Der Fernseher meldet nach einem Sprung zunächst die angefragte Zeit, läuft aber vom vorigen Schlüsselbild weiter. Die App misst jetzt gut eine Sekunde nach dem Wiederanlauf, wo sie wirklich steht, und springt um den Fehlbetrag weiter.
