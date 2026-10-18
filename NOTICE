@@ -6,8 +6,8 @@ Lizenz: GPL-2.0 (siehe LICENSE)
 =======================================
 
 jellyfin-web – https://github.com/jellyfin/jellyfin-web – GPL-2.0
-  (noch keine Dateien übernommen; ab Etappe 4: Abspiel-Fähigkeiten/DeviceProfile,
-  Direct Play/Transcoding, Untertitel. Jede Datei bekommt einen Herkunftshinweis.)
+  Bisher keine Dateien übernommen. Auch der Player (src/player) ist eigener Code.
+  Wird später Code übernommen, bekommt jede Datei einen Herkunftshinweis.
 
 Verwendete Bibliotheken
 =======================

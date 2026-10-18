@@ -20,6 +20,7 @@ import { useRouter } from '../nav/router'
 import { toast } from '../ui/Toast'
 import { ActionButton } from './ActionButton'
 import { Page } from './Page'
+import { startPlayback } from '../player/start'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -117,7 +118,8 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
               {item.Taglines?.[0] && <div class="qk-tagline">{item.Taglines[0]}</div>}
             </HeroInfo>
             <ButtonRow>
-              <ActionButton focusKey="d-play" icon="▶" label={resumable ? t.resume : t.play} onPress={() => toast(t.comingPlayer)} />
+              <ActionButton focusKey="d-play" icon="▶" label={resumable ? t.resume : t.play} onPress={() => startPlayback(api, router, item)} />
+              {resumable && <ActionButton focusKey="d-restart" icon="↺" label={t.fromStart} onPress={() => startPlayback(api, router, item, true)} />}
               <ActionButton focusKey="d-trailer" icon="◉" label={t.trailer} dimmed={!item.LocalTrailerCount} onPress={openTrailer} />
               {ratingTarget(item) && <ActionButton focusKey="d-like" icon="👍" label={t.like} active={likes === true} onPress={() => rate(true)} />}
               {ratingTarget(item) && <ActionButton focusKey="d-dislike" icon="👎" label={t.dislike} active={likes === false} onPress={() => rate(false)} />}
@@ -128,7 +130,7 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
           {seasons.length > 1 && <SeasonTabs seasons={seasons} current={season} onPick={setSeason} />}
           {episodes.length > 0 && (
             <Row api={api} row={{ key: 'd-episodes', title: seasons.find(s => s.Id === season)?.Name ?? t.episodes, items: episodes, kind: 'episodes' }}
-              onFocusItem={() => {}} onOpen={episode => router.push({ name: 'details', id: episode.Id })} />
+              onFocusItem={() => {}} onOpen={episode => startPlayback(api, router, episode)} />
           )}
           {cast.length > 0 && (
             <Row api={api} row={{ key: 'd-cast', title: t.cast, items: cast, kind: 'people' }}

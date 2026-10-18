@@ -8,6 +8,7 @@ import { DetailsPage } from '../pages/DetailsPage'
 import { PersonPage } from '../pages/PersonPage'
 import { SearchPage } from '../pages/SearchPage'
 import { TrailerPage } from '../pages/TrailerPage'
+import { PlayerPage } from '../player/PlayerPage'
 import { HomeScreen } from './HomeScreen'
 
 interface Props {
@@ -41,6 +42,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut }: Props) {
       const previous = focusMemory.current.pop()
       if (previous) requestAnimationFrame(() => setFocus(previous))
     },
+    replace: (page: Page) => setStack(s => [...s.slice(0, -1), page]),
   }), [])
 
   return (
@@ -57,6 +59,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut }: Props) {
             {page.name === 'person' && <PersonPage api={api} id={page.id} />}
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
+            {page.name === 'player' && <PlayerPage key={page.id} api={api} id={page.id} startTicks={page.startTicks} />}
           </div>
         )
       })}

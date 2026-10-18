@@ -14,7 +14,7 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
-Version **0.3** – Etappe 3 von 7:
+Version **0.4** – Etappe 4 von 7:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung
 - [x] Server verbinden (https/http und Standard-Ports werden selbst ausprobiert)
@@ -22,7 +22,7 @@ Version **0.3** – Etappe 3 von 7:
 - [x] Installationspaket (IPK) per GitHub Actions
 - [x] Startseite: Banner mit Trailer und Begründungen, Weiterschauen, Als Nächstes, Für dich, Top 10, Kürzlich hinzugefügt
 - [x] Detailseite mit Auto-Trailer, Daumen hoch/runter, Staffeln und Folgen, Besetzung, Ähnliche Titel; Personenseite; Suche
-- [ ] Player: Direct Play/Transcoding, Ton und Untertitel, Intro überspringen, Nächste Folge
+- [x] Player: direkt abspielen oder umrechnen, Fortsetzen, intelligente Untertitel, Ton & Untertitel in einem Fenster, Intro überspringen, Nächste Folge
 - [ ] Live-TV: Heute im TV für dich, Programmführer mit Besetzung
 - [ ] Welten, Anfragen über Jellyseerr
 - [ ] Feinschliff, Bildschirmschoner
@@ -58,7 +58,7 @@ GitHub Actions baut bei jedem Push auf `main` und legt das IPK als Artefakt ab. 
 
 ## Herkunft von Code
 
-Die App ist eigenständig geschrieben. Für die Wiedergabe (Erkennung der Abspiel-Fähigkeiten des Fernsehers, Direct Play/Transcoding, Untertitel) wird ab Etappe 4 erprobter Code aus [jellyfin-web](https://github.com/jellyfin/jellyfin-web) (GPL-2.0) übernommen und angepasst. Solche Dateien tragen am Anfang einen Herkunftshinweis und stehen in [NOTICE](NOTICE).
+Die App ist eigenständig geschrieben, auch der Player: Abspiel-Fähigkeiten des Fernsehers, Direkt abspielen oder Umrechnen und die Untertitel stammen aus eigenem Code, ohne Code aus [jellyfin-web](https://github.com/jellyfin/jellyfin-web). Wird später doch Code von dort übernommen (GPL-2.0), trägt die Datei am Anfang einen Herkunftshinweis und steht in [NOTICE](NOTICE).
 
 ## Datenquellen
 

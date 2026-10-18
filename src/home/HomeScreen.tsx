@@ -13,6 +13,7 @@ import { HeroBackdrop, HeroInfo } from './Hero'
 import { Rail } from './Rail'
 import { Row } from './Rows'
 import { useHomeData } from './useHomeData'
+import { startPlayback } from '../player/start'
 
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
 const ROTATION_MS = 9_000
@@ -164,7 +165,7 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
             canStepBack={index % Math.max(billboard.length, 1) > 0}
             onFocusChange={setBillboardFocused}
             onStep={step}
-            onPlay={() => toast(t.comingPlayer)}
+            onPlay={() => billboardItem && startPlayback(api, router, billboardItem)}
             onInfo={() => billboardItem && router.push({ name: 'details', id: billboardItem.Id })}
             onTrailer={playTrailerNow}
             count={billboard.length}

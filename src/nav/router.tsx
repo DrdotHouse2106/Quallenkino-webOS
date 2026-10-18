@@ -7,12 +7,15 @@ export type Page =
   | { name: 'person'; id: string }
   | { name: 'search' }
   | { name: 'trailer'; url: string }
+  | { name: 'player'; id: string; startTicks?: number }
 
 export interface Router {
   push: (page: Page) => void
   pop: () => void
+  /** Oberste Seite ersetzen (z. B. nächste Folge im Player). */
+  replace: (page: Page) => void
 }
 
-export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {} })
+export const RouterContext = createContext<Router>({ push: () => {}, pop: () => {}, replace: () => {} })
 
 export const useRouter = () => useContext(RouterContext)

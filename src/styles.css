@@ -215,3 +215,46 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 
 .qk-trailer-page { background: #000; }
 .qk-trailer-page video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+/* ---------- Player ---------- */
+.qk-player { background: #000; }
+.qk-player video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.qk-player-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--qk-muted); }
+
+.qk-subtitle { position: absolute; left: 10%; right: 10%; bottom: 80px; text-align: center; font-size: 46px; font-weight: 600; line-height: 1.3; color: #fff; text-shadow: 0 0 6px #000, 0 2px 4px #000, 0 0 2px #000; transition: bottom 200ms ease; }
+.qk-subtitle.raised { bottom: 300px; }
+
+.qk-osd { position: absolute; left: 0; right: 0; bottom: 0; padding: 120px 96px 56px; background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.88) 45%); opacity: 0; transition: opacity 250ms ease; pointer-events: none; }
+.qk-osd.visible { opacity: 1; pointer-events: auto; }
+.qk-osd-title { font-size: 48px; font-weight: 700; }
+.qk-osd-subtitle { font-size: 30px; color: var(--qk-muted); margin-top: 4px; }
+
+.qk-seek { display: flex; align-items: center; gap: 24px; margin-top: 28px; padding: 14px 20px; border-radius: 14px; }
+.qk-seek.focused { background: rgba(255, 255, 255, 0.1); }
+.qk-seek-state { width: 40px; font-size: 30px; text-align: center; }
+.qk-seek-time { min-width: 140px; font-size: 28px; font-variant-numeric: tabular-nums; }
+.qk-seek-track { position: relative; flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.3); }
+.qk-seek-fill { height: 100%; border-radius: 4px; background: #e50914; }
+.qk-seek-knob { position: absolute; top: 50%; width: 0; height: 0; border-radius: 50%; background: #fff; transform: translate(-50%, -50%); transition: width 120ms ease, height 120ms ease; }
+.qk-seek.focused .qk-seek-knob { width: 26px; height: 26px; }
+
+.qk-osd-buttons { display: flex; gap: 16px; margin-top: 20px; padding-left: 20px; }
+.qk-osd-button { padding: 14px 28px; border-radius: 10px; background: rgba(255, 255, 255, 0.16); font-weight: 600; }
+.qk-osd-button.focused { background: #fff; color: #0b0e14; }
+.qk-osd-button.selected:not(.focused) { color: #46d369; }
+
+.qk-tracks { position: absolute; right: 96px; bottom: 96px; width: 1100px; max-height: 760px; display: flex; gap: 32px; padding: 40px; border-radius: 20px; background: rgba(16, 20, 28, 0.96); }
+.qk-tracks-column { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.qk-tracks-title { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.qk-tracks .qk-osd-button { background: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qk-tracks .qk-osd-button.focused { background: #fff; }
+
+.qk-skip { position: absolute; right: 96px; bottom: 150px; min-width: 360px; padding: 20px 36px; border-radius: 12px; overflow: hidden; background: rgba(30, 30, 30, 0.9); border: 2px solid rgba(255, 255, 255, 0.8); font-size: 30px; font-weight: 700; text-align: center; }
+.qk-skip span { position: relative; z-index: 1; }
+.qk-skip-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255, 255, 255, 0.28); animation-name: qk-fill; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes qk-fill { from { width: 0; } to { width: 100%; } }
+
+.qk-next { position: absolute; right: 96px; bottom: 150px; width: 560px; padding: 28px 36px; border-radius: 16px; background: rgba(16, 20, 28, 0.94); border: 2px solid rgba(255, 255, 255, 0.5); }
+.qk-next-label { font-size: 26px; color: var(--qk-muted); }
+.qk-next-title { font-size: 34px; font-weight: 700; margin: 6px 0 10px; }
+.qk-next-hint { font-size: 22px; color: var(--qk-muted); }

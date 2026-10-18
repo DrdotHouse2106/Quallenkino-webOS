@@ -8,7 +8,7 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
-Version 0.3 – stage 3 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search. Next: player, live TV, worlds, requests.
+Version 0.4 – stage 4 of 7: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker, sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search, player (direct play or server transcoding, resume, smart subtitles, audio & subtitles dialog, skip intro, next episode). Next: live TV, worlds, requests.
 
 ## Install (Developer Mode)
 
@@ -22,7 +22,7 @@ Latest build: https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/lates
 
 ## Code origin
 
-Written from scratch. From stage 4 on, playback logic (device profile, direct play/transcoding, subtitles) is adapted from [jellyfin-web](https://github.com/jellyfin/jellyfin-web) (GPL-2.0); those files carry an origin header and are listed in [NOTICE](NOTICE).
+Written from scratch, including the player (device profile, direct play/transcoding, subtitles) – no code from [jellyfin-web](https://github.com/jellyfin/jellyfin-web) so far. Should code be adapted from there later (GPL-2.0), those files will carry an origin header and be listed in [NOTICE](NOTICE).
 
 ## Data sources
 

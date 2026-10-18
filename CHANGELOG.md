@@ -1,5 +1,16 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.0 – 2026-10-18
+
+- **Player (Etappe 4):** Abspielen und Fortsetzen von Filmen und Folgen. Der Server spielt direkt ab, wenn der Fernseher die Datei kann (H.264, HEVC, VP9, AV1; AAC, AC3/E-AC3, FLAC, Opus …). Sonst rechnet er nur das Nötige um (z. B. DTS-Ton) und schickt es als HLS.
+- Bei Serien startet „Abspielen“ die nächste Folge. Ist ein Titel angefangen, gibt es „Fortsetzen“ und „Von vorne“.
+- **Intelligente Untertitel** wie in der Android-App: Bei deutschem Ton nur erzwungene Untertitel, bei fremdem Ton deutsche. Text-Untertitel zeigt die App selbst an (gut lesbar, rücken bei eingeblendeter Leiste nach oben), Bild-Untertitel rechnet der Server ins Bild.
+- **Ton & Untertitel in einem Fenster** (zwei Spalten), Wechsel an derselben Stelle.
+- **Intro, Rückblick und Abspann überspringen** (Intro Skipper/Media Segments): Der Knopf füllt sich in 5 Sekunden und springt dann; OK springt sofort, „Zurück“ bricht ab.
+- **Nächste Folge** beim Abspann bzw. 30 Sekunden vor Schluss, mit 10-Sekunden-Countdown; OK sofort, „Zurück“ bleibt bei der Folge.
+- Bedienung: Pfeile oder OK blenden die Leiste ein. „Links“/„Rechts“ auf der Zeitleiste springt 10 s, OK pausiert. Play/Pause, Vor/Zurück (30 s) und Stopp auf der Fernbedienung funktionieren. „Zurück“ blendet die Leiste aus bzw. beendet die Wiedergabe.
+- Fortschritt wird an den Server gemeldet (Weiterschauen, Gesehen, Anzeige im Dashboard).
+
 ## 0.3.0 – 2026-10-18
 
 - **Detailseite (Etappe 3):** Hintergrundbild mit Logo bzw. Titel, Begründung, Eckdaten, Beschreibung und Tagline. Nach zwei Sekunden läuft der Trailer vom Server im Hintergrund, abgedunkelt und mit Ton bei 75 %.
