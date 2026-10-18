@@ -17,7 +17,7 @@ export function ActionButton({ focusKey, label, icon, active, dimmed, onPress }:
   return (
     <div ref={ref} class={`qk-bb-button ${focused ? 'focused' : ''} ${dimmed ? 'dimmed' : ''} ${active ? 'active' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
       {icon && <Icon name={icon} />}
-      {label}
+      <span class="qk-label">{label}</span>
     </div>
   )
 }

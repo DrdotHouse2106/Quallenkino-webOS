@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.1 – 2026-10-18
+
+- **Lange Beschriftungen enden mit „…“** statt hart abgeschnitten zu werden (z. B. lange Tonspur-Namen in „Ton & Untertitel“, Knöpfe, Profilnamen) – Vorgabe der LG-Prüfung („Correct Text“).
+
 ## 1.0.0 – 2026-10-18
 
 - **Erste Version für den LG Content Store.** Inhaltlich wie 0.7.5; der LG Content Store verlangt eine Versionsnummer ab 1.0.0.
