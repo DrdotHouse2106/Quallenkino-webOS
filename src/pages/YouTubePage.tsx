@@ -2,10 +2,10 @@ import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef } from 'preact/hooks'
 import { TRAILER_VOLUME } from '../home/TrailerVideo'
 import { t } from '../i18n'
-import { Keys } from '../nav/keys'
 import { focusSoon } from '../nav/focus'
+import { Keys } from '../nav/keys'
 import { useRouter } from '../nav/router'
-import { loadYouTubeApi, openYouTube, type YTPlayer } from '../platform/youtube'
+import { commandPlayer, listenToPlayer, openYouTube, playerUrl } from '../platform/youtube'
 import { toast } from '../ui/Toast'
 import { Page } from './Page'
 
@@ -13,85 +13,57 @@ import { Page } from './Page'
 const READY_TIMEOUT_MS = 10_000
 
 /**
- * YouTube-Trailer im eigenen Fenster (wie die Android-App): der offizielle Player bildschirmfüllend,
- * ohne etwas darüberzulegen oder ihn zu beschneiden. OK bzw. Play/Pause hält an, „Zurück“ schließt.
- * Geht der Player nicht (Fehler, nicht einbettbar, keine Verbindung), öffnet sich die YouTube-App.
+ * YouTube-Trailer im eigenen Fenster (wie die Android-App, nur über den Knopf „Trailer“): der offizielle
+ * Player bildschirmfüllend, ohne etwas darüberzulegen oder ihn zu beschneiden. OK bzw. Play/Pause hält
+ * an, „Zurück“ schließt. Geht der Player nicht (Fehler, nicht einbettbar), öffnet sich die YouTube-App.
  */
 export function YouTubePage({ videoKey }: { videoKey: string }) {
   const router = useRouter()
-  const host = useRef<HTMLDivElement>(null)
-  const player = useRef<YTPlayer | null>(null)
+  const frame = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     let closed = false
     let ready = false
-    const fallback = () => {
+    const close = () => {
       if (closed) return
       closed = true
       router.pop()
+    }
+    const fallback = () => {
+      if (closed) return
+      close()
       openYouTube(videoKey).then(opened => opened || toast(t.youtubeMissing))
     }
     const timer = setTimeout(() => ready || fallback(), READY_TIMEOUT_MS)
-    loadYouTubeApi()
-      .then(YT => {
-        if (closed || !host.current) return
-        player.current = new YT.Player(host.current, {
-          width: '100%',
-          height: '100%',
-          videoId: videoKey,
-          playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, iv_load_policy: 3 },
-          events: {
-            onReady: (event: { target: YTPlayer }) => {
-              ready = true
-              event.target.setVolume(Math.round(TRAILER_VOLUME * 100))
-              event.target.playVideo()
-              // Die Fernbedienung bleibt bei der App (sonst landen die Tasten im Player)
-              event.target.getIframe().setAttribute('tabindex', '-1')
-              window.focus()
-            },
-            onStateChange: (event: { data: number }) => {
-              if (event.data === 0 && !closed) {
-                closed = true
-                router.pop()
-              }
-            },
-            // 2 ungültig, 5 HTML5, 100 nicht gefunden, 101/150/152/153 nicht einbettbar
-            onError: fallback,
-          },
-        })
-      })
-      .catch(fallback)
-
+    const stop = listenToPlayer(() => frame.current, message => {
+      if (message.event === 'ready') {
+        ready = true
+        // Die Fernbedienung bleibt bei der App
+        window.focus()
+      } else if (message.event === 'state' && message.data === 0) close()
+      else if (message.event === 'error') fallback()
+    })
     // Play/Pause der Fernbedienung (OK übernimmt der unsichtbare Fokus-Halter unten)
     const keys = (event: KeyboardEvent) => {
       const code = event.keyCode
       if ((Keys.play as readonly number[]).includes(code) || (Keys.pause as readonly number[]).includes(code)) {
         event.preventDefault()
-        togglePause()
+        commandPlayer(frame.current, 'toggle')
       }
     }
     window.addEventListener('keydown', keys, true)
-
     return () => {
       closed = true
       clearTimeout(timer)
+      stop()
       window.removeEventListener('keydown', keys, true)
-      player.current?.destroy()
-      player.current = null
     }
   }, [videoKey])
 
-  function togglePause() {
-    const current = player.current
-    if (!current) return
-    if (current.getPlayerState() === 1) current.pauseVideo()
-    else current.playVideo()
-  }
-
   return (
     <Page focusKey="youtube" class="qk-youtube-page">
-      <div class="qk-youtube"><div ref={host} /></div>
-      <FocusHolder onEnter={togglePause} />
+      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, TRAILER_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
+      <FocusHolder onEnter={() => commandPlayer(frame.current, 'toggle')} />
     </Page>
   )
 }

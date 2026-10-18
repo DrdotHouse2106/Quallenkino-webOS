@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.6.5 – 2026-10-18
+
+- **YouTube auf dem LG:** Der Fernseher führt die App unter `file://` aus; YouTube bettet dort nicht ein (Fehler 153, fehlende Herkunft). Der offizielle Player liegt deshalb auf einer kleinen Seite bei GitHub Pages (`site/yt.html`), die Quallenkino einbettet – für die Vorschau oben rechts und das Vollbild-Fenster. Die Seite zeigt nur den Player und meldet bereit/läuft/Ende/Fehler an die App.
+
 ## 0.6.4 – 2026-10-18
 
 - **YouTube-Trailer wie in der Android-App:** Auf Detailseiten ohne Trailer auf dem Server (Jellyfin-Titel mit YouTube-Trailer in den Metadaten, Entdecken-Titel aus Jellyseerr) startet der Trailer nach 2 s **automatisch oben rechts** – als freies 16:9-Rechteck mit dem offiziellen Player, nichts liegt darüber, die Sprache steht darunter („EN“, „OmU“). Bei Fehlern oder am Ende verschwindet er. Abschaltbar mit „Trailer-Vorschau“ in den Einstellungen.

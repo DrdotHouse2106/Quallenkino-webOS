@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { TRAILER_VOLUME } from '../home/TrailerVideo'
-import { loadYouTubeApi, type YTPlayer } from '../platform/youtube'
+import { listenToPlayer, playerUrl } from '../platform/youtube'
 
 /** Wartezeit bis zur Vorschau (wie Android) und wie lange der Player höchstens zum Start braucht. */
 const START_DELAY_MS = 2_000
@@ -13,62 +13,38 @@ const READY_TIMEOUT_MS = 12_000
  * Ende verschwindet er einfach.
  */
 export function YouTubeInline({ videoKey, label }: { videoKey: string; label?: string }) {
-  const host = useRef<HTMLDivElement>(null)
+  const frame = useRef<HTMLIFrameElement>(null)
+  const [started, setStarted] = useState(false)
   const [visible, setVisible] = useState(false)
   const [gone, setGone] = useState(false)
 
   useEffect(() => {
+    setStarted(false)
     setVisible(false)
     setGone(false)
-    let closed = false
-    let player: YTPlayer | null = null
-    const hide = () => {
-      closed = true
-      setGone(true)
-    }
-    const watchdog = setTimeout(() => player || hide(), READY_TIMEOUT_MS)
-    const start = setTimeout(() => {
-      loadYouTubeApi()
-        .then(YT => {
-          if (closed || !host.current) return
-          const target = document.createElement('div')
-          host.current.appendChild(target)
-          player = new YT.Player(target, {
-            width: '100%',
-            height: '100%',
-            videoId: videoKey,
-            playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: 1 },
-            events: {
-              onReady: (event: { target: YTPlayer }) => {
-                clearTimeout(watchdog)
-                event.target.setVolume(Math.round(TRAILER_VOLUME * 100))
-                event.target.playVideo()
-                // Die Fernbedienung bleibt bei der App
-                event.target.getIframe().setAttribute('tabindex', '-1')
-                window.focus()
-              },
-              onStateChange: (event: { data: number }) => {
-                if (event.data === 1) setVisible(true)
-                if (event.data === 0) hide()
-              },
-              onError: hide,
-            },
-          })
-        })
-        .catch(hide)
-    }, START_DELAY_MS)
+    let ready = false
+    const start = setTimeout(() => setStarted(true), START_DELAY_MS)
+    const watchdog = setTimeout(() => ready || setGone(true), START_DELAY_MS + READY_TIMEOUT_MS)
+    const stop = listenToPlayer(() => frame.current, message => {
+      if (message.event === 'ready') {
+        ready = true
+        window.focus()
+      } else if (message.event === 'state' && message.data === 1) setVisible(true)
+      else if ((message.event === 'state' && message.data === 0) || message.event === 'error') setGone(true)
+    })
     return () => {
-      closed = true
       clearTimeout(start)
       clearTimeout(watchdog)
-      player?.destroy()
+      stop()
     }
   }, [videoKey])
 
-  if (gone) return null
+  if (gone || !started) return null
   return (
     <div class={`qk-yt-inline ${visible ? 'visible' : ''}`}>
-      <div ref={host} class="qk-yt-inline-player" />
+      <div class="qk-yt-inline-player">
+        <iframe ref={frame} src={playerUrl(videoKey, TRAILER_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
+      </div>
       {label && <span class="qk-yt-inline-label">{label}</span>}
     </div>
   )

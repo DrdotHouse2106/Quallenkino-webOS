@@ -28,37 +28,32 @@ export function openYouTube(key: string): Promise<boolean> {
   })
 }
 
-export interface YTPlayer {
-  playVideo(): void
-  pauseVideo(): void
-  getPlayerState(): number
-  setVolume(volume: number): void
-  getIframe(): HTMLIFrameElement
-  destroy(): void
+/**
+ * Player-Seite auf GitHub Pages (site/yt.html): YouTube bettet nur mit echter Herkunft ein, die App
+ * selbst läuft unter file:// (sonst Fehler 153).
+ */
+export const PLAYER_PAGE = 'https://drdothouse2106.github.io/Quallenkino-webOS/yt.html'
+const PLAYER_ORIGIN = new URL(PLAYER_PAGE).origin
+
+export function playerUrl(key: string, volume: number): string {
+  return `${PLAYER_PAGE}?v=${encodeURIComponent(key)}&vol=${Math.round(volume * 100)}`
 }
 
-interface YTNamespace {
-  Player: new (element: HTMLElement, options: Record<string, unknown>) => YTPlayer
+/** Meldung der Player-Seite: bereit, Zustand (1 läuft, 2 Pause, 0 Ende) oder Fehler. */
+export type PlayerEvent = { event: 'ready' } | { event: 'state'; data: number } | { event: 'error'; data: number }
+
+/** Meldungen genau dieses Player-Fensters empfangen; gibt die Abmeldung zurück. */
+export function listenToPlayer(frame: () => HTMLIFrameElement | null, onEvent: (event: PlayerEvent) => void): () => void {
+  const handler = (message: MessageEvent) => {
+    if (message.origin !== PLAYER_ORIGIN || message.source !== frame()?.contentWindow) return
+    const data = message.data as { qk?: string; event?: string; data?: number } | null
+    if (data?.qk === 'yt' && data.event) onEvent({ event: data.event, data: data.data } as PlayerEvent)
+  }
+  window.addEventListener('message', handler)
+  return () => window.removeEventListener('message', handler)
 }
 
-type YTWindow = Window & { YT?: YTNamespace; onYouTubeIframeAPIReady?: () => void }
-
-/** Offizielle YouTube-IFrame-API einmal laden. */
-export function loadYouTubeApi(): Promise<YTNamespace> {
-  const win = window as YTWindow
-  if (win.YT?.Player) return Promise.resolve(win.YT)
-  return new Promise((resolve, reject) => {
-    const previous = win.onYouTubeIframeAPIReady
-    win.onYouTubeIframeAPIReady = () => {
-      previous?.()
-      if (win.YT) resolve(win.YT)
-    }
-    if (!document.querySelector('script[data-youtube-api]')) {
-      const script = document.createElement('script')
-      script.src = 'https://www.youtube.com/iframe_api'
-      script.dataset.youtubeApi = 'true'
-      script.onerror = () => reject(new Error('YouTube-API nicht erreichbar'))
-      document.head.appendChild(script)
-    }
-  })
+/** Befehl an das Player-Fenster: abspielen, anhalten oder umschalten. */
+export function commandPlayer(frame: HTMLIFrameElement | null, cmd: 'play' | 'pause' | 'toggle') {
+  frame?.contentWindow?.postMessage({ qk: 'yt', cmd }, PLAYER_ORIGIN)
 }
