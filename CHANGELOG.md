@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.4 – 2026-10-18
+
+- Bildschirmschoner kommt ab Werk nach **2 Minuten** (vorher 5). Wer die Zeit in den Einstellungen selbst gewählt hat, behält sie.
+
 ## 0.7.3 – 2026-10-18
 
 - **LG-Bildschirmschoner überdeckt Quallenkino nicht mehr:** Solange die App im Vordergrund ist und „Bildschirmschoner nach“ eingeschaltet ist, hält Quallenkino den Schoner des Fernsehers zurück (Anfrage über `com.webos.service.tvpower`, Antwort `ack:false`). Steht der eigene Schoner auf „Aus“, darf der LG-Schoner wie gewohnt kommen.
@@ -18,7 +22,7 @@
 
 Etappe 7 – damit sind alle geplanten Etappen fertig.
 
-- **Bildschirmschoner (wie Android):** nach einigen Minuten ohne Tastendruck (Einstellungen: 2, 5 oder 10 Minuten oder aus; Standard 5) persönliche Titel – Empfehlungen und angefangene Filme – als Hintergrundbild mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr. Liegt ein Trailer auf dem Server, läuft er ohne Ton. OK öffnet den gezeigten Titel, jede andere Taste beendet. Während der Wiedergabe kommt er nie; Trailer im Hintergrund pausieren, solange er läuft.
+- **Bildschirmschoner (wie Android):** nach einigen Minuten ohne Tastendruck (Einstellungen: 2, 5 oder 10 Minuten oder aus; Standard 5, ab 0.7.4: 2) persönliche Titel – Empfehlungen und angefangene Filme – als Hintergrundbild mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr. Liegt ein Trailer auf dem Server, läuft er ohne Ton. OK öffnet den gezeigten Titel, jede andere Taste beendet. Während der Wiedergabe kommt er nie; Trailer im Hintergrund pausieren, solange er läuft.
 - **„Quallenkino beenden?“:** „Zurück“ auf der Startseite fragt jetzt (Beenden, Profil wechseln, Abbrechen) statt direkt zur Profilauswahl zu springen – so verlangt es LG für Apps im Store.
 
 ## 0.6.6 – 2026-10-18

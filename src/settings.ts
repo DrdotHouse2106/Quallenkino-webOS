@@ -20,7 +20,7 @@ export interface Settings {
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 5, screensaverTrailers: false, screensaverVolume: 0 }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0 }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {
