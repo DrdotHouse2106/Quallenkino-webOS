@@ -3,7 +3,7 @@ import { useContext } from 'preact/hooks'
 
 /** Seiten über der Startseite (die Startseite bleibt darunter erhalten, samt Fokus). */
 export type Page =
-  | { name: 'details'; id: string }
+  | { name: 'details'; id: string; season?: string }
   | { name: 'person'; id: string }
   | { name: 'search' }
   | { name: 'trailer'; url: string }

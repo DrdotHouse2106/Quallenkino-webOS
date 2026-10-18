@@ -32,12 +32,14 @@ const AUTO_TRAILER_MS = 2_000
 interface Props {
   api: Api
   id: string
+  /** Vorausgewählte Staffel (Staffelkarte geöffnet). */
+  season?: string
   reasons: Record<string, string>
   /** Eine weitere Seite liegt darüber – dann keinen Trailer abspielen. */
   covered: boolean
 }
 
-export function DetailsPage({ api, id, reasons, covered }: Props) {
+export function DetailsPage({ api, id, season: initialSeason, reasons, covered }: Props) {
   const router = useRouter()
   const [item, setItem] = useState<Item | null>(null)
   const [similar, setSimilar] = useState<Item[]>([])
@@ -67,7 +69,7 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
     if (item?.Type !== 'Series') return
     loadSeasons(api, item.Id).then(list => {
       setSeasons(list)
-      if (list.length) setSeason(list[0].Id)
+      if (list.length) setSeason(list.find(s => s.Id === initialSeason)?.Id ?? list[0].Id)
     })
   }, [item?.Id])
   useEffect(() => {

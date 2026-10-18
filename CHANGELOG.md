@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.3 – 2026-10-18
+
+- **Staffelkarten öffnen die Serie** mit dieser Staffel vorausgewählt; BACK führt zur Serie zurück.
+- **Beschreibung bei Staffeln und Folgen ohne Text:** Der Infobereich zeigt die Beschreibung der Serie; über „Staffel 3“ steht der Serienname.
+
 ## 1.0.2 – 2026-10-18
 
 - „Top 10 bei euch“ zählt jetzt die letzten 180 Tage statt 60 (wie die Android-App).

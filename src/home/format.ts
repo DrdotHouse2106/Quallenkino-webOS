@@ -3,11 +3,13 @@ import { airing } from '../api/livetv'
 
 /** Haupttitel: bei Folgen der Serienname. */
 export function title(item: Item): string {
-  return item.Type === 'Episode' ? item.SeriesName ?? item.Name ?? '' : item.Name ?? ''
+  return item.Type === 'Episode' || item.Type === 'Season' ? item.SeriesName ?? item.Name ?? '' : item.Name ?? ''
 }
 
 /** Zweite Zeile bei Folgen: „S1:F3 · Titel“. */
 export function subtitle(item: Item): string | null {
+  // Staffel: „Staffel 3“ unter dem Seriennamen
+  if (item.Type === 'Season') return item.SeriesName ? item.Name ?? null : null
   if (item.Type !== 'Episode') return null
   const code = item.ParentIndexNumber != null && item.IndexNumber != null ? `S${item.ParentIndexNumber}:F${item.IndexNumber}` : null
   return [code, item.Name].filter(Boolean).join(' · ') || null

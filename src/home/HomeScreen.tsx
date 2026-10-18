@@ -110,7 +110,9 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
     let active = true
     const timer = setTimeout(() => {
       loadItem(api, shown.Id)
-        .then(full => active && setOverviews(o => ({ ...o, [shown.Id]: full.Overview ?? '' })))
+        // Staffeln/Folgen ohne Text (z. B. Folgestaffeln aus AniDB): Beschreibung der Serie
+        .then(async full => full.Overview || !full.SeriesId ? full.Overview : (await loadItem(api, full.SeriesId).catch(() => null))?.Overview)
+        .then(text => active && setOverviews(o => ({ ...o, [shown.Id]: text ?? '' })))
         .catch(() => {})
     }, 300)
     return () => {

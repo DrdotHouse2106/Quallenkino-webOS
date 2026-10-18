@@ -9,5 +9,7 @@ export function openItem(router: Router, item: Item) {
   else if (item.Seerr) router.push({ name: 'request', type: item.Seerr.type, id: item.Seerr.id })
   else if (item.Type === 'Program') router.push({ name: 'program', id: item.Id })
   else if (item.Type === 'TvChannel') router.push({ name: 'player', id: item.Id })
+  // Staffel: Serienseite mit dieser Staffel (BACK führt dann zur Serie, nicht zur Startseite)
+  else if (item.Type === 'Season' && item.SeriesId) router.push({ name: 'details', id: item.SeriesId, season: item.Id })
   else router.push({ name: 'details', id: item.Id })
 }

@@ -113,7 +113,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
         // Nur die oberste Seite ist sichtbar; die darunter bleiben erhalten (Fokus, Daten)
         return (
           <div key={index} class={`qk-layer ${covered ? 'hidden' : ''}`}>
-            {page.name === 'details' && <DetailsPage api={api} id={page.id} reasons={reasons} covered={covered} />}
+            {page.name === 'details' && <DetailsPage api={api} id={page.id} season={page.season} reasons={reasons} covered={covered} />}
             {page.name === 'person' && <PersonPage api={api} id={page.id} />}
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
