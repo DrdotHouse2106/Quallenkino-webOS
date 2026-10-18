@@ -2,6 +2,7 @@ import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-naviga
 import type { Api, Item } from '../api/items'
 import { primaryUrl, thumbUrl } from '../api/images'
 import { progress, title } from './format'
+import { Img } from '../ui/Img'
 
 /** Initialen für Personen ohne Foto (Vor- und Nachname). */
 export function initials(name: string): string {
@@ -88,7 +89,7 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     return (
       <div ref={ref} class={`qk-top10 ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
         <span class="qk-top10-rank">{rank}</span>
-        <div class="qk-top10-poster">{poster ? <img src={poster} alt="" loading="lazy" /> : <span>{title(item)}</span>}</div>
+        <div class="qk-top10-poster"><Img src={poster} fallback={<span>{title(item)}</span>} /></div>
       </div>
     )
   }
@@ -96,7 +97,7 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     const poster = primaryUrl(api, item, 240)
     return (
       <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
-        <div class="qk-poster-image">{poster ? <img src={poster} alt="" loading="lazy" /> : <span>{title(item)}</span>}</div>
+        <div class="qk-poster-image"><Img src={poster} fallback={<span>{title(item)}</span>} /></div>
         <div class="qk-card-caption">{title(item)}</div>
       </div>
     )
@@ -105,7 +106,7 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     const photo = primaryUrl(api, item, 200)
     return (
       <div ref={ref} class={`qk-person ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
-        <div class="qk-person-photo">{photo ? <img src={photo} alt="" loading="lazy" /> : <span>{initials(item.Name ?? '')}</span>}</div>
+        <div class="qk-person-photo"><Img src={photo} fallback={<span>{initials(item.Name ?? '')}</span>} /></div>
         <div class="qk-card-caption">{item.Name}</div>
         {item.Role && <div class="qk-card-caption muted">{item.Role}</div>}
       </div>
@@ -116,7 +117,7 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
     return (
       <div ref={ref} class={`qk-episode ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
         <div class="qk-card">
-          {image ? <img src={image} alt="" loading="lazy" /> : <span class="qk-card-title">{item.Name}</span>}
+          <Img src={image} fallback={<span class="qk-card-title">{item.Name}</span>} />
           {percent !== null && <div class="qk-card-progress"><div style={{ width: `${percent}%` }} /></div>}
         </div>
         <div class="qk-card-caption">{item.IndexNumber != null ? `${item.IndexNumber}. ` : ''}{item.Name}</div>
@@ -125,7 +126,7 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen }: CardProps) {
   }
   return (
     <div ref={ref} class={`qk-card ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
-      {image ? <img src={image} alt="" loading="lazy" /> : <span class="qk-card-title">{title(item)}</span>}
+      <Img src={image} fallback={<span class="qk-card-title">{title(item)}</span>} />
       {percent !== null && <div class="qk-card-progress"><div style={{ width: `${percent}%` }} /></div>}
     </div>
   )

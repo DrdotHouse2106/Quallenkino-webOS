@@ -1,11 +1,13 @@
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
-import { fullItem, type Api, type Item } from '../api/items'
+import { fullItem, ratingTarget, setRating, type Api, type Item } from '../api/items'
 import { subtitle as episodeSubtitle, title as itemTitle } from '../home/format'
 import { t } from '../i18n'
 import { isBack, Keys } from '../nav/keys'
 import { useRouter } from '../nav/router'
 import { Page } from '../pages/Page'
+import { toast } from '../ui/Toast'
+import { Icon, type IconName } from '../ui/Icon'
 import {
   nextEpisode,
   playbackInfo,
@@ -19,7 +21,8 @@ import {
   type Segment,
   type Stream,
 } from './playback'
-import { audioStreams, cueAt, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
+import { canPlayAudio } from './profile'
+import { audioStreams, audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
 const OSD_TIMEOUT_MS = 5_000
 const PROGRESS_INTERVAL_MS = 10_000
@@ -31,6 +34,13 @@ const SKIP_DELAY_MS = 5_000
 const NEXT_COUNTDOWN_S = 10
 /** Ohne Abspann-Markierung: so kurz vor Schluss die nächste Folge anbieten. */
 const NEXT_BEFORE_END_S = 30
+/** Bild-Untertitel kann nur der Server ins Bild rechnen. */
+const IMAGE_SUBTITLES = ['pgssub', 'pgs', 'dvdsub', 'dvbsub', 'ass', 'ssa']
+
+interface AudioTrackLike { enabled: boolean }
+const audioTrackList = (element: HTMLVideoElement | null) =>
+  (element as (HTMLVideoElement & { audioTracks?: ArrayLike<AudioTrackLike> }) | null)?.audioTracks
+const supportsAudioTracks = () => typeof HTMLMediaElement !== 'undefined' && 'audioTracks' in HTMLMediaElement.prototype
 
 export function formatTime(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds))
@@ -65,6 +75,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   const [dismissed, setDismissed] = useState<string | null>(null)
   const [next, setNext] = useState<Item | null>(null)
   const [nextCancelled, setNextCancelled] = useState(false)
+  const [likes, setLikes] = useState<boolean | null>(null)
   const startAt = useRef((startTicks ?? 0) / TICKS_PER_SECOND)
   const started = useRef(false)
   /** Nach „gestoppt“ keine Meldungen mehr (beim Schließen feuert das Video noch „pause“). */
@@ -79,6 +90,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         const loaded = await fullItem(api, id)
         if (!active) return
         setItem(loaded)
+        const target = ratingTarget(loaded)
+        if (target === loaded.Id) setLikes(loaded.UserData?.Likes ?? null)
+        else if (target) fullItem(api, target).then(series => active && setLikes(series.UserData?.Likes ?? null)).catch(() => {})
         loadSegments(api, id).then(list => active && setSegmentList(list))
         nextEpisode(api, loaded).then(found => active && setNext(found))
         const info = await playbackInfo(api, id, { startTicks: startTicks ?? 0 })
@@ -96,11 +110,21 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     }
   }, [id])
 
-  /** Quelle (neu) öffnen – auch beim Wechsel von Ton oder eingebrannten Untertiteln. */
-  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number) {
-    const info = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks: Math.round(position * TICKS_PER_SECOND) })
-    const next = streamFor(api, id, info, { audio: audioIndex })
+  /**
+   * Quelle (neu) öffnen – auch beim Wechsel von Ton oder eingebrannten Untertiteln.
+   * Beim direkten Abspielen läuft immer die Tonspur der Datei, die der Fernseher wählt; eine andere
+   * schaltet die App über video.audioTracks um. Geht das nicht oder kann der Fernseher den Ton nicht
+   * (DTS, TrueHD), rechnet der Server um.
+   */
+  async function open(audioIndex: number | undefined, subtitleIndex: number, position: number, transcode = false) {
+    const startTicks = Math.round(position * TICKS_PER_SECOND)
+    const info = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode })
+    let next = streamFor(api, id, info, { audio: audioIndex, transcode })
     if (!next) throw new Error('nicht abspielbar')
+    if (next.method !== 'Transcode' && !directAudioPossible(next, audioIndex)) {
+      const forced = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode: true })
+      next = streamFor(api, id, forced, { audio: audioIndex, transcode: true }) ?? next
+    }
     startAt.current = position
     setAudio(audioIndex)
     setSubtitle(subtitleIndex)
@@ -108,15 +132,49 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     loadCues(next, subtitleIndex)
   }
 
-  /** Text-Untertitel selbst laden und anzeigen; eingebrannte zeigt das Bild schon. */
+  /** Kann diese Tonspur ohne Umrechnung laufen? */
+  function directAudioPossible(current: Stream, audioIndex: number | undefined): boolean {
+    const track = audioStreams(current.source).find(s => s.Index === audioIndex)
+    if (!track) return true
+    if (!canPlayAudio(track.Codec)) return false
+    return audioIndex === fileDefaultAudio(current.source) || (supportsAudioTracks() && audioTrackPosition(current.source, audioIndex) >= 0)
+  }
+
+  /** Beim direkten Abspielen die gewählte Tonspur im Video einschalten. */
+  function applyAudioTrack(current: Stream, audioIndex: number | undefined): boolean {
+    const tracks = audioTrackList(video.current)
+    const position = audioTrackPosition(current.source, audioIndex)
+    if (!tracks || position < 0 || position >= tracks.length) return false
+    for (let i = 0; i < tracks.length; i++) tracks[i].enabled = i === position
+    return true
+  }
+
+  /**
+   * Text-Untertitel (SRT, VTT – auch in der MKV-Datei eingebettete) als WebVTT vom Server laden und
+   * selbst anzeigen; eingebrannte zeigt das Bild schon.
+   */
   function loadCues(current: Stream, index: number) {
     setCues([])
     const track = subtitleStreams(current.source).find(s => s.Index === index)
-    if (!track || track.DeliveryMethod === 'Encode' || track.DeliveryMethod === 'Embed') return
+    if (!track || isBurnedIn(track)) return
     fetch(subtitleUrl(api, id, current.source, track))
       .then(response => response.text())
       .then(text => setCues(parseVtt(text)))
       .catch(() => setCues([]))
+  }
+
+  const isBurnedIn = (track: { DeliveryMethod?: string; Codec?: string }) =>
+    track.DeliveryMethod === 'Encode' || IMAGE_SUBTITLES.includes((track.Codec ?? '').toLowerCase())
+
+  async function rate(value: boolean) {
+    const target = item && ratingTarget(item)
+    if (!target) return
+    try {
+      setLikes(await setRating(api, target, likes === value ? null : value))
+    } catch {
+      toast(t.ratingFailed)
+    }
+    showOsd()
   }
 
   const position = () => video.current?.currentTime ?? 0
@@ -227,7 +285,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       if (!osd && [13, 37, 38, 39, 40].includes(code)) {
         event.preventDefault()
         event.stopPropagation()
-        showOsd()
+        // OK bei ausgeblendeter Leiste: Pause/Weiter (wie Android); Pfeile holen nur die Leiste
+        if (code === 13) togglePause()
+        else showOsd()
         requestAnimationFrame(() => setFocus('player-bar'))
         return
       }
@@ -276,6 +336,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             if (!element) return
             setDuration(Number.isFinite(element.duration) && element.duration > 0 ? element.duration : (stream.source.RunTimeTicks ?? 0) / TICKS_PER_SECOND)
             if (startAt.current > 1 && element.currentTime < startAt.current - 1) element.currentTime = startAt.current
+            // Andere Tonspur als die der Datei: umschalten, sonst (kein audioTracks) vom Server umrechnen lassen
+            if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source) && !applyAudioTrack(stream, audio)) {
+              open(audio, subtitle, Math.max(element.currentTime, startAt.current), true).catch(() => setError(t.playbackFailed))
+            }
           }}
           onTimeUpdate={() => setTime(video.current?.currentTime ?? 0)}
           onPlaying={() => {
@@ -309,6 +373,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         <SeekBar time={time} duration={duration} paused={paused} onSeek={seekBy} onToggle={togglePause} />
         <OsdButtons
           hasNext={!!next}
+          canRate={!!item && !!ratingTarget(item)}
+          likes={likes}
+          onRate={rate}
           onTracks={() => {
             setDialog(true)
             requestAnimationFrame(() => setFocus('tracks'))
@@ -324,13 +391,20 @@ export function PlayerPage({ api, id, startTicks }: Props) {
           subtitle={subtitle}
           onAudio={index => {
             setDialog(false)
-            open(index, subtitle, position()).catch(() => setError(t.playbackFailed))
+            const track = audioStreams(stream.source).find(s => s.Index === index)
+            // Direkt: umschalten ohne Neustart, wenn der Fernseher den Ton kann
+            if (stream.method !== 'Transcode' && canPlayAudio(track?.Codec) && applyAudioTrack(stream, index)) {
+              setAudio(index)
+              return
+            }
+            open(index, subtitle, position(), stream.method !== 'Transcode').catch(() => setError(t.playbackFailed))
           }}
           onSubtitle={index => {
             setDialog(false)
             const track = subtitleStreams(stream.source).find(s => s.Index === index)
-            // Eingebrannte Untertitel brauchen eine neue Umrechnung, Text-Untertitel nicht
-            if (index >= 0 && track && track.DeliveryMethod === 'Encode') open(audio, index, position()).catch(() => setError(t.playbackFailed))
+            const current = subtitleStreams(stream.source).find(s => s.Index === subtitle)
+            // Eingebrannte Untertitel (neu oder bisher) brauchen eine neue Umrechnung, Text-Untertitel nicht
+            if ((track && isBurnedIn(track)) || (current && isBurnedIn(current))) open(audio, index, position()).catch(() => setError(t.playbackFailed))
             else {
               setSubtitle(index)
               loadCues(stream, index)
@@ -356,7 +430,8 @@ function SeekBar({ time, duration, paused, onSeek, onToggle }: { time: number; d
   const percent = duration > 0 ? Math.min(100, (time / duration) * 100) : 0
   return (
     <div ref={ref} class={`qk-seek ${focused ? 'focused' : ''}`}>
-      <span class="qk-seek-state">{paused ? '❚❚' : '▶'}</span>
+      {/* Zeigt, was OK bewirkt: läuft → Pause, pausiert → Abspielen */}
+      <span class="qk-seek-state"><Icon name={paused ? 'play' : 'pause'} size={30} /></span>
       <span class="qk-seek-time">{formatTime(time)}</span>
       <div class="qk-seek-track"><div class="qk-seek-fill" style={{ width: `${percent}%` }} /><div class="qk-seek-knob" style={{ left: `${percent}%` }} /></div>
       <span class="qk-seek-time">{duration > 0 ? '-' + formatTime(duration - time) : ''}</span>
@@ -364,21 +439,38 @@ function SeekBar({ time, duration, paused, onSeek, onToggle }: { time: number; d
   )
 }
 
-function OsdButtons({ hasNext, onTracks, onNext }: { hasNext: boolean; onTracks: () => void; onNext: () => void }) {
+interface OsdButtonsProps {
+  hasNext: boolean
+  canRate: boolean
+  likes: boolean | null
+  onRate: (value: boolean) => void
+  onTracks: () => void
+  onNext: () => void
+}
+
+function OsdButtons({ hasNext, canRate, likes, onRate, onTracks, onNext }: OsdButtonsProps) {
   const { ref, focusKey } = useFocusable({ focusKey: 'player-buttons', trackChildren: true })
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} class="qk-osd-buttons">
-        <OsdButton focusKey="player-tracks" label={t.audioSubtitles} onPress={onTracks} />
-        {hasNext && <OsdButton focusKey="player-next" label={t.nextEpisode} onPress={onNext} />}
+        <OsdButton focusKey="player-tracks" icon="subtitles" label={t.audioSubtitles} onPress={onTracks} />
+        {hasNext && <OsdButton focusKey="player-next" icon="skipNext" label={t.nextEpisode} onPress={onNext} />}
+        {canRate && <OsdButton focusKey="player-like" icon="thumbUp" label={t.like} active={likes === true} onPress={() => onRate(true)} />}
+        {canRate && <OsdButton focusKey="player-dislike" icon="thumbDown" label={t.dislike} active={likes === false} onPress={() => onRate(false)} />}
       </div>
     </FocusContext.Provider>
   )
 }
 
-function OsdButton({ focusKey, label, onPress, selected }: { focusKey: string; label: string; onPress: () => void; selected?: boolean }) {
+function OsdButton({ focusKey, label, onPress, selected, active, icon }: { focusKey: string; label: string; onPress: () => void; selected?: boolean; active?: boolean; icon?: IconName }) {
   const { ref, focused } = useFocusable({ focusKey, onEnterPress: onPress })
-  return <div ref={ref} class={`qk-osd-button ${focused ? 'focused' : ''} ${selected ? 'selected' : ''}`} onClick={onPress}>{selected ? '✓ ' : ''}{label}</div>
+  return (
+    <div ref={ref} class={`qk-osd-button ${focused ? 'focused' : ''} ${selected ? 'selected' : ''} ${active ? 'active' : ''}`} onClick={onPress}>
+      {selected && <Icon name="check" size={22} />}
+      {icon && <Icon name={icon} size={24} />}
+      <span>{label}</span>
+    </div>
+  )
 }
 
 /** Ton und Untertitel in einem Fenster, zwei Spalten (wie Android). */

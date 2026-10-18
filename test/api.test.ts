@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { authorizationHeader, deviceId } from '../src/api/auth'
 import { candidateUrls } from '../src/api/server'
 import { withSession, withoutSession, type SavedState } from '../src/store'
-import { tileColor } from '../src/screens/ProfileScreen'
+import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
 describe('Server-Adresse', () => {
   it('ohne Schema: zuerst https, dann http, dann Standard-Ports', () => {
@@ -15,7 +15,17 @@ describe('Server-Adresse', () => {
   })
 
   it('mit Port keine Zusatz-Ports', () => {
-    expect(candidateUrls('192.168.1.10:8096/')).toEqual(['https://192.168.1.10:8096', 'http://192.168.1.10:8096'])
+    expect(candidateUrls('kino.example.de:8443')).toEqual(['https://kino.example.de:8443', 'http://kino.example.de:8443'])
+    expect(candidateUrls('192.168.1.10:8096/')).toEqual(['http://192.168.1.10:8096', 'https://192.168.1.10:8096'])
+  })
+
+  it('IP-Adresse: zuerst http mit Port 8096', () => {
+    expect(candidateUrls('192.168.1.10')).toEqual([
+      'http://192.168.1.10:8096',
+      'http://192.168.1.10',
+      'https://192.168.1.10:8920',
+      'https://192.168.1.10',
+    ])
   })
 
   it('mit Schema genau diese Adresse', () => {
@@ -51,5 +61,12 @@ describe('Anmeldung', () => {
 
   it('feste Kachelfarbe pro Name', () => {
     expect(tileColor('Ulberding')).toBe(tileColor('Ulberding'))
+  })
+})
+
+describe('Profile', () => {
+  it('versteckte, hier angemeldete Profile kommen dazu, ohne doppelte', () => {
+    const list = mergeProfiles([{ Id: 'a', Name: 'Anna' }], [{ Id: 'a', Name: 'Anna' }, { Id: 'b', Name: 'Ben' }])
+    expect(list.map(u => u.Id)).toEqual(['a', 'b'])
   })
 })

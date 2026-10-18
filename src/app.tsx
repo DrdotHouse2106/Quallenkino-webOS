@@ -10,7 +10,7 @@ import { loadState, saveState, withSession, withoutSession, type SavedState } fr
 type View =
   | { name: 'server' }
   | { name: 'profiles' }
-  | { name: 'login'; username?: string }
+  | { name: 'login'; username?: string; direct?: boolean }
   | { name: 'home'; session: Session }
 
 /** Ablauf: Server → „Wer schaut gerade?“ → (Anmeldung, falls nötig) → Startseite. */
@@ -53,13 +53,15 @@ export function App() {
       return (
         <ProfileScreen
           server={server}
+          saved={state.sessions.map(s => ({ Id: s.userId, Name: s.name, PrimaryImageTag: s.imageTag }))}
           onPick={pickProfile}
           onOther={() => setView({ name: 'login' })}
           onChangeServer={() => setView({ name: 'server' })}
+          onEmpty={() => setView({ name: 'login', direct: true })}
         />
       )
     case 'login':
-      return <LoginScreen server={server} username={view.username} onSignedIn={signedIn} onBack={() => setView({ name: 'profiles' })} />
+      return <LoginScreen server={server} username={view.username} onSignedIn={signedIn} onBack={() => setView(view.direct ? { name: 'server' } : { name: 'profiles' })} />
     case 'home':
       return (
         <Shell

@@ -13,6 +13,11 @@ export const MAX_BITRATE = 120_000_000
 const VIDEO = 'h264,hevc,vp9,av1'
 const AUDIO = 'aac,mp3,ac3,eac3,flac,opus,vorbis,alac,pcm_s16le,pcm_s24le'
 
+/** Kann der Fernseher diesen Ton selbst abspielen? (DTS, TrueHD nicht → Server rechnet um.) */
+export function canPlayAudio(codec?: string): boolean {
+  return !!codec && AUDIO.split(',').includes(codec.toLowerCase())
+}
+
 export function deviceProfile(maxBitrate = MAX_BITRATE) {
   return {
     Name: 'Quallenkino webOS',

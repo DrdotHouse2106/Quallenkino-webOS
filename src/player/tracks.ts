@@ -37,6 +37,17 @@ export function pickSubtitle(source: MediaSource, audioIndex: number | undefined
   return fallback?.Index ?? -1
 }
 
+/** Tonspur, die beim direkten Abspielen ohne Zutun läuft: die als Standard markierte, sonst die erste. */
+export function fileDefaultAudio(source: MediaSource): number | undefined {
+  const internal = audioStreams(source).filter(s => !s.IsExternal)
+  return (internal.find(s => s.IsDefault) ?? internal[0])?.Index
+}
+
+/** Stelle der Tonspur in video.audioTracks (nur Spuren in der Datei, in ihrer Reihenfolge); -1 = keine. */
+export function audioTrackPosition(source: MediaSource, index: number | undefined): number {
+  return audioStreams(source).filter(s => !s.IsExternal).findIndex(s => s.Index === index)
+}
+
 /** Anzeigename einer Spur. */
 export function trackLabel(stream: MediaStream): string {
   return stream.DisplayTitle || stream.Title || stream.Language || `Spur ${stream.Index}`

@@ -7,6 +7,7 @@ import { initials, Row } from '../home/Rows'
 import { t } from '../i18n'
 import { useRouter } from '../nav/router'
 import { Page } from './Page'
+import { Img } from '../ui/Img'
 
 /** „1952-06-07T00:00:00Z“ → „7.6.1952“. */
 export function formatDate(iso?: string): string | null {
@@ -41,7 +42,7 @@ export function PersonPage({ api, id }: { api: Api; id: string }) {
     <Page focusKey="person" class="qk-person-page">
       <div class="qk-page-main">
         <div class="qk-person-head">
-          <div class="qk-person-photo large">{photo ? <img src={photo} alt="" /> : <span>{initials(person?.Name ?? '')}</span>}</div>
+          <div class="qk-person-photo large"><Img src={photo} lazy={false} fallback={<span>{initials(person?.Name ?? '')}</span>} /></div>
           <div class="qk-person-info">
             <div class="qk-hero-title">{person?.Name}</div>
             {(born || place) && <div class="qk-hero-facts">{[born && t.born(born), place].filter(Boolean).join('  ·  ')}</div>}

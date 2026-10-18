@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { cueAt, parseVtt, pickAudio, pickSubtitle } from '../src/player/tracks'
+import { audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle } from '../src/player/tracks'
+import { canPlayAudio } from '../src/player/profile'
 import { streamFor } from '../src/player/playback'
 
 const source = (streams: object[], extra: object = {}) => ({ Id: 'ms', MediaStreams: streams as never, ...extra })
@@ -62,5 +63,34 @@ describe('Zeitanzeige', async () => {
   it('Minuten und Stunden', () => {
     expect(formatTime(65)).toBe('1:05')
     expect(formatTime(3725)).toBe('1:02:05')
+  })
+})
+
+describe('Tonspur wechseln', () => {
+  const source = {
+    Id: 'm',
+    MediaStreams: [
+      { Index: 0, Type: 'Video' },
+      { Index: 1, Type: 'Audio', Codec: 'ac3', Language: 'eng' },
+      { Index: 2, Type: 'Audio', Codec: 'dts', Language: 'ger', IsDefault: true },
+      { Index: 3, Type: 'Subtitle', Codec: 'subrip' },
+      { Index: 4, Type: 'Audio', Codec: 'aac', IsExternal: true },
+    ],
+  }
+
+  it('Stelle in audioTracks zählt nur Spuren der Datei', () => {
+    expect(audioTrackPosition(source, 1)).toBe(0)
+    expect(audioTrackPosition(source, 2)).toBe(1)
+    expect(audioTrackPosition(source, 4)).toBe(-1)
+  })
+
+  it('Standard der Datei ist die markierte Spur', () => {
+    expect(fileDefaultAudio(source)).toBe(2)
+  })
+
+  it('DTS und TrueHD kann der Fernseher nicht selbst', () => {
+    expect(canPlayAudio('dts')).toBe(false)
+    expect(canPlayAudio('truehd')).toBe(false)
+    expect(canPlayAudio('EAC3')).toBe(true)
   })
 })

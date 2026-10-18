@@ -21,6 +21,7 @@ export function HeroBackdrop({ api, item, trailerUrl, onTrailerEnd, onTrailerPla
       {url && <img key={url} class="qk-fade-in" src={url} alt="" />}
       {trailerUrl && <TrailerVideo key={trailerUrl} url={trailerUrl} onEnded={onTrailerEnd} onPlayingChange={onTrailerPlaying} />}
       {/* Verläufe liegen über Bild UND Video, damit Text lesbar bleibt */}
+      <div class="qk-hero-shade-top" />
       <div class="qk-hero-shade-left" />
       <div class="qk-hero-shade-bottom" />
     </div>

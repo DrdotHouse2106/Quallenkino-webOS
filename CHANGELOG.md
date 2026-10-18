@@ -1,5 +1,20 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.1 – 2026-10-18
+
+Korrekturen nach dem ersten Test auf einem LG-Fernseher:
+
+- **Server-Suche schneller:** Alle Adressen werden gleichzeitig probiert (höchstens ~3 s statt bis zu 20 s). Bei einer IP-Adresse kommt `http://…:8096` zuerst.
+- **Versteckte Profile:** Zeigt der Server keine Profile, öffnet sich gleich die Anmeldung (Passwort oder Quick Connect). Auf diesem Fernseher angemeldete Profile erscheinen bei „Wer schaut gerade?“, auch wenn der Server sie versteckt.
+- **Tonspur wechseln** wirkt jetzt auch beim direkten Abspielen (Umschalten im Fernseher, ohne Neustart). Kann der Fernseher die Spur nicht (DTS, TrueHD), rechnet der Server nur den Ton um.
+- **SRT-Untertitel in MKV-Dateien** werden angezeigt (der Server liefert sie als WebVTT).
+- **OK pausiert** auch bei ausgeblendeter Leiste; das Symbol zeigt, was OK bewirkt (läuft → Pause).
+- **Gefällt mir / Nichts für mich** im Player (Folgen über ihre Serie).
+- Symbole im Material-Stil (Navigation, Banner, Detailseite, Player).
+- Fotos, die nicht laden, zeigen Initialen statt eines leeren Kreises; Poster den Titel.
+- Helle Hintergrundbilder oben abgedunkelt (die Uhr bleibt lesbar).
+- Hinweis: „Links“ auf „Abspielen“ im Banner geht zum vorigen Vorschlag – wie in der Android-App; beim ersten Vorschlag öffnet es die Navigation.
+
 ## 0.4.0 – 2026-10-18
 
 - **Player (Etappe 4):** Abspielen und Fortsetzen von Filmen und Folgen. Der Server spielt direkt ab, wenn der Fernseher die Datei kann (H.264, HEVC, VP9, AV1; AAC, AC3/E-AC3, FLAC, Opus …). Sonst rechnet er nur das Nötige um (z. B. DTS-Ton) und schickt es als HLS.

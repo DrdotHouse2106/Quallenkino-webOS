@@ -49,7 +49,7 @@ export const TICKS_PER_SECOND = 10_000_000
 const base = (api: Api) => api.url.replace(/\/+$/, '')
 
 /** Abspiel-Infos vom Server: welche Quelle, direkt oder umgerechnet. */
-export function playbackInfo(api: Api, itemId: string, options: { audio?: number; subtitle?: number; startTicks?: number } = {}) {
+export function playbackInfo(api: Api, itemId: string, options: { audio?: number; subtitle?: number; startTicks?: number; transcode?: boolean } = {}) {
   return request<PlaybackInfo>(api.url, `/Items/${itemId}/PlaybackInfo?userId=${api.userId}`, {
     method: 'POST',
     token: api.token,
@@ -61,8 +61,9 @@ export function playbackInfo(api: Api, itemId: string, options: { audio?: number
       StartTimeTicks: options.startTicks ?? 0,
       AudioStreamIndex: options.audio,
       SubtitleStreamIndex: options.subtitle ?? -1,
-      EnableDirectPlay: true,
-      EnableDirectStream: true,
+      // Erzwungene Umrechnung: z. B. für eine andere Tonspur, die direkt nicht wählbar ist
+      EnableDirectPlay: !options.transcode,
+      EnableDirectStream: !options.transcode,
       EnableTranscoding: true,
       AllowVideoStreamCopy: true,
       AllowAudioStreamCopy: true,
@@ -72,10 +73,10 @@ export function playbackInfo(api: Api, itemId: string, options: { audio?: number
 }
 
 /** Adresse zum Abspielen: direkt (Datei), sonst die Umrechnung des Servers (HLS). */
-export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options: { audio?: number; subtitle?: number } = {}): Stream | null {
+export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options: { audio?: number; transcode?: boolean } = {}): Stream | null {
   const source = info.MediaSources?.[0]
   if (!source) return null
-  if (source.SupportsDirectPlay || source.SupportsDirectStream) {
+  if (!options.transcode && (source.SupportsDirectPlay || source.SupportsDirectStream)) {
     const params = new URLSearchParams({
       Static: 'true',
       mediaSourceId: source.Id,

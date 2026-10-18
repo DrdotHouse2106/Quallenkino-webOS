@@ -8,6 +8,7 @@ import { onBack } from '../nav/keys'
 import { useRouter } from '../nav/router'
 import { About } from '../ui/About'
 import { Logo } from '../ui/Logo'
+import { Icon, type IconName } from '../ui/Icon'
 import { toast } from '../ui/Toast'
 import { HeroBackdrop, HeroInfo } from './Hero'
 import { Rail } from './Rail'
@@ -150,10 +151,10 @@ export function HomeScreen({ api, server, session, covered, onSwitchProfile, onS
         preferred={t.railHome}
         onRight={() => setFocus(billboard.length ? 'bb-play' : rows[0] ? `row-${rows[0].key}` : 'bb-play')}
         items={[
-          { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : session.name.charAt(0).toUpperCase(), onPress: onSwitchProfile },
-          { id: 'search', label: t.railSearch, icon: '⌕', onPress: () => router.push({ name: 'search' }) },
-          { id: 'home', label: t.railHome, icon: '⌂', active: true, onPress: () => setFocus('bb-play') },
-          { id: 'about', label: t.railAbout, icon: 'i', onPress: () => setShowAbout(true) },
+          { id: 'profile', label: t.railProfile, icon: avatar ? <img src={avatar} alt="" /> : <Icon name="person" />, onPress: onSwitchProfile },
+          { id: 'search', label: t.railSearch, icon: <Icon name="search" />, onPress: () => router.push({ name: 'search' }) },
+          { id: 'home', label: t.railHome, icon: <Icon name="home" />, active: true, onPress: () => setFocus('bb-play') },
+          { id: 'about', label: t.railAbout, icon: <Icon name="info" />, onPress: () => setShowAbout(true) },
         ]}
       />
       <div class="qk-home-main">
@@ -212,10 +213,10 @@ function BillboardButtons(props: ButtonsProps) {
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} class={`qk-billboard-buttons ${props.visible ? '' : 'hidden'}`}>
-        <BillboardButton focusKey="bb-play" label={t.play} icon="▶" onPress={props.onPlay}
+        <BillboardButton focusKey="bb-play" label={t.play} icon="play" onPress={props.onPlay}
           onArrow={dir => (dir === 'left' && props.canStepBack ? !props.onStep(-1) : true)} />
-        <BillboardButton focusKey="bb-info" label={t.moreInfo} icon="i" onPress={props.onInfo} />
-        <BillboardButton focusKey="bb-trailer" label={t.trailer} icon="◉" dimmed={!props.hasTrailer} onPress={props.onTrailer}
+        <BillboardButton focusKey="bb-info" label={t.moreInfo} icon="info" onPress={props.onInfo} />
+        <BillboardButton focusKey="bb-trailer" label={t.trailer} icon="trailer" dimmed={!props.hasTrailer} onPress={props.onTrailer}
           onArrow={dir => (dir === 'right' ? !props.onStep(1) : true)} />
         {props.visible && props.count > 1 && (
           <div class="qk-dots">
@@ -230,7 +231,7 @@ function BillboardButtons(props: ButtonsProps) {
 interface BillboardButtonProps {
   focusKey: string
   label: string
-  icon: string
+  icon: IconName
   dimmed?: boolean
   onPress: () => void
   onArrow?: (direction: string) => boolean
@@ -245,7 +246,7 @@ function BillboardButton({ focusKey, label, icon, dimmed, onPress, onArrow }: Bi
   })
   return (
     <div ref={ref} class={`qk-bb-button ${focused ? 'focused' : ''} ${dimmed ? 'dimmed' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
-      <span class="qk-bb-icon">{icon}</span>
+      <Icon name={icon} />
       {label}
     </div>
   )

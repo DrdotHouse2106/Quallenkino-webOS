@@ -1,9 +1,10 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
+import { Icon, type IconName } from '../ui/Icon'
 
 interface Props {
   focusKey: string
   label: string
-  icon?: string
+  icon?: IconName
   active?: boolean
   dimmed?: boolean
   onPress: () => void
@@ -14,7 +15,7 @@ export function ActionButton({ focusKey, label, icon, active, dimmed, onPress }:
   const { ref, focused, focusSelf } = useFocusable({ focusKey, onEnterPress: onPress })
   return (
     <div ref={ref} class={`qk-bb-button ${focused ? 'focused' : ''} ${dimmed ? 'dimmed' : ''} ${active ? 'active' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
-      {icon && <span class="qk-bb-icon">{icon}</span>}
+      {icon && <Icon name={icon} />}
       {label}
     </div>
   )

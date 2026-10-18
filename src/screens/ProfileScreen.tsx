@@ -16,21 +16,36 @@ export function tileColor(name: string): string {
 
 interface Props {
   server: ServerInfo
+  /** Auf diesem Fernseher angemeldete Profile – auch versteckte, die der Server nicht öffentlich zeigt. */
+  saved?: UserSummary[]
   onPick: (user: UserSummary) => void
   onOther: () => void
   onChangeServer: () => void
+  /** Keine Profile sichtbar (versteckte Benutzer): direkt zur Anmeldung. */
+  onEmpty?: () => void
+}
+
+/** Öffentliche Profile plus gemerkte, die nicht öffentlich sind. */
+export function mergeProfiles(publicList: UserSummary[], saved: UserSummary[]): UserSummary[] {
+  return [...publicList, ...saved.filter(user => !publicList.some(p => p.Id === user.Id))]
 }
 
 /** „Wer schaut gerade?“ – große Profil-Kacheln, OK wählt aus. */
-export function ProfileScreen({ server, onPick, onOther, onChangeServer }: Props) {
+export function ProfileScreen({ server, saved = [], onPick, onOther, onChangeServer, onEmpty }: Props) {
   const [users, setUsers] = useState<UserSummary[] | null>(null)
   const [failed, setFailed] = useState(false)
 
   useEffect(() => {
-    publicUsers(server.url).then(setUsers).catch(() => {
-      setUsers([])
-      setFailed(true)
-    })
+    publicUsers(server.url)
+      .then(list => {
+        const all = mergeProfiles(list, saved)
+        if (all.length === 0 && onEmpty) onEmpty()
+        else setUsers(all)
+      })
+      .catch(() => {
+        setUsers(saved)
+        setFailed(true)
+      })
   }, [server.url])
 
   return (

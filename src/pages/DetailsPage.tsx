@@ -118,11 +118,11 @@ export function DetailsPage({ api, id, reasons, covered }: Props) {
               {item.Taglines?.[0] && <div class="qk-tagline">{item.Taglines[0]}</div>}
             </HeroInfo>
             <ButtonRow>
-              <ActionButton focusKey="d-play" icon="▶" label={resumable ? t.resume : t.play} onPress={() => startPlayback(api, router, item)} />
-              {resumable && <ActionButton focusKey="d-restart" icon="↺" label={t.fromStart} onPress={() => startPlayback(api, router, item, true)} />}
-              <ActionButton focusKey="d-trailer" icon="◉" label={t.trailer} dimmed={!item.LocalTrailerCount} onPress={openTrailer} />
-              {ratingTarget(item) && <ActionButton focusKey="d-like" icon="👍" label={t.like} active={likes === true} onPress={() => rate(true)} />}
-              {ratingTarget(item) && <ActionButton focusKey="d-dislike" icon="👎" label={t.dislike} active={likes === false} onPress={() => rate(false)} />}
+              <ActionButton focusKey="d-play" icon="play" label={resumable ? t.resume : t.play} onPress={() => startPlayback(api, router, item)} />
+              {resumable && <ActionButton focusKey="d-restart" icon="replay" label={t.fromStart} onPress={() => startPlayback(api, router, item, true)} />}
+              <ActionButton focusKey="d-trailer" icon="trailer" label={t.trailer} dimmed={!item.LocalTrailerCount} onPress={openTrailer} />
+              {ratingTarget(item) && <ActionButton focusKey="d-like" icon="thumbUp" label={t.like} active={likes === true} onPress={() => rate(true)} />}
+              {ratingTarget(item) && <ActionButton focusKey="d-dislike" icon="thumbDown" label={t.dislike} active={likes === false} onPress={() => rate(false)} />}
             </ButtonRow>
           </div>
         )}
