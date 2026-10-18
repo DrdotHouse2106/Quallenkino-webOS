@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Quallenkino – YouTube-Player</title>
+<style>html, body, #player { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }</style>
+</head>
+<body>
+<div id="player"></div>
+<script>
+  /*
+   * Quallenkino für webOS: offizieller YouTube-IFrame-Player auf einer Seite mit echter Adresse.
+   * Die App läuft unter file:// – YouTube verlangt aber eine Herkunft (sonst Fehler 153). Diese Seite
+   * zeigt nur den Player (nichts darüber) und meldet bereit/läuft/Ende/Fehler an die App; die App kann
+   * Abspielen und Anhalten schicken. Parameter: v (Video-Id), vol (0–100), mute (1 = stumm).
+   */
+  var params = new URLSearchParams(location.search)
+  var video = (params.get('v') || '').replace(/[^A-Za-z0-9_-]/g, '')
+  var volume = Math.max(0, Math.min(100, Number(params.get('vol') || 75)))
+  var mute = params.get('mute') === '1'
+  var player = null
+
+  function send(event, data) {
+    if (window.parent !== window) window.parent.postMessage({ qk: 'yt', event: event, data: data }, '*')
+  }
+
+  window.addEventListener('message', function (message) {
+    var command = message.data && message.data.qk === 'yt' && message.data.cmd
+    if (!command || !player) return
+    if (command === 'play') player.playVideo()
+    else if (command === 'pause') player.pauseVideo()
+    else if (command === 'toggle') {
+      if (player.getPlayerState() === 1) player.pauseVideo()
+      else player.playVideo()
+    }
+  })
+
+  window.onYouTubeIframeAPIReady = function () {
+    player = new YT.Player('player', {
+      width: '100%',
+      height: '100%',
+      videoId: video,
+      playerVars: { autoplay: 1, controls: 0, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: 1, origin: location.origin },
+      events: {
+        onReady: function (e) {
+          e.target.setVolume(volume)
+          if (mute) e.target.mute()
+          e.target.playVideo()
+          send('ready')
+        },
+        onStateChange: function (e) {
+          send('state', e.data)
+        },
+        // 2 ungültig, 5 HTML5, 100 nicht gefunden, 101/150 nicht einbettbar, 152/153 Herkunft
+        onError: function (e) {
+          send('error', e.data)
+        },
+      },
+    })
+  }
+
+  if (!video) send('error', 2)
+  else {
+    var script = document.createElement('script')
+    script.src = 'https://www.youtube.com/iframe_api'
+    script.onerror = function () { send('error', 0) }
+    document.head.appendChild(script)
+  }
+</script>
+</body>
+</html>
