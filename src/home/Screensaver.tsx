@@ -1,13 +1,50 @@
 import { useEffect, useState } from 'preact/hooks'
-import { byIds, items, localTrailerUrl, recommendations, type Api, type Item } from '../api/items'
+import { byIds, items, recommendations, type Api, type Item } from '../api/items'
+import { loadSettings } from '../settings'
 import { backdropUrl, logoUrl } from '../api/images'
 import { t } from '../i18n'
 import { TrailerVideo } from './TrailerVideo'
 import { title } from './format'
 
-/** So lange bleibt ein Bild stehen; ein Trailer läuft höchstens so lange (wie Android). */
+/** So lange bleibt ein Bild stehen; ein Teaser läuft seine Länge plus Nachlauf, höchstens 3 Minuten (wie Android). */
 const IMAGE_MS = 12_000
-const MAX_TRAILER_MS = 180_000
+const DEFAULT_TEASER_MS = 120_000
+const MAX_TEASER_MS = 180_000
+const AFTER_TEASER_MS = 3_000
+/** Bis zu dieser Länge gilt ein Video als Teaser. */
+const MAX_TEASER_SECONDS = 100
+
+/**
+ * Teaser auswählen (wie Android): Name bzw. Pfad mit „Teaser“ zuerst, sonst das kürzeste Video bis
+ * 100 Sekunden; sonst der erste Trailer. Kurz und ohne viel zu verraten.
+ */
+export function pickTeaser(trailers: Item[], extras: Item[]): Item | null {
+  const videos = [...trailers, ...extras]
+  const named = videos.find(v => /teaser/i.test(`${v.Name ?? ''} ${v.Path ?? ''}`))
+  if (named) return named
+  const short = videos
+    .filter(v => (v.RunTimeTicks ?? Infinity) < MAX_TEASER_SECONDS * TICKS)
+    .sort((a, b) => (a.RunTimeTicks ?? 0) - (b.RunTimeTicks ?? 0))[0]
+  return short ?? trailers[0] ?? null
+}
+
+const TICKS = 10_000_000
+
+/** Teaser bzw. Trailer eines Titels vom Server (Trailer und Extras), mit Länge. */
+async function teaser(api: Api, item: Item): Promise<{ url: string; ms: number } | null> {
+  if (item.Type !== 'Movie' && item.Type !== 'Series') return null
+  const [trailers, extras] = await Promise.all([
+    items(api, `/Users/${api.userId}/Items/${item.Id}/LocalTrailers`).catch(() => [] as Item[]),
+    items(api, `/Users/${api.userId}/Items/${item.Id}/SpecialFeatures`).catch(() => [] as Item[]),
+  ])
+  const video = pickTeaser(trailers, extras)
+  if (!video) return null
+  const ms = video.RunTimeTicks ? (video.RunTimeTicks / TICKS) * 1000 : DEFAULT_TEASER_MS
+  return {
+    url: `${api.url.replace(/\/+$/, '')}/Videos/${video.Id}/stream?static=true&api_key=${encodeURIComponent(api.token)}`,
+    ms: Math.min(ms + AFTER_TEASER_MS, MAX_TEASER_MS),
+  }
+}
 
 /**
  * Titel für den Bildschirmschoner (wie Android): persönliche Empfehlungen und angefangene Filme,
@@ -30,8 +67,8 @@ export async function screensaverItems(api: Api): Promise<Item[]> {
 }
 
 /**
- * Bildschirmschoner: Hintergrundbilder mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr; liegt ein
- * Trailer auf dem Server, läuft er ohne Ton. OK öffnet den gezeigten Titel, jede andere Taste beendet.
+ * Bildschirmschoner: Hintergrundbilder mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr. Mit
+ * „Teaser im Bildschirmschoner“ läuft ein Teaser vom Server (mit Ton wie die Trailer-Vorschau). OK öffnet den gezeigten Titel, jede andere Taste beendet.
  */
 export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item: Item) => void; onClose: () => void }) {
   const [list, setList] = useState<Item[] | null>(null)
@@ -53,12 +90,12 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
     setTrailer(null)
     let active = true
     let timer = setTimeout(() => setIndex(i => i + 1), IMAGE_MS)
-    if (item.LocalTrailerCount) {
-      localTrailerUrl(api, item).then(url => {
-        if (!active || !url) return
+    if (loadSettings().screensaverTrailers) {
+      teaser(api, item).then(found => {
+        if (!active || !found) return
         clearTimeout(timer)
-        setTrailer(url)
-        timer = setTimeout(() => setIndex(i => i + 1), MAX_TRAILER_MS)
+        setTrailer(found.url)
+        timer = setTimeout(() => setIndex(i => i + 1), found.ms)
       })
     }
     return () => {
@@ -84,7 +121,7 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
   return (
     <div class="qk-screensaver" onClick={onClose}>
       {backdrop && <img key={`${item!.Id}-${index}`} class="qk-screensaver-image" src={backdrop} alt="" />}
-      {trailer && <TrailerVideo key={trailer} url={trailer} muted onEnded={() => setIndex(i => i + 1)} onPlayingChange={() => {}} />}
+      {trailer && <TrailerVideo key={trailer} url={trailer} onEnded={() => setIndex(i => i + 1)} onPlayingChange={() => {}} />}
       <div class="qk-screensaver-shade" />
       {item && (
         <div class="qk-screensaver-info" key={item.Id}>

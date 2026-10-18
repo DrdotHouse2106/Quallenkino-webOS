@@ -26,6 +26,7 @@ export interface Item {
   SeriesThumbImageTag?: string
   SeriesPrimaryImageTag?: string
   LocalTrailerCount?: number
+  Path?: string
   RemoteTrailers?: { Url?: string; Name?: string }[]
   UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null; IsFavorite?: boolean }
   Taglines?: string[]

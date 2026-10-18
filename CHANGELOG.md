@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.1 – 2026-10-18
+
+- **Teaser im Bildschirmschoner wie in der Android-App:** eigene Einstellung „Teaser im Bildschirmschoner“ (ab Werk aus). Gewählt wird ein **Teaser** vom Server – Video mit „Teaser“ im Namen bzw. Pfad, sonst das kürzeste Video bis 100 Sekunden (Trailer und Extras), sonst der erste Trailer. Der Titel bleibt so lange stehen wie der Teaser plus 3 Sekunden, höchstens 3 Minuten; Ton wie bei der Trailer-Vorschau.
+- Lange Einstellungsseite scrollt mit dem Fokus mit.
+
 ## 0.7.0 – 2026-10-18
 
 Etappe 7 – damit sind alle geplanten Etappen fertig.

@@ -131,6 +131,7 @@ export const t = {
   trailersOff: 'Aus',
   settingsScreensaver: 'Bildschirmschoner nach',
   minutes: (n: number) => `${n} Min.`,
+  settingsScreensaverTrailers: 'Teaser im Bildschirmschoner',
   screensaverHint: 'OK: Details · andere Taste: zurück',
   exitTitle: 'Quallenkino beenden?',
   exitApp: 'Beenden',

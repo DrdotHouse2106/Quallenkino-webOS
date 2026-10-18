@@ -24,6 +24,7 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
   { key: 'audio', title: t.settingsAudio, options: [{ value: 'own', label: t.audioOwn }, { value: 'original', label: t.audioOriginal }] },
   { key: 'trailers', title: t.settingsTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
   { key: 'screensaver', title: t.settingsScreensaver, options: [{ value: 2, label: t.minutes(2) }, { value: 5, label: t.minutes(5) }, { value: 10, label: t.minutes(10) }, { value: 0, label: t.trailersOff }] },
+  { key: 'screensaverTrailers', title: t.settingsScreensaverTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
 ]
 
 /** Einstellungen: Untertitel, Ton und Trailer, Konto (Profil, Abmelden, Server) und „Über“. */
@@ -78,7 +79,12 @@ function SettingsRow({ focusKey, children }: { focusKey: string; children: Compo
 }
 
 function SettingsButton({ focusKey, label, icon, selected, autoFocus, onPress }: { focusKey: string; label: string; icon?: IconName; selected?: boolean; autoFocus?: boolean; onPress: () => void }) {
-  const { ref, focused, focusSelf } = useFocusable({ focusKey, onEnterPress: onPress })
+  const { ref, focused, focusSelf } = useFocusable({
+    focusKey,
+    onEnterPress: onPress,
+    // Lange Seite: die gewählte Zeile ins Bild holen
+    onFocus: layout => (layout.node as HTMLElement).scrollIntoView({ block: 'nearest' }),
+  })
   useEffect(() => {
     if (autoFocus) requestAnimationFrame(() => focusSelf())
   }, [])

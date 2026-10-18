@@ -13,10 +13,12 @@ export interface Settings {
   trailers: boolean
   /** Bildschirmschoner nach so vielen Minuten ohne Tastendruck; 0 = aus. */
   screensaver: number
+  /** Teaser bzw. Trailer im Bildschirmschoner (wie Android, ab Werk aus). */
+  screensaverTrailers: boolean
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 5 }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 5, screensaverTrailers: false }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {

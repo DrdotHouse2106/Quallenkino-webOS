@@ -6,6 +6,7 @@ import { collectionTitle } from '../src/api/worlds'
 import { guideStart, programAt } from '../src/livetv/GuidePage'
 import { pickAudio, pickSubtitle } from '../src/player/tracks'
 import { youtubeKey } from '../src/pages/YouTubePage'
+import { pickTeaser } from '../src/home/Screensaver'
 
 describe('Live-TV', () => {
   const now = new Date(2026, 9, 18, 18, 0)
@@ -103,5 +104,15 @@ describe('YouTube', () => {
     expect(youtubeKey('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ')
     expect(youtubeKey('https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0')).toBe('dQw4w9WgXcQ')
     expect(youtubeKey('https://vimeo.com/123')).toBeNull()
+  })
+})
+
+describe('Bildschirmschoner', () => {
+  const v = (Id: string, seconds?: number, Name = Id) => ({ Id, Name, RunTimeTicks: seconds === undefined ? undefined : seconds * 10_000_000 })
+  it('Teaser wie Android: Name, sonst kürzestes Video bis 100 s, sonst erster Trailer', () => {
+    expect(pickTeaser([v('t1', 150), v('t2', 140, 'Teaser 2')], [])?.Id).toBe('t2')
+    expect(pickTeaser([v('t1', 150)], [v('e1', 90), v('e2', 60)])?.Id).toBe('e2')
+    expect(pickTeaser([v('t1', 150)], [v('e1', 600)])?.Id).toBe('t1')
+    expect(pickTeaser([], [])).toBeNull()
   })
 })
