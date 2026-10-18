@@ -34,6 +34,8 @@ const SKIP_DELAY_MS = 5_000
 const NEXT_COUNTDOWN_S = 10
 /** Ohne Abspann-Markierung: so kurz vor Schluss die nächste Folge anbieten. */
 const NEXT_BEFORE_END_S = 30
+/** So lange nach dem Sprung wird geprüft, wo der Fernseher wirklich gelandet ist. */
+const SEEK_CHECK_S = 1.2
 /** Bild-Untertitel kann nur der Server ins Bild rechnen. */
 const IMAGE_SUBTITLES = ['pgssub', 'pgs', 'dvdsub', 'dvbsub', 'ass', 'ssa']
 
@@ -243,6 +245,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   function seekBy(seconds: number) {
     const element = video.current
     if (!element) return
+    seekTarget.current = null
     element.currentTime = Math.max(0, Math.min((duration || element.duration || 0) - 1, element.currentTime + seconds))
     showOsd()
   }
@@ -268,24 +271,34 @@ export function PlayerPage({ api, id, startTicks }: Props) {
 
   /**
    * Genau an eine Stelle springen. Der LG springt bei direkt abgespielten Dateien zum vorigen
-   * Schlüsselbild (einige Sekunden zu früh). Dann wird um den Fehlbetrag weiter angefragt, damit das
-   * nächste Schlüsselbild nach dem Ziel getroffen wird (höchstens zweimal).
+   * Schlüsselbild (einige Sekunden zu früh), meldet bei „seeked“ aber noch die angefragte Zeit.
+   * Deshalb wird erst gut eine Sekunde nach dem Wiederanlauf gemessen: erwartet wäre Anfrage plus
+   * gelaufene Zeit. Fehlt mehr als eine halbe Sekunde, wird um den Fehlbetrag weiter angefragt
+   * (höchstens zweimal).
    */
-  const seekTarget = useRef<{ time: number; request: number; tries: number } | null>(null)
+  const seekTarget = useRef<{ time: number; request: number; tries: number; since: number | null } | null>(null)
   function seekExact(seconds: number) {
     const element = video.current
     if (!element) return
-    seekTarget.current = { time: seconds, request: seconds, tries: 0 }
+    seekTarget.current = { time: seconds, request: seconds, tries: 0, since: null }
     element.currentTime = seconds
   }
-  function onSeeked() {
+  /** Ab hier läuft die Uhr für die Messung (nach „seeked“ bzw. erneut nach „playing“, falls gepuffert wurde). */
+  function startSeekClock() {
+    if (seekTarget.current) seekTarget.current.since = performance.now()
+  }
+  function checkSeek() {
     const element = video.current
     const target = seekTarget.current
-    if (!element || !target) return
-    const landed = element.currentTime
-    if (landed < target.time - 0.5 && target.tries < 2) {
+    if (!element || !target || target.since === null || element.paused) return
+    const elapsed = (performance.now() - target.since) / 1000
+    if (elapsed < SEEK_CHECK_S) return
+    const landed = element.currentTime - elapsed * (element.playbackRate || 1)
+    const missing = target.time - landed
+    if (missing > 0.5 && target.tries < 2) {
       target.tries++
-      target.request = target.request + (target.time - landed) + 0.5
+      target.request = target.request + missing + 0.5
+      target.since = null
       element.currentTime = Math.min(target.request, (duration || element.duration || Infinity) - 1)
     } else seekTarget.current = null
   }
@@ -380,10 +393,14 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             // Andere Tonspur als die der Datei: im Fernseher umschalten, wenn er das kann
             if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source)) applyAudioTrack(stream, audio)
           }}
-          onTimeUpdate={() => setTime(video.current?.currentTime ?? 0)}
-          onSeeked={onSeeked}
+          onTimeUpdate={() => {
+            setTime(video.current?.currentTime ?? 0)
+            checkSeek()
+          }}
+          onSeeked={startSeekClock}
           onPlaying={() => {
             setPaused(false)
+            startSeekClock()
             if (!started.current) {
               started.current = true
               const body = reportBody()

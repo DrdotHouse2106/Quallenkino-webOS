@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.4.5 – 2026-10-18
+
+- **Intro überspringen auf dem LG:** Der Fernseher meldet nach einem Sprung zunächst die angefragte Zeit, läuft aber vom vorigen Schlüsselbild weiter. Die App misst jetzt gut eine Sekunde nach dem Wiederanlauf, wo sie wirklich steht, und springt um den Fehlbetrag weiter.
+
 ## 0.4.4 – 2026-10-18
 
 - **Deutsche Tonspur ohne Umrechnung:** Hat ein Film mehrere deutsche Spuren (z. B. DTS und AC3), wählt die App die, die der Fernseher selbst kann; danach die Vorgabe des Servers. Vorher konnte die deutsche DTS-Spur gewinnen, und der Server rechnete um.
