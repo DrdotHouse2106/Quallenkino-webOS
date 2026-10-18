@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 0.7.2 – 2026-10-18
+
+- **Ton der Teaser im Bildschirmschoner** als Einstellung: Stumm (Standard), Leise oder Normal.
+- Bildschirmschoner: Bild und Logo erscheinen erst, wenn das Hintergrundbild geladen ist; das nächste Bild wird vorgeladen (kein fast schwarzes erstes Bild mehr).
+
 ## 0.7.1 – 2026-10-18
 
 - **Teaser im Bildschirmschoner wie in der Android-App:** eigene Einstellung „Teaser im Bildschirmschoner“ (ab Werk aus). Gewählt wird ein **Teaser** vom Server – Video mit „Teaser“ im Namen bzw. Pfad, sonst das kürzeste Video bis 100 Sekunden (Trailer und Extras), sonst der erste Trailer. Der Titel bleibt so lange stehen wie der Teaser plus 3 Sekunden, höchstens 3 Minuten; Ton wie bei der Trailer-Vorschau.

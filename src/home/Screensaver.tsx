@@ -68,7 +68,7 @@ export async function screensaverItems(api: Api): Promise<Item[]> {
 
 /**
  * Bildschirmschoner: Hintergrundbilder mit langsamer Kamerafahrt, Logo bzw. Titel und Uhr. Mit
- * „Teaser im Bildschirmschoner“ läuft ein Teaser vom Server (mit Ton wie die Trailer-Vorschau). OK öffnet den gezeigten Titel, jede andere Taste beendet.
+ * „Teaser im Bildschirmschoner“ läuft ein Teaser vom Server (Ton laut Einstellung, ab Werk stumm). OK öffnet den gezeigten Titel, jede andere Taste beendet.
  */
 export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item: Item) => void; onClose: () => void }) {
   const [list, setList] = useState<Item[] | null>(null)
@@ -83,6 +83,15 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
   }, [api])
 
   const item = list?.length ? list[index % list.length] : null
+  const [loaded, setLoaded] = useState<string | null>(null)
+
+  // Nächstes Hintergrundbild schon vorladen, damit der Wechsel nicht schwarz beginnt
+  useEffect(() => {
+    if (!list?.length) return
+    const next = list[(index + 1) % list.length]
+    const url = backdropUrl(api, next, 1920)
+    if (url) new Image().src = url
+  }, [list, index])
 
   // Je Titel: Trailer vom Server (ohne Ton), sonst nach einiger Zeit das nächste Bild
   useEffect(() => {
@@ -120,10 +129,11 @@ export function Screensaver({ api, onOpen, onClose }: { api: Api; onOpen: (item:
   const logo = item ? logoUrl(api, item) : null
   return (
     <div class="qk-screensaver" onClick={onClose}>
-      {backdrop && <img key={`${item!.Id}-${index}`} class="qk-screensaver-image" src={backdrop} alt="" />}
-      {trailer && <TrailerVideo key={trailer} url={trailer} onEnded={() => setIndex(i => i + 1)} onPlayingChange={() => {}} />}
+      {/* Erst zeigen, wenn das Bild geladen ist (sonst kurz nur Logo auf Schwarz) */}
+      {backdrop && <img key={`${item!.Id}-${index}`} class={`qk-screensaver-image ${loaded === backdrop ? 'loaded' : ''}`} src={backdrop} alt="" onLoad={() => setLoaded(backdrop)} />}
+      {trailer && <TrailerVideo key={trailer} url={trailer} volume={loadSettings().screensaverVolume} onEnded={() => setIndex(i => i + 1)} onPlayingChange={() => {}} />}
       <div class="qk-screensaver-shade" />
-      {item && (
+      {item && loaded === backdrop && (
         <div class="qk-screensaver-info" key={item.Id}>
           {logo ? <img class="qk-screensaver-logo" src={logo} alt={title(item)} /> : <div class="qk-screensaver-title">{title(item)}</div>}
           <div class="qk-muted">{t.screensaverHint}</div>

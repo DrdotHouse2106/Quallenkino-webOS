@@ -9,23 +9,23 @@ interface Props {
   url: string
   onEnded: () => void
   onPlayingChange: (playing: boolean) => void
-  /** Ohne Ton (Bildschirmschoner). */
-  muted?: boolean
+  /** Lautstärke (0–1); 0 = stumm. Ohne Angabe die der Trailer-Vorschau. */
+  volume?: number
 }
 
 /**
  * Trailer-Vorschau ohne Bedienelemente; erst sichtbar, sobald wirklich Bilder laufen (Größe bekannt,
  * Zeit läuft), sanft eingeblendet. Sonst bliebe auf dem Fernseher ein schwarzes Feld stehen.
  */
-export function TrailerVideo({ url, onEnded, onPlayingChange, muted }: Props) {
+export function TrailerVideo({ url, onEnded, onPlayingChange, volume = TRAILER_VOLUME }: Props) {
   const video = useRef<HTMLVideoElement>(null)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const element = video.current
     if (!element) return
-    element.volume = TRAILER_VOLUME
-    element.muted = !!muted
+    element.volume = Math.max(0, Math.min(1, volume))
+    element.muted = volume === 0
     const watchdog = setTimeout(() => {
       if (!(element.videoWidth > 0 && element.currentTime > 0.2)) {
         onPlayingChange(false)
