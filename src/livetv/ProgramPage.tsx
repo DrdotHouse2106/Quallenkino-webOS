@@ -4,6 +4,8 @@ import { thumbUrl } from '../api/images'
 import { airing, credits as loadCredits, creditLines, program as loadProgram, setFavorite, type Credits } from '../api/livetv'
 import { normalizeName } from '../api/names'
 import { findPerson as findSeerrPerson } from '../api/jellyseerr'
+import { HttpError } from '../api/http'
+import { reminderKey, reminders as loadReminders, remindersAvailable, setReminder, setSeriesReminder } from '../api/reminders'
 import { cleanOverview } from '../home/format'
 import { HeroBackdrop } from '../home/Hero'
 import { Row } from '../home/Rows'
@@ -13,6 +15,8 @@ import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { toast } from '../ui/Toast'
 import { focusSoon } from '../nav/focus'
+
+const ended = (item: Item) => !!item.EndDate && new Date(item.EndDate).getTime() < Date.now()
 
 /** Person zu einem Namen aus den Programmdaten: nur bei genau passendem Namen. */
 async function findPerson(api: Api, name: string): Promise<Item | null> {
@@ -31,6 +35,31 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
   const [channel, setChannel] = useState<Item | null>(null)
   const [credits, setCredits] = useState<Credits | null>(null)
   const [failed, setFailed] = useState(false)
+  // Merken (Kalender aufs Handy): undefined = nicht gemerkt, false = einzeln, true = über die Serie
+  const [canRemind, setCanRemind] = useState(false)
+  const [reminder, setReminderState] = useState<boolean | undefined>(undefined)
+  useEffect(() => {
+    let active = true
+    remindersAvailable(api).then(available => {
+      if (!active || !available) return
+      setCanRemind(true)
+      loadReminders(api).then(list => active && setReminderState(list.get(reminderKey(id)))).catch(() => {})
+    })
+    return () => {
+      active = false
+    }
+  }, [id])
+
+  async function toggleReminder(series: boolean) {
+    try {
+      if (series) await setSeriesReminder(api, id, reminder !== true)
+      else await setReminder(api, id, reminder === undefined)
+      setReminderState((await loadReminders(api)).get(reminderKey(id)))
+    } catch (error) {
+      const status = error instanceof HttpError ? error.status : 0
+      toast(status === 409 ? t.reminderOver : status === 403 ? t.reminderForbidden : t.actionFailed)
+    }
+  }
 
   useEffect(() => {
     let active = true
@@ -98,6 +127,8 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
             </div>
             <ActionRow focusKey="p-buttons">
               <ActionButton focusKey="p-watch" icon="liveTv" label={`${t.watchChannel}${program.ChannelName ? ` (${program.ChannelName})` : ''}`} onPress={() => program.ChannelId && router.push({ name: 'player', id: program.ChannelId })} />
+              {canRemind && !ended(program) && <ActionButton focusKey="p-remind" icon={reminder !== undefined ? 'check' : 'add'} label={reminder !== undefined ? t.reminderSaved : t.reminderSave} active={reminder !== undefined} onPress={() => toggleReminder(false)} />}
+              {canRemind && !ended(program) && program.IsSeries && <ActionButton focusKey="p-remind-series" icon={reminder === true ? 'check' : 'add'} label={reminder === true ? t.reminderSeriesSaved : t.reminderSeriesSave} active={reminder === true} onPress={() => toggleReminder(true)} />}
               {channel && <ActionButton focusKey="p-favorite" icon="star" label={t.favoriteChannel} active={!!channel.UserData?.IsFavorite} onPress={toggleFavorite} />}
             </ActionRow>
           </div>

@@ -118,7 +118,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
             {page.name === 'search' && <SearchPage api={api} />}
             {page.name === 'trailer' && <TrailerPage url={page.url} />}
             {page.name === 'youtube' && <YouTubePage videoKey={page.key} />}
-            {page.name === 'settings' && <SettingsPage server={server} session={session} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} onChangeServer={onChangeServer} />}
+            {page.name === 'settings' && <SettingsPage api={api} server={server} session={session} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} onChangeServer={onChangeServer} />}
             {page.name === 'guide' && <GuidePage api={api} />}
             {page.name === 'program' && <ProgramPage api={api} id={page.id} />}
             {page.name === 'world' && <WorldPage api={api} id={page.id} />}

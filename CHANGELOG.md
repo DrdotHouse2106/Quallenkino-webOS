@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.2.0 – 2026-10-19
+
+- **Live-TV-Sendungen merken:** Auf der Seite einer Sendung (aus „Heute im TV für dich“ und dem Programmführer) gibt es „Merken“, bei Serien auch „Serie merken“. Gemerkte Sendungen zeigen „Gemerkt“. Braucht das Plugin Local Recommendations ab 12.20 – ohne erscheinen die Knöpfe nicht.
+- **Erinnerungen aufs Handy:** In den Einstellungen zeigt „Erinnerungen aufs Handy“ einen QR-Code (iPhone oder Android/andere), mit dem man den Kalender mit allen gemerkten Sendungen abonniert. „Neuen Link erzeugen“ macht den alten Link ungültig.
+
 ## 1.1.0 – 2026-10-19
 
 - **Update-Hinweis:** Gibt es eine neue Version, fragt Quallenkino gleich beim Öffnen („Im Homebrew Channel aktualisieren“ / „Später“ – dann einen Tag Ruhe). Links in der Navigation erscheint unter den Einstellungen ein grüner Knopf „Update x.y.z“, der den Homebrew Channel öffnet. In den Einstellungen unter **„Updates“** lässt sich auch von Hand suchen.

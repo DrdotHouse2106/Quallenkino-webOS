@@ -6,6 +6,9 @@ import type { Session } from '../api/users'
 import { t } from '../i18n'
 import { loadSettings, saveSettings, type Settings } from '../settings'
 import { HOMEBREW_REPO, newerVersion } from '../api/update'
+import type { Api } from '../api/items'
+import { calendar as loadCalendar, calendarQr, remindersAvailable, type Calendar } from '../api/reminders'
+import { toast } from '../ui/Toast'
 import { APP_VERSION } from '../brand'
 import { About } from '../ui/About'
 import { Icon, type IconName } from '../ui/Icon'
@@ -13,6 +16,7 @@ import { Logo } from '../ui/Logo'
 import { Page } from './Page'
 
 interface Props {
+  api: Api
   server: ServerInfo
   session: Session
   onSwitchProfile: () => void
@@ -31,9 +35,27 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
 ]
 
 /** Einstellungen: Untertitel, Ton und Trailer, Konto (Profil, Abmelden, Server) und „Über“. */
-export function SettingsPage({ server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
+export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
   const [settings, setSettings] = useState(loadSettings)
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
+  // Erinnerungen aufs Handy: Kalender-Abo per QR-Code (nur wenn der Server es anbietet)
+  const [calendar, setCalendar] = useState<Calendar | null>(null)
+  const [qrTarget, setQrTarget] = useState<'webcal' | 'https'>('webcal')
+  const [qr, setQr] = useState<string | null>(null)
+  useEffect(() => {
+    remindersAvailable(api).then(available => {
+      if (available) loadCalendar(api).then(setCalendar).catch(() => {})
+    })
+  }, [])
+  useEffect(() => {
+    if (!calendar) return
+    setQr(null)
+    calendarQr(api, qrTarget).then(setQr).catch(() => setQr(null))
+  }, [calendar?.Url, qrTarget])
+  const renewCalendar = () => loadCalendar(api, true).then(next => {
+    setCalendar(next)
+    toast(t.calendarRenewed)
+  }).catch(() => toast(t.actionFailed))
   const checkUpdate = () => {
     setUpdateStatus(t.updateChecking)
     newerVersion()
@@ -68,6 +90,24 @@ export function SettingsPage({ server, session, onSwitchProfile, onSignOut, onCh
           <SettingsButton focusKey="settings-signout" label={t.signOut} onPress={onSignOut} />
           <SettingsButton focusKey="settings-server" label={`${t.changeServer} (${server.name})`} onPress={onChangeServer} />
         </SettingsRow>
+
+        {calendar && (
+          <>
+            <h2>{t.calendarTitle}</h2>
+            <SettingsRow focusKey="settings-calendar">
+              <SettingsButton focusKey="settings-calendar-webcal" label={t.calendarIphone} selected={qrTarget === 'webcal'} onPress={() => setQrTarget('webcal')} />
+              <SettingsButton focusKey="settings-calendar-https" label={t.calendarOther} selected={qrTarget === 'https'} onPress={() => setQrTarget('https')} />
+              <SettingsButton focusKey="settings-calendar-renew" label={t.calendarRenew} onPress={renewCalendar} />
+            </SettingsRow>
+            <div class="qk-settings-calendar">
+              <div class="qk-qr">{qr && <img src={qr} alt="" />}</div>
+              <div>
+                <p>{t.calendarHint}</p>
+                <p class="qk-muted">{qrTarget === 'webcal' ? calendar.WebcalUrl : calendar.Url}</p>
+              </div>
+            </div>
+          </>
+        )}
 
         <h2>{t.settingsUpdates}</h2>
         <SettingsRow focusKey="settings-updates">

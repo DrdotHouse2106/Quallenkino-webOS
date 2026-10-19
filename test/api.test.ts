@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { authorizationHeader, deviceId } from '../src/api/auth'
 import { candidateUrls } from '../src/api/server'
 import { isNewer } from '../src/api/update'
+import { parseReminders, reminderKey } from '../src/api/reminders'
 import { withSession, withoutSession, type SavedState } from '../src/store'
 import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
@@ -78,5 +79,17 @@ describe('Update-Prüfung', () => {
     expect(isNewer('1.1.0', '1.0.12')).toBe(true)
     expect(isNewer('v1.0.5', '1.0.5')).toBe(false)
     expect(isNewer('1.0.4', '1.0.5')).toBe(false)
+  })
+})
+
+describe('Erinnerungen', () => {
+  it('liest gemerkte Sendungen mit und ohne Bindestriche', () => {
+    const list = parseReminders([
+      { ProgramId: 'ABCDEF0123456789ABCDEF0123456789', IsSeries: true },
+      { ProgramId: '11111111-2222-3333-4444-555555555555', IsSeries: false },
+    ])
+    expect(list.get('abcdef0123456789abcdef0123456789')).toBe(true)
+    expect(list.get(reminderKey('11111111-2222-3333-4444-555555555555'))).toBe(false)
+    expect(list.has('x')).toBe(false)
   })
 })
