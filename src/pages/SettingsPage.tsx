@@ -5,6 +5,8 @@ import type { ServerInfo } from '../api/server'
 import type { Session } from '../api/users'
 import { t } from '../i18n'
 import { loadSettings, saveSettings, type Settings } from '../settings'
+import { HOMEBREW_REPO, newerVersion } from '../api/update'
+import { APP_VERSION } from '../brand'
 import { About } from '../ui/About'
 import { Icon, type IconName } from '../ui/Icon'
 import { Logo } from '../ui/Logo'
@@ -31,6 +33,13 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
 /** Einstellungen: Untertitel, Ton und Trailer, Konto (Profil, Abmelden, Server) und „Über“. */
 export function SettingsPage({ server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
   const [settings, setSettings] = useState(loadSettings)
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null)
+  const checkUpdate = () => {
+    setUpdateStatus(t.updateChecking)
+    newerVersion()
+      .then(version => setUpdateStatus(version ? t.updateAvailable(version) : t.updateCurrent(APP_VERSION)))
+      .catch(() => setUpdateStatus(t.updateFailed))
+  }
   const update = (key: keyof Settings, value: Settings[keyof Settings]) => {
     const next = { ...settings, [key]: value }
     saveSettings(next)
@@ -59,6 +68,14 @@ export function SettingsPage({ server, session, onSwitchProfile, onSignOut, onCh
           <SettingsButton focusKey="settings-signout" label={t.signOut} onPress={onSignOut} />
           <SettingsButton focusKey="settings-server" label={`${t.changeServer} (${server.name})`} onPress={onChangeServer} />
         </SettingsRow>
+
+        <h2>{t.settingsUpdates}</h2>
+        <SettingsRow focusKey="settings-updates">
+          <SettingsButton focusKey="settings-update-check" label={t.updateCheck} onPress={checkUpdate} />
+        </SettingsRow>
+        {updateStatus && <p>{updateStatus}</p>}
+        <p class="qk-muted">{t.updateHowTo}</p>
+        <p class="qk-muted">{HOMEBREW_REPO}</p>
 
         <h2>{t.settingsAbout}</h2>
         <div class="qk-settings-about">

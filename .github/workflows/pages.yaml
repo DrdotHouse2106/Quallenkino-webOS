@@ -1,11 +1,17 @@
-name: Quallenkino webOS / YouTube-Seite (GitHub Pages)
+name: Quallenkino webOS / GitHub Pages (YouTube-Seite, Homebrew-Quelle)
 
 # Die App läuft auf dem Fernseher unter file://; YouTube bettet dort nicht ein (Fehler 153).
 # Deshalb liegt die kleine Player-Seite site/yt.html auf GitHub Pages (echte https-Adresse).
+# Dazu die Paketquelle für den Homebrew Channel (homebrew/apps.json), erzeugt aus dem neuesten Release.
 on:
   push:
     branches: [main]
     paths: ['site/**', '.github/workflows/pages.yaml']
+  # Nach jedem Build auf main (ein neues Release kommt aus diesem Workflow)
+  workflow_run:
+    workflows: ['Quallenkino webOS / Build']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -19,12 +25,43 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Homebrew-Quelle aus dem neuesten Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          base="https://drdothouse2106.github.io/Quallenkino-webOS/homebrew"
+          mkdir -p site/homebrew
+          cp assets/quallenkino-icon-320.png site/homebrew/icon.png
+          tag=$(gh release view --repo "$REPO" --json tagName -q .tagName)
+          version="${tag#v}"
+          gh release download "$tag" --repo "$REPO" --pattern 'quallenkino-webos.ipk' --dir /tmp/ipk --clobber
+          sha=$(sha256sum /tmp/ipk/quallenkino-webos.ipk | cut -d' ' -f1)
+          ipk="https://github.com/$REPO/releases/download/$tag/quallenkino-webos.ipk"
+          jq -n --arg v "$version" --arg ipk "$ipk" --arg sha "$sha" --arg icon "$base/icon.png" '{
+            id: "de.drdothouse.quallenkino", version: $v, type: "web", title: "Quallenkino",
+            appDescription: "Jellyfin-Client für den Fernseher",
+            iconUri: $icon, sourceUrl: "https://github.com/DrdotHouse2106/Quallenkino-webOS",
+            rootRequired: false, ipkUrl: $ipk, ipkHash: { sha256: $sha }
+          }' > site/homebrew/quallenkino.manifest.json
+          jq -n --arg icon "$base/icon.png" --arg manifest "$base/quallenkino.manifest.json" --slurpfile m site/homebrew/quallenkino.manifest.json '{
+            paging: { page: 1, count: 1, maxPage: 1, itemsTotal: 1 },
+            packages: [{
+              id: "de.drdothouse.quallenkino", title: "Quallenkino", iconUri: $icon,
+              manifestUrl: $manifest, category: "multimedia", pool: "main",
+              shortDescription: "Jellyfin-Client für den Fernseher", manifest: $m[0]
+            }]
+          }' > site/homebrew/apps.json
+          cat site/homebrew/apps.json
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true

@@ -17,6 +17,7 @@ import { useHomeData } from './useHomeData'
 import { worldBackdrop, worldLogo, type World } from '../api/worlds'
 import { available as seerrAvailable } from '../api/jellyseerr'
 import { startPlayback } from '../player/start'
+import { autoCheck } from '../api/update'
 import { loadSettings } from '../settings'
 
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
@@ -48,6 +49,11 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   useEffect(() => {
     seerrAvailable(api).then(setSeerr)
   }, [api])
+  // Höchstens einmal am Tag: Hinweis auf eine neue Version (Details in den Einstellungen)
+  useEffect(() => {
+    const timer = setTimeout(() => autoCheck().then(version => version && toast(t.updateAvailable(version))), 8_000)
+    return () => clearTimeout(timer)
+  }, [])
   const [overviews, setOverviews] = useState<Record<string, string>>({})
 
   const billboardItem = billboard.length ? billboard[index % billboard.length] : null

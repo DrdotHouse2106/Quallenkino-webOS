@@ -18,6 +18,10 @@ Install the **Developer Mode** app on the TV, enable Dev Mode, then with `@webos
 
 Latest build: https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/latest/download/quallenkino-webos.ipk
 
+**Extend Dev Mode automatically:** run `scripts/devmode-refresh.sh` daily (cron) on a machine at home. Read the token once with `ares-novacom --device lgtv --run "cat /var/luna/preferences/devmode_enabled"` and store it in `~/.config/quallenkino/devmode-token` (keep it secret, never commit it).
+
+**Updates:** the app checks once a day and shows a hint; Settings → Updates checks on demand. Updates install via the **Homebrew Channel**: add the repository `https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json` there, then Quallenkino shows an “Update” button.
+
 ## Build
 
 `npm ci && npm test && npm run build && npx ares-package dist -o out`

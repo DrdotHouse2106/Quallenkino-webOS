@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.1.0 – 2026-10-19
+
+- **Update-Hinweis:** Quallenkino prüft beim Start (höchstens einmal am Tag), ob es eine neue Version gibt, und zeigt dann einen Hinweis. In den Einstellungen unter **„Updates“** lässt sich auch von Hand suchen.
+- **Homebrew-Channel-Quelle:** Unter `https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json` liegt eine Paketquelle für den Homebrew Channel, die bei jedem Release automatisch erneuert wird. Damit lässt sich Quallenkino dort mit einem Klick aktualisieren.
+- **Entwicklermodus verlängern:** `scripts/devmode-refresh.sh` verlängert die Developer-Mode-Sitzung und zeigt die Restlaufzeit – gedacht für einen täglichen Aufruf auf einem Rechner im Heimnetz (Anleitung im README).
+
 ## 1.0.5 – 2026-10-19
 
 - **Richtige Tonspur beim Start:** Ist die gewählte Spur (z. B. Deutsch) nicht die Standardspur der Datei und kann der Fernseher die Spur nicht selbst umschalten, rechnet der Server den Ton gleich beim Start um. Vorher lief dann die Standardspur der Datei (z. B. Englisch bei „Deadpool & Wolverine“).

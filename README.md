@@ -52,6 +52,31 @@ https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/latest/download/qua
 
 Die Developer-Mode-Sitzung läuft nach einiger Zeit ab (Restzeit in der Developer-Mode-App) und muss dort verlängert werden – sonst entfernt der Fernseher die App.
 
+### Entwicklermodus automatisch verlängern
+
+`scripts/devmode-refresh.sh` verlängert die Sitzung über die LG-Adresse und zeigt die Restlaufzeit. Am besten täglich auf einem Rechner im Heimnetz oder Server ausführen (cron/systemd-Timer):
+
+1. Token einmalig vom Fernseher holen (bleibt geheim, nicht ins Repository):
+   ```
+   mkdir -p ~/.config/quallenkino
+   ares-novacom --device lgtv --run "cat /var/luna/preferences/devmode_enabled" > ~/.config/quallenkino/devmode-token
+   chmod 600 ~/.config/quallenkino/devmode-token
+   ```
+2. Täglich ausführen, z. B. per cron: `17 4 * * * /pfad/zu/scripts/devmode-refresh.sh`
+
+Die App selbst kann das Token nicht lesen (webOS-Apps haben keinen Zugriff auf diese Datei), deshalb läuft die Verlängerung außerhalb des Fernsehers.
+
+### Updates
+
+Quallenkino prüft beim Start höchstens einmal am Tag, ob es eine neue Version gibt, und zeigt dann einen Hinweis. Unter **Einstellungen → Updates** lässt sich auch von Hand suchen. Selbst installieren kann sich eine webOS-App nicht; am bequemsten geht das Update über den **Homebrew Channel**:
+
+1. Homebrew Channel installieren (siehe [webosbrew.org](https://www.webosbrew.org/)).
+2. Im Homebrew Channel unter Einstellungen → Repositories diese Quelle hinzufügen:
+   `https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json`
+3. Danach erscheint Quallenkino in der Liste und lässt sich mit „Update“ aktualisieren. Die Quelle wird bei jedem Release automatisch erneuert (mit Prüfsumme der IPK).
+
+Ohne Homebrew Channel die neue IPK wie oben mit `ares-install` installieren.
+
 ## Selbst bauen
 
 ```

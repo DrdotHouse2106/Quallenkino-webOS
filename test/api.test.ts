@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { authorizationHeader, deviceId } from '../src/api/auth'
 import { candidateUrls } from '../src/api/server'
+import { isNewer } from '../src/api/update'
 import { withSession, withoutSession, type SavedState } from '../src/store'
 import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
@@ -68,5 +69,14 @@ describe('Profile', () => {
   it('versteckte, hier angemeldete Profile kommen dazu, ohne doppelte', () => {
     const list = mergeProfiles([{ Id: 'a', Name: 'Anna' }], [{ Id: 'a', Name: 'Anna' }, { Id: 'b', Name: 'Ben' }])
     expect(list.map(u => u.Id)).toEqual(['a', 'b'])
+  })
+})
+
+describe('Update-Prüfung', () => {
+  it('vergleicht Versionen', () => {
+    expect(isNewer('v1.0.10', '1.0.9')).toBe(true)
+    expect(isNewer('1.1.0', '1.0.12')).toBe(true)
+    expect(isNewer('v1.0.5', '1.0.5')).toBe(false)
+    expect(isNewer('1.0.4', '1.0.5')).toBe(false)
   })
 })
