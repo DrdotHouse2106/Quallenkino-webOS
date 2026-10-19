@@ -2,7 +2,7 @@
 
 ## 1.1.0 – 2026-10-19
 
-- **Update-Hinweis:** Quallenkino prüft beim Start (höchstens einmal am Tag), ob es eine neue Version gibt, und zeigt dann einen Hinweis. In den Einstellungen unter **„Updates“** lässt sich auch von Hand suchen.
+- **Update-Hinweis:** Gibt es eine neue Version, fragt Quallenkino gleich beim Öffnen („Im Homebrew Channel aktualisieren“ / „Später“ – dann einen Tag Ruhe). Links in der Navigation erscheint unter den Einstellungen ein grüner Knopf „Update x.y.z“, der den Homebrew Channel öffnet. In den Einstellungen unter **„Updates“** lässt sich auch von Hand suchen.
 - **Homebrew-Channel-Quelle:** Unter `https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json` liegt eine Paketquelle für den Homebrew Channel, die bei jedem Release automatisch erneuert wird. Damit lässt sich Quallenkino dort mit einem Klick aktualisieren.
 - **Entwicklermodus verlängern:** `scripts/devmode-refresh.sh` verlängert die Developer-Mode-Sitzung und zeigt die Restlaufzeit – gedacht für einen täglichen Aufruf auf einem Rechner im Heimnetz (Anleitung im README).
 

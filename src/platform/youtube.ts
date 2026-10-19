@@ -10,6 +10,11 @@ interface ServiceBridge {
 const YOUTUBE_APP = 'youtube.leanback.v4'
 
 export function openYouTube(key: string): Promise<boolean> {
+  return launchApp(YOUTUBE_APP, { contentTarget: `https://www.youtube.com/tv?v=${encodeURIComponent(key)}` })
+}
+
+/** Andere App auf dem Fernseher starten; false, wenn das nicht geht (z. B. nicht installiert). */
+export function launchApp(id: string, params: Record<string, unknown> = {}): Promise<boolean> {
   const Bridge = (window as unknown as { PalmServiceBridge?: new () => ServiceBridge }).PalmServiceBridge
   if (!Bridge) return Promise.resolve(false)
   return new Promise(resolve => {
@@ -23,7 +28,7 @@ export function openYouTube(key: string): Promise<boolean> {
     }
     bridge.call(
       'luna://com.webos.applicationManager/launch',
-      JSON.stringify({ id: YOUTUBE_APP, params: { contentTarget: `https://www.youtube.com/tv?v=${encodeURIComponent(key)}` } }),
+      JSON.stringify({ id, params }),
     )
   })
 }

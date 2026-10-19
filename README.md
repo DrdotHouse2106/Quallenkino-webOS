@@ -68,7 +68,7 @@ Die App selbst kann das Token nicht lesen (webOS-Apps haben keinen Zugriff auf d
 
 ### Updates
 
-Quallenkino prüft beim Start höchstens einmal am Tag, ob es eine neue Version gibt, und zeigt dann einen Hinweis. Unter **Einstellungen → Updates** lässt sich auch von Hand suchen. Selbst installieren kann sich eine webOS-App nicht; am bequemsten geht das Update über den **Homebrew Channel**:
+Gibt es eine neue Version, fragt Quallenkino beim Öffnen und zeigt links in der Navigation einen grünen Knopf „Update“, der den Homebrew Channel öffnet. Unter **Einstellungen → Updates** lässt sich auch von Hand suchen. Selbst installieren kann sich eine webOS-App nicht; am bequemsten geht das Update über den **Homebrew Channel**:
 
 1. Homebrew Channel installieren (siehe [webosbrew.org](https://www.webosbrew.org/)).
 2. Im Homebrew Channel unter Einstellungen → Repositories diese Quelle hinzufügen:

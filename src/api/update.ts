@@ -28,14 +28,28 @@ export async function newerVersion(): Promise<string | null> {
   return tag && isNewer(tag, APP_VERSION) ? tag.replace(/^v/, '') : null
 }
 
-/** Beim Start höchstens einmal am Tag still prüfen. */
-export async function autoCheck(): Promise<string | null> {
-  try {
-    const last = Number(localStorage.getItem(LAST_CHECK) ?? 0)
-    if (Date.now() - last < INTERVAL_MS) return null
-    localStorage.setItem(LAST_CHECK, String(Date.now()))
-  } catch {
-    // ohne Speicher trotzdem prüfen
-  }
+/** Homebrew Channel (dort steht Quallenkino mit „Update“, wenn die Quelle eingetragen ist). */
+export const HOMEBREW_APP = 'org.webosbrew.hbchannel'
+
+/** Beim Öffnen still prüfen; null ohne neue Version oder bei Fehlern. */
+export function autoCheck(): Promise<string | null> {
   return newerVersion().catch(() => null)
+}
+
+/** Nach „Später“ für diese Version einen Tag lang nicht mehr fragen (der Knopf in der Navigation bleibt). */
+export function shouldAsk(version: string): boolean {
+  try {
+    const [skipped, at] = (localStorage.getItem(LAST_CHECK) ?? '').split('|')
+    return !(skipped === version && Date.now() - Number(at) < INTERVAL_MS)
+  } catch {
+    return true
+  }
+}
+
+export function postpone(version: string) {
+  try {
+    localStorage.setItem(LAST_CHECK, `${version}|${Date.now()}`)
+  } catch {
+    // ohne Speicher wird beim nächsten Öffnen wieder gefragt
+  }
 }

@@ -17,7 +17,8 @@ import { useHomeData } from './useHomeData'
 import { worldBackdrop, worldLogo, type World } from '../api/worlds'
 import { available as seerrAvailable } from '../api/jellyseerr'
 import { startPlayback } from '../player/start'
-import { autoCheck } from '../api/update'
+import { autoCheck, HOMEBREW_APP, postpone, shouldAsk } from '../api/update'
+import { launchApp } from '../platform/youtube'
 import { loadSettings } from '../settings'
 
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
@@ -49,11 +50,23 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   useEffect(() => {
     seerrAvailable(api).then(setSeerr)
   }, [api])
-  // Höchstens einmal am Tag: Hinweis auf eine neue Version (Details in den Einstellungen)
+  // Neue Version: beim Öffnen fragen und Download-Knopf in der Navigation zeigen
+  const [update, setUpdate] = useState<string | null>(null)
   useEffect(() => {
-    const timer = setTimeout(() => autoCheck().then(version => version && toast(t.updateAvailable(version))), 8_000)
+    const timer = setTimeout(() => autoCheck().then(version => {
+      if (!version) return
+      setUpdate(version)
+      if (shouldAsk(version) && !dialog) openDialog('update')
+    }), 4_000)
     return () => clearTimeout(timer)
   }, [])
+  async function installUpdate() {
+    setDialog(null)
+    if (!(await launchApp(HOMEBREW_APP))) {
+      toast(t.updateNoHomebrew)
+      router.push({ name: 'settings' })
+    }
+  }
   const [overviews, setOverviews] = useState<Record<string, string>>({})
 
   const billboardItem = billboard.length ? billboard[index % billboard.length] : null
@@ -129,9 +142,9 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
 
   // „Zurück“ auf der Startseite: fragen, ob die App beendet werden soll (Vorgabe für LG-Apps)
   // Profil in der Navigation: „Profil wechseln“ oder „Abmelden“
-  const [dialog, setDialog] = useState<'exit' | 'profile' | null>(null)
+  const [dialog, setDialog] = useState<'exit' | 'profile' | 'update' | null>(null)
   const focusBeforeDialog = useRef<string | null>(null)
-  function openDialog(which: 'exit' | 'profile') {
+  function openDialog(which: 'exit' | 'profile' | 'update') {
     focusBeforeDialog.current = getCurrentFocusKey()
     setDialog(which)
   }
@@ -187,6 +200,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
           { id: 'livetv', label: t.railLiveTv, icon: <Icon name="liveTv" />, onPress: () => router.push({ name: 'guide' }) },
           ...(seerr ? [{ id: 'discover', label: t.railDiscover, icon: <Icon name="add" />, onPress: () => router.push({ name: 'discover' }) }] : []),
           { id: 'settings', label: t.railSettings, icon: <Icon name="settings" />, onPress: () => router.push({ name: 'settings' }) },
+          ...(update ? [{ id: 'update', label: t.updateRail(update), icon: <Icon name="download" />, highlight: true, onPress: installUpdate }] : []),
         ]}
       />
       <div class="qk-home-main">
@@ -220,6 +234,16 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
             { key: 'exit', label: t.exitApp, onPress: () => window.close() },
             { key: 'profile', label: t.switchProfile, onPress: () => { setDialog(null); onSwitchProfile() } },
             { key: 'cancel', label: t.cancel, onPress: closeDialog },
+          ]}
+        />
+      )}
+      {dialog === 'update' && update && (
+        <ChoiceDialog
+          title={t.updateAvailable(update)}
+          initial="install"
+          choices={[
+            { key: 'install', label: t.updateOpenHomebrew, onPress: installUpdate },
+            { key: 'later', label: t.updateLater, onPress: () => { postpone(update); closeDialog() } },
           ]}
         />
       )}

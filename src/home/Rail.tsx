@@ -6,6 +6,8 @@ interface RailItem {
   label: string
   icon: ComponentChildren
   active?: boolean
+  /** Hervorgehoben (z. B. Update verfügbar). */
+  highlight?: boolean
   onPress: () => void
 }
 
@@ -33,7 +35,7 @@ export function Rail({ items, onRight, preferred }: { items: RailItem[]; onRight
   )
 }
 
-function RailButton({ label, icon, active, onPress, onRight }: RailItem & { onRight: () => void }) {
+function RailButton({ label, icon, active, highlight, onPress, onRight }: RailItem & { onRight: () => void }) {
   const { ref, focused, focusSelf } = useFocusable({
     focusKey: `rail-${label}`,
     onEnterPress: onPress,
@@ -45,7 +47,7 @@ function RailButton({ label, icon, active, onPress, onRight }: RailItem & { onRi
     },
   })
   return (
-    <div ref={ref} class={`qk-rail-item ${focused ? 'focused' : ''} ${active ? 'active' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
+    <div ref={ref} class={`qk-rail-item ${focused ? 'focused' : ''} ${active ? 'active' : ''} ${highlight ? 'highlight' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
       <span class="qk-rail-icon">{icon}</span>
       <span class="qk-rail-label">{label}</span>
     </div>
