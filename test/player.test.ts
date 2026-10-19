@@ -55,13 +55,13 @@ describe('Abspiel-Adresse', () => {
     const stream = streamFor(api, 'item', { PlaySessionId: 'ps', MediaSources: [{ Id: 'ms', Container: 'mkv', SupportsDirectPlay: true }] })
     expect(stream?.method).toBe('DirectPlay')
     expect(stream?.url).toMatch(/^http:\/\/srv:8096\/Videos\/item\/stream\.mkv\?Static=true&mediaSourceId=ms/)
-    expect(stream?.url).toContain('api_key=tok')
+    expect(stream?.url).toContain('ApiKey=tok')
   })
 
   it('Umrechnung: Adresse des Servers, Token ergänzt', () => {
     const stream = streamFor(api, 'item', { PlaySessionId: 'ps', MediaSources: [{ Id: 'ms', TranscodingUrl: '/videos/item/master.m3u8?x=1' }] })
     expect(stream?.method).toBe('Transcode')
-    expect(stream?.url).toBe('http://srv:8096/videos/item/master.m3u8?x=1&api_key=tok')
+    expect(stream?.url).toBe('http://srv:8096/videos/item/master.m3u8?x=1&ApiKey=tok')
   })
 })
 
@@ -146,7 +146,7 @@ describe('Tonspur wechseln', () => {
 describe('Untertitel laden', () => {
   it('immer die ganze Datei als WebVTT, nicht die DeliveryUrl', () => {
     const url = subtitleUrl({ url: 'http://srv/', token: 't', userId: 'u' }, 'i', { Id: 'ms' }, { Index: 3, Type: 'Subtitle', DeliveryUrl: '/Videos/i/ms/Subtitles/3/930000000/Stream.subrip' })
-    expect(url).toBe('http://srv/Videos/i/ms/Subtitles/3/0/Stream.vtt?api_key=t')
+    expect(url).toBe('http://srv/Videos/i/ms/Subtitles/3/0/Stream.vtt?ApiKey=t')
   })
 
   it('SRT-Zeiten mit Komma werden gelesen', () => {

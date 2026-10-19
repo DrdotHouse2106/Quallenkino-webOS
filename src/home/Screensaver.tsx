@@ -41,7 +41,7 @@ async function teaser(api: Api, item: Item): Promise<{ url: string; ms: number }
   if (!video) return null
   const ms = video.RunTimeTicks ? (video.RunTimeTicks / TICKS) * 1000 : DEFAULT_TEASER_MS
   return {
-    url: `${api.url.replace(/\/+$/, '')}/Videos/${video.Id}/stream?static=true&api_key=${encodeURIComponent(api.token)}`,
+    url: `${api.url.replace(/\/+$/, '')}/Videos/${video.Id}/stream?static=true&ApiKey=${encodeURIComponent(api.token)}`,
     ms: Math.min(ms + AFTER_TEASER_MS, MAX_TEASER_MS),
   }
 }

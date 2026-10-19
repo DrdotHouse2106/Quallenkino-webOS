@@ -30,7 +30,7 @@ export function worldLogo(api: Api, world: World): string | null {
   if (!world.LogoUrl) return null
   if (/^https?:\/\//i.test(world.LogoUrl)) return world.LogoUrl
   const path = world.LogoUrl.startsWith('/') ? world.LogoUrl : `/${world.LogoUrl}`
-  return `${base(api)}${path}${path.includes('?') ? '&' : '?'}api_key=${encodeURIComponent(api.token)}`
+  return `${base(api)}${path}${path.includes('?') ? '&' : '?'}ApiKey=${encodeURIComponent(api.token)}`
 }
 
 export function worldBackdrop(api: Api, world: World, width = 640): string | null {

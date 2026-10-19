@@ -212,7 +212,7 @@ export async function localTrailerUrl(api: Api, target: Item): Promise<string | 
     const trailers = await get<Item[]>(api, `/Users/${api.userId}/Items/${target.Id}/LocalTrailers`)
     const trailer = trailers?.[0]
     if (!trailer) return null
-    return `${api.url.replace(/\/+$/, '')}/Videos/${trailer.Id}/stream?static=true&api_key=${encodeURIComponent(api.token)}`
+    return `${api.url.replace(/\/+$/, '')}/Videos/${trailer.Id}/stream?static=true&ApiKey=${encodeURIComponent(api.token)}`
   } catch {
     return null
   }

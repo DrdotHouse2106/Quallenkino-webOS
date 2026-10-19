@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.2.1 – 2026-10-19
+
+- Links mit Anmeldung (Wiedergabe, Untertitel, Trailer, Teaser, Welten) verwenden jetzt „ApiKey=“ statt „api_key=“. Neuere Jellyfin-Versionen nehmen nur noch diese Schreibweise an.
+
 ## 1.2.0 – 2026-10-19
 
 - **Live-TV-Sendungen merken:** Auf der Seite einer Sendung (aus „Heute im TV für dich“ und dem Programmführer) gibt es „Merken“, bei Serien auch „Serie merken“. Gemerkte Sendungen zeigen „Gemerkt“. Braucht das Plugin Local Recommendations ab 12.20 – ohne erscheinen die Knöpfe nicht.

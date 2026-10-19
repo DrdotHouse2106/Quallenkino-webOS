@@ -86,7 +86,7 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
       Static: 'true',
       mediaSourceId: source.Id,
       deviceId: deviceId(),
-      api_key: api.token,
+      ApiKey: api.token,
       PlaySessionId: info.PlaySessionId,
     })
     if (options.audio !== undefined) params.set('AudioStreamIndex', String(options.audio))
@@ -101,7 +101,7 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
   }
   if (source.TranscodingUrl) {
     let url = base(api) + source.TranscodingUrl
-    if (!/[?&](api_key|ApiKey)=/i.test(url)) url += (url.includes('?') ? '&' : '?') + `api_key=${encodeURIComponent(api.token)}`
+    if (!/[?&](api_key|ApiKey)=/i.test(url)) url += (url.includes('?') ? '&' : '?') + `ApiKey=${encodeURIComponent(api.token)}`
     return { url, method: 'Transcode', source, playSessionId: info.PlaySessionId }
   }
   return null
@@ -112,7 +112,7 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
  * (die kann SRT sein oder nur einen Ausschnitt ab der Startposition enthalten).
  */
 export function subtitleUrl(api: Api, itemId: string, source: MediaSource, stream: MediaStream): string {
-  return `${base(api)}/Videos/${itemId}/${source.Id}/Subtitles/${stream.Index}/0/Stream.vtt?api_key=${encodeURIComponent(api.token)}`
+  return `${base(api)}/Videos/${itemId}/${source.Id}/Subtitles/${stream.Index}/0/Stream.vtt?ApiKey=${encodeURIComponent(api.token)}`
 }
 
 // Fortschritt an den Server melden (Weiterschauen, Gesehen, Dashboard)
