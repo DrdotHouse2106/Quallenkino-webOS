@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle } from '../src/player/tracks'
+import { audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle } from '../src/player/tracks'
 import { canPlayAudio } from '../src/player/profile'
 import { streamFor, subtitleUrl } from '../src/player/playback'
 
@@ -103,6 +103,37 @@ describe('Tonspur wechseln', () => {
 
   it('Standard der Datei ist die markierte Spur', () => {
     expect(fileDefaultAudio(source)).toBe(2)
+  })
+
+  it('Deutsch an 4. Stelle, Englisch Standard der Datei: ohne audioTracks umrechnen', () => {
+    const deadpool = {
+      Id: 'd',
+      MediaStreams: [
+        { Index: 0, Type: 'Video' },
+        { Index: 1, Type: 'Audio', Codec: 'eac3', Language: 'eng', IsDefault: true },
+        { Index: 2, Type: 'Audio', Codec: 'eac3', Language: 'fra' },
+        { Index: 3, Type: 'Audio', Codec: 'eac3', Language: 'spa' },
+        { Index: 4, Type: 'Audio', Codec: 'eac3', Language: 'deu', Title: 'German 5.1' },
+        { Index: 5, Type: 'Audio', Codec: 'opus', Language: 'eng', Title: 'Commentary' },
+        { Index: 9, Type: 'Subtitle', Codec: 'subrip', Language: 'deu', IsForced: true },
+      ],
+    }
+    expect(pickAudio(deadpool)).toBe(4)
+    expect(directAudioPossible(deadpool, 4, false)).toBe(false)
+    expect(directAudioPossible(deadpool, 4, true)).toBe(true)
+    expect(directAudioPossible(deadpool, 1, false)).toBe(true)
+  })
+
+  it('Zwei Standardspuren mit DTS: umrechnen', () => {
+    const logan = {
+      Id: 'l',
+      MediaStreams: [
+        { Index: 0, Type: 'Video' },
+        { Index: 1, Type: 'Audio', Codec: 'dts', Language: 'deu', IsDefault: true },
+        { Index: 2, Type: 'Audio', Codec: 'eac3', Language: 'eng', IsDefault: true },
+      ],
+    }
+    expect(directAudioPossible(logan, 1, true)).toBe(false)
   })
 
   it('DTS und TrueHD kann der Fernseher nicht selbst', () => {

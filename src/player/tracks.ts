@@ -57,6 +57,18 @@ export function fileDefaultAudio(source: MediaSource): number | undefined {
   return (internal.find(s => s.IsDefault) ?? internal[0])?.Index
 }
 
+/**
+ * Kann diese Tonspur direkt (ohne Umrechnung) laufen? Nur, wenn der Fernseher den Ton kann und es
+ * entweder die Spur ist, die die Datei von selbst spielt, oder sich die Spur im Fernseher umschalten
+ * lässt (video.audioTracks). Sonst würde die Standardspur der Datei laufen (z. B. Englisch statt Deutsch).
+ */
+export function directAudioPossible(source: MediaSource, audioIndex: number | undefined, hasAudioTracks: boolean): boolean {
+  const track = audioStreams(source).find(s => s.Index === audioIndex)
+  if (!track) return true
+  if (!canPlayAudio(track.Codec)) return false
+  return audioIndex === fileDefaultAudio(source) || (hasAudioTracks && audioTrackPosition(source, audioIndex) >= 0)
+}
+
 /** Stelle der Tonspur in video.audioTracks (nur Spuren in der Datei, in ihrer Reihenfolge); -1 = keine. */
 export function audioTrackPosition(source: MediaSource, index: number | undefined): number {
   return audioStreams(source).filter(s => !s.IsExternal).findIndex(s => s.Index === index)

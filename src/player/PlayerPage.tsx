@@ -25,7 +25,7 @@ import {
 import { canPlayAudio } from './profile'
 import { programProgress, timeRange } from '../api/livetv'
 import { loadSettings } from '../settings'
-import { audioStreams, audioTrackPosition, cueAt, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
+import { audioStreams, audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
 const OSD_TIMEOUT_MS = 5_000
 const PROGRESS_INTERVAL_MS = 10_000
@@ -87,6 +87,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   const [nowOn, setNowOn] = useState<Item | null>(null)
   const live = item?.Type === 'TvChannel'
   const startAt = useRef((startTicks ?? 0) / TICKS_PER_SECOND)
+  // Für die Prüfung der Tonspur: aktuelle Adresse und bereits umgerechnete Quelle (nur einmal)
+  const activeUrl = useRef<string | null>(null)
+  const audioFallback = useRef<string | null>(null)
   const started = useRef(false)
   /** Nach „gestoppt“ keine Meldungen mehr (beim Schließen feuert das Video noch „pause“). */
   const stopped = useRef(false)
@@ -146,7 +149,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     if (!next) throw new Error('nicht abspielbar')
     // Live-TV entscheidet der Server allein (eine zweite Anfrage würde einen weiteren Tuner belegen)
     const liveSource = !!preloaded || !!next.source.LiveStreamId || !!next.source.IsInfiniteStream
-    const direct = liveSource || (next.method !== 'Transcode' && directAudioPossible(next, audioIndex, switching))
+    const direct = liveSource || (next.method !== 'Transcode' && directAudioPossible(next.source, audioIndex, supportsAudioTracks()))
     // Für die Fehlersuche am Fernseher (Konsole über den Web-Inspector)
     console.info('[Quallenkino] Wiedergabe', {
       method: next.method,
@@ -164,21 +167,29 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     startAt.current = position
     setAudio(audioIndex)
     setSubtitle(subtitleIndex)
+    activeUrl.current = next.url
     setStream(next)
     loadCues(next, subtitleIndex)
   }
 
   /**
-   * Kann diese Tonspur ohne Umrechnung laufen? Umgerechnet wird nur, wenn der Fernseher den Ton der
-   * gewählten Spur nicht kann (DTS, TrueHD) – oder wenn auf eine andere Spur gewechselt wird und das
-   * Umschalten im Fernseher (audioTracks) fehlt. Beim Start bleibt es sonst beim direkten Abspielen.
+   * Gewünschte Tonspur prüfen: Lässt sie sich nicht einschalten oder ist sie nach einer Sekunde nicht
+   * aktiv (manche Fernseher ignorieren audioTracks), an derselben Stelle mit Umrechnung neu öffnen.
    */
-  function directAudioPossible(current: Stream, audioIndex: number | undefined, switching: boolean): boolean {
-    const track = audioStreams(current.source).find(s => s.Index === audioIndex)
-    if (!track) return true
-    if (!canPlayAudio(track.Codec)) return false
-    if (!switching) return true
-    return audioIndex === fileDefaultAudio(current.source) || (supportsAudioTracks() && audioTrackPosition(current.source, audioIndex) >= 0)
+  function ensureAudioTrack(current: Stream, audioIndex: number | undefined) {
+    const reopen = () => {
+      if (audioFallback.current === current.url) return
+      audioFallback.current = current.url
+      console.info('[Quallenkino] Tonspur lässt sich nicht umschalten – Umrechnung', { audio: audioIndex })
+      open(audioIndex, subtitle, video.current?.currentTime ?? startAt.current, true, true).catch(() => setError(t.playbackFailed))
+    }
+    if (!applyAudioTrack(current, audioIndex)) return reopen()
+    setTimeout(() => {
+      if (activeUrl.current !== current.url) return
+      const tracks = audioTrackList(video.current)
+      const position = audioTrackPosition(current.source, audioIndex)
+      if (!tracks || !tracks[position]?.enabled) reopen()
+    }, 1000)
   }
 
   /** Beim direkten Abspielen die gewählte Tonspur im Video einschalten. */
@@ -418,7 +429,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             setDuration(Number.isFinite(element.duration) && element.duration > 0 ? element.duration : (stream.source.RunTimeTicks ?? 0) / TICKS_PER_SECOND)
             if (startAt.current > 1 && element.currentTime < startAt.current - 1) element.currentTime = startAt.current
             // Andere Tonspur als die der Datei: im Fernseher umschalten, wenn er das kann
-            if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source)) applyAudioTrack(stream, audio)
+            if (stream.method !== 'Transcode' && audio !== fileDefaultAudio(stream.source)) ensureAudioTrack(stream, audio)
           }}
           onTimeUpdate={() => {
             setTime(video.current?.currentTime ?? 0)

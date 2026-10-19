@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.0.5 – 2026-10-19
+
+- **Richtige Tonspur beim Start:** Ist die gewählte Spur (z. B. Deutsch) nicht die Standardspur der Datei und kann der Fernseher die Spur nicht selbst umschalten, rechnet der Server den Ton gleich beim Start um. Vorher lief dann die Standardspur der Datei (z. B. Englisch bei „Deadpool & Wolverine“).
+- Lässt sich die Spur im Fernseher nicht einschalten oder ist sie nach einer Sekunde nicht aktiv, öffnet Quallenkino den Film an derselben Stelle mit Umrechnung neu.
+
 ## 1.0.4 – 2026-10-18
 
 - **Kürzlich hinzugefügt:** Ist von einer Serie nur eine Folge neu, erscheint die Folge selbst. Der Infobereich zeigt dann „S3:F5 · Folgentitel“ und die Beschreibung der Folge. Die Karte behält das Bild der Serie. Bei mehreren neuen Folgen bleibt es bei der Serie.
