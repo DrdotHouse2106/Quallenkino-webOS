@@ -1,5 +1,7 @@
 # Quallenkino für LG-Fernseher (webOS)
 
+[![Spendier mir einen Kaffee](https://img.shields.io/badge/☕_Spendier_mir_einen_Kaffee-PayPal-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/DrdotHouse)
+
 Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Medienserver (Jellyfin) spricht – mit Kino-Startseite, persönlichen Empfehlungen, Welten und Live-TV. Die App ist eine eigene Entwicklung (TypeScript, Preact, Navigation mit der Fernbedienung) und **kein** Fork der Jellyfin-Weboberfläche. Die Schwester-App für Android TV und Fire TV ist [Quallenkino](https://github.com/DrdotHouse2106/Jellyfin-TV-Client).
 
 **Plugins auf dem Server** – keines ist Pflicht, die App läuft auch ohne, nur ohne die jeweiligen Zusatzfunktionen:
