@@ -20,7 +20,7 @@ Version **1.0** – alle 7 Etappen:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung
 - [x] Server verbinden (https/http und Standard-Ports werden selbst ausprobiert)
-- [x] „Wer schaut gerade?“ mit Profil-Kacheln, Anmeldung per Passwort oder Quick Connect, Anmeldung pro Profil gemerkt
+- [x] „Wer schaut gerade?“ mit Profil-Kacheln, Anmeldung per Passwort oder Quick Connect, Anmeldung pro Profil gemerkt (danach ein Klick aufs Profilbild, keine PIN). Erscheint bei jedem Start und nach mehr als 10 Minuten im Hintergrund (nicht während einer Wiedergabe); das letzte Profil wird nie automatisch angemeldet
 - [x] Installationspaket (IPK) per GitHub Actions
 - [x] Startseite: Banner mit Trailer und Begründungen, Weiterschauen, Als Nächstes, Für dich, Top 10, Kürzlich hinzugefügt
 - [x] Detailseite mit Auto-Trailer, Daumen hoch/runter, Staffeln und Folgen, Besetzung, Ähnliche Titel; Personenseite; Suche
