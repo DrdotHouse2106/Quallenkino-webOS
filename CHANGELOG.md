@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.3.0 – 2026-10-20
+
+- **„Wer schaut?“ auch nach einer Pause:** Beim Start erscheint wie bisher immer die Profilauswahl (keine automatische Anmeldung). Neu: Auch nach mehr als 10 Minuten im Hintergrund wird wieder gefragt – nicht während einer Wiedergabe. Gespeicherte Anmeldungen gelten weiter per Klick aufs Profilbild, ohne PIN.
+
 ## 1.2.1 – 2026-10-19
 
 - Links mit Anmeldung (Wiedergabe, Untertitel, Trailer, Teaser, Welten) verwenden jetzt „ApiKey=“ statt „api_key=“. Neuere Jellyfin-Versionen nehmen nur noch diese Schreibweise an.

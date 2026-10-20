@@ -13,12 +13,34 @@ type View =
   | { name: 'login'; username?: string; direct?: boolean }
   | { name: 'home'; session: Session }
 
-/** Ablauf: Server → „Wer schaut gerade?“ → (Anmeldung, falls nötig) → Startseite. */
+/** So lange darf die App im Hintergrund sein, ohne dass beim Zurückkehren neu gefragt wird. */
+const ASK_AGAIN_MS = 10 * 60 * 1000
+
+/**
+ * Ablauf: Server → „Wer schaut gerade?“ → (Anmeldung, falls nötig) → Startseite. Beim Start wird nie
+ * automatisch das letzte Profil angemeldet; gespeicherte Anmeldungen gelten ohne PIN per Klick.
+ */
 export function App() {
   const [state, setState] = useState<SavedState>(() => loadState())
   const [view, setView] = useState<View>(() => (state.server ? { name: 'profiles' } : { name: 'server' }))
 
   useEffect(() => saveState(state), [state])
+
+  // „Wer schaut?“ auch nach einer längeren Pause (App im Hintergrund), nicht während der Wiedergabe
+  useEffect(() => {
+    let hiddenSince = 0
+    const onVisibility = () => {
+      if (document.hidden) {
+        hiddenSince = Date.now()
+        return
+      }
+      const away = hiddenSince ? Date.now() - hiddenSince : 0
+      hiddenSince = 0
+      if (away > ASK_AGAIN_MS && state.server && !document.querySelector('.qk-player video')) setView({ name: 'profiles' })
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [state.server])
 
   const server = state.server
 
