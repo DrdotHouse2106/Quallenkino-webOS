@@ -49,8 +49,10 @@ export function App() {
     // Schon angemeldet? Dann ohne Passwort weiter – wenn die Anmeldung noch gilt
     const saved = state.sessions.find(s => s.userId === user.Id)
     if (saved && (await checkSession(server.url, saved))) {
-      setState(s => ({ ...s, lastUserId: saved.userId }))
-      setView({ name: 'home', session: saved })
+      // Profilbild kann sich geändert haben (z. B. „Profilbild wählen“)
+      const session = { ...saved, imageTag: user.PrimaryImageTag ?? saved.imageTag }
+      setState(s => ({ ...withSession(s, session), lastUserId: saved.userId }))
+      setView({ name: 'home', session })
       return
     }
     if (saved) setState(s => withoutSession(s, saved.userId))
@@ -82,6 +84,7 @@ export function App() {
           onEmpty={() => setView({ name: 'login', direct: true })}
           signedIn={state.sessions.map(s => s.userId)}
           onSignOut={user => setState(s => withoutSession(s, user.Id))}
+          tokenFor={user => state.sessions.find(s => s.userId === user.Id)?.token}
         />
       )
     case 'login':

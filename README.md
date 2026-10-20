@@ -28,6 +28,7 @@ Version **1.0** – alle 7 Etappen:
 - [x] Live-TV: „Heute im TV für dich“, Programmführer (Filter, Lieblingssender), Sendungs-Details mit Regie und Darstellern, Sender einschalten
 - [x] Welten (Kacheln mit Logo und Trailer, Welt-Seite), Entdecken & Anfragen über Jellyseerr (Für dich, Suche, Staffeln wählen)
 - [x] Einstellungen: Untertitel und Ton beim Start, Trailer-Vorschau, Profil/Server wechseln, Abmelden, Über
+- [x] Profilbild selbst wählen (Figur + Hintergrundfarbe, Bild erzeugt das Plugin Local Recommendations ab 12.22) – in „Wer schaut?“ und in den Einstellungen
 - [x] Bildschirmschoner mit persönlichen Titeln und Trailern, „Quallenkino beenden?“ bei „Zurück“ auf der Startseite, YouTube-Trailer im eigenen Fenster und automatisch oben rechts
 
 ## YouTube-Trailer

@@ -3,6 +3,7 @@ import { authorizationHeader, deviceId } from '../src/api/auth'
 import { candidateUrls } from '../src/api/server'
 import { isNewer } from '../src/api/update'
 import { parseReminders, reminderKey } from '../src/api/reminders'
+import { normalizeCatalog } from '../src/api/avatars'
 import { withSession, withoutSession, type SavedState } from '../src/store'
 import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
@@ -91,5 +92,20 @@ describe('Erinnerungen', () => {
     expect(list.get('abcdef0123456789abcdef0123456789')).toBe(true)
     expect(list.get(reminderKey('11111111-2222-3333-4444-555555555555'))).toBe(false)
     expect(list.has('x')).toBe(false)
+  })
+})
+
+describe('Profilbilder', () => {
+  it('macht Bildadressen vollständig und lässt leere Kategorien weg', () => {
+    const catalog = normalizeCatalog({
+      Colors: ['#e50914'],
+      Categories: [
+        { Id: 'tiere', Name: 'Tiere', Icons: [{ Id: 'tiere/katze', Name: 'Katze', ImageUrl: 'LocalRecs/Avatars/Icons/tiere/katze' }, { Id: 'tiere/hund', Name: 'Hund', ImageUrl: 'https://cdn/hund.png' }] },
+        { Id: 'leer', Name: 'Leer', Icons: [] },
+      ],
+    }, 'http://srv:8096/')
+    expect(catalog.Categories).toHaveLength(1)
+    expect(catalog.Categories[0].Icons[0].ImageUrl).toBe('http://srv:8096/LocalRecs/Avatars/Icons/tiere/katze')
+    expect(catalog.Categories[0].Icons[1].ImageUrl).toBe('https://cdn/hund.png')
   })
 })

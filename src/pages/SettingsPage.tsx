@@ -8,12 +8,15 @@ import { loadSettings, saveSettings, type Settings } from '../settings'
 import { HOMEBREW_REPO, newerVersion } from '../api/update'
 import type { Api } from '../api/items'
 import { calendar as loadCalendar, calendarQr, remindersAvailable, type Calendar } from '../api/reminders'
+import { avatarsAvailable } from '../api/avatars'
+import { AvatarPicker } from '../ui/AvatarPicker'
 import { toast } from '../ui/Toast'
 import { APP_VERSION } from '../brand'
 import { About } from '../ui/About'
 import { Icon, type IconName } from '../ui/Icon'
 import { Logo } from '../ui/Logo'
 import { Page } from './Page'
+import { focusSoon } from '../nav/focus'
 
 interface Props {
   api: Api
@@ -38,6 +41,11 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
 export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
   const [settings, setSettings] = useState(loadSettings)
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
+  const [avatars, setAvatars] = useState(false)
+  const [picking, setPicking] = useState(false)
+  useEffect(() => {
+    avatarsAvailable(api.url, api.token).then(setAvatars)
+  }, [])
   // Erinnerungen aufs Handy: Kalender-Abo per QR-Code (nur wenn der Server es anbietet)
   const [calendar, setCalendar] = useState<Calendar | null>(null)
   const [qrTarget, setQrTarget] = useState<'webcal' | 'https'>('webcal')
@@ -67,6 +75,13 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
     saveSettings(next)
     setSettings(next)
   }
+  if (picking) {
+    return <AvatarPicker url={api.url} token={api.token} name={session.name} onClose={() => {
+      setPicking(false)
+      focusSoon('settings-avatar')
+    }} />
+  }
+
   return (
     <Page focusKey="settings" class="qk-settings-page" rail={t.railSettings}>
       <div class="qk-page-main">
@@ -87,6 +102,7 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
         <h2>{t.settingsAccount}</h2>
         <SettingsRow focusKey="settings-account">
           <SettingsButton focusKey="settings-profile" icon="person" label={`${t.switchProfile} (${session.name})`} onPress={onSwitchProfile} />
+          {avatars && <SettingsButton focusKey="settings-avatar" icon="person" label={t.avatarChoose} onPress={() => setPicking(true)} />}
           <SettingsButton focusKey="settings-signout" label={t.signOut} onPress={onSignOut} />
           <SettingsButton focusKey="settings-server" label={`${t.changeServer} (${server.name})`} onPress={onChangeServer} />
         </SettingsRow>

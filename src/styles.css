@@ -372,3 +372,16 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-qr { width: 240px; height: 240px; flex: none; background: #fff; border-radius: 12px; padding: 12px; box-sizing: border-box; }
 .qk-qr img { width: 100%; height: 100%; display: block; }
 .qk-settings-calendar p { max-width: 720px; overflow-wrap: anywhere; }
+
+/* Profilbild wählen */
+.qk-avatar-picker { position: fixed; inset: 0; z-index: 50; background: #0b0e14; overflow-y: auto; padding: 56px 96px; }
+.qk-avatar-head { display: flex; align-items: center; gap: 40px; margin-bottom: 16px; }
+.qk-avatar-preview { border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; flex: none; }
+.qk-avatar-preview img { width: 80%; height: 80%; object-fit: contain; }
+.qk-avatar-preview img.cover { width: 100%; height: 100%; object-fit: cover; }
+.qk-avatar-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.qk-avatar-color { width: 64px; height: 64px; border-radius: 50%; padding: 6px; border: 3px solid transparent; box-sizing: border-box; }
+.qk-avatar-color span { display: block; width: 100%; height: 100%; border-radius: 50%; }
+.qk-avatar-color.selected, .qk-avatar-choice.selected { border-color: #46d369; }
+.qk-avatar-color.focused, .qk-avatar-choice.focused { border-color: #fff; }
+.qk-avatar-choice { display: flex; flex-direction: column; align-items: center; padding: 8px; border: 3px solid transparent; border-radius: 16px; }

@@ -5,6 +5,8 @@ import { t } from '../i18n'
 import { Button } from '../ui/Focusable'
 import { Group, Screen } from '../ui/Screen'
 import { focusSoon } from '../nav/focus'
+import { avatarsAvailable } from '../api/avatars'
+import { AvatarPicker } from '../ui/AvatarPicker'
 
 /** Farben der Profil-Kacheln ohne eigenes Bild (wie in der Android-App). */
 const TILE_COLORS = ['#7F76D6', '#2E96E0', '#E0662E', '#2EB67D', '#D6476B', '#C9A227']
@@ -27,6 +29,8 @@ interface Props {
   /** Profile, die auf diesem Fernseher angemeldet sind (zeigen „Abmelden“). */
   signedIn?: string[]
   onSignOut?: (user: UserSummary) => void
+  /** Gespeicherte Anmeldung eines Profils (für „Profilbild wählen“ ohne neue Anmeldung). */
+  tokenFor?: (user: UserSummary) => string | undefined
 }
 
 /** Öffentliche Profile plus gemerkte, die nicht öffentlich sind. */
@@ -35,9 +39,17 @@ export function mergeProfiles(publicList: UserSummary[], saved: UserSummary[]): 
 }
 
 /** „Wer schaut gerade?“ – große Profil-Kacheln, OK wählt aus. */
-export function ProfileScreen({ server, saved = [], onPick, onOther, onChangeServer, onEmpty, signedIn = [], onSignOut }: Props) {
+export function ProfileScreen({ server, saved = [], onPick, onOther, onChangeServer, onEmpty, signedIn = [], onSignOut, tokenFor }: Props) {
   const [users, setUsers] = useState<UserSummary[] | null>(null)
   const [failed, setFailed] = useState(false)
+  const [reload, setReload] = useState(0)
+  // Profilbilder nur anbieten, wenn der Server sie kennt (Plugin Local Recommendations)
+  const [avatars, setAvatars] = useState(false)
+  const [picking, setPicking] = useState<UserSummary | null>(null)
+  useEffect(() => {
+    const token = (users ?? []).map(u => tokenFor?.(u)).find(Boolean)
+    if (token) avatarsAvailable(server.url, token).then(setAvatars)
+  }, [users === null, server.url])
 
   useEffect(() => {
     publicUsers(server.url)
@@ -50,7 +62,19 @@ export function ProfileScreen({ server, saved = [], onPick, onOther, onChangeSer
         setUsers(saved)
         setFailed(true)
       })
-  }, [server.url])
+  }, [server.url, reload])
+
+  if (picking) {
+    const token = tokenFor?.(picking)
+    if (token) {
+      return <AvatarPicker url={server.url} token={token} name={picking.Name} onClose={tag => {
+        const user = picking
+        setPicking(null)
+        if (tag !== undefined) setReload(n => n + 1)
+        focusSoon(`profile-${user.Id}`)
+      }} />
+    }
+  }
 
   return (
     <Screen focusKey="profiles" class="qk-center">
@@ -74,6 +98,9 @@ export function ProfileScreen({ server, saved = [], onPick, onOther, onChangeSer
                 onSignOut(user)
                 focusSoon(`profile-${user.Id}`)
               }} class="qk-link qk-profile-signout">{t.signOut}</Button>
+            )}
+            {avatars && tokenFor?.(user) && (
+              <Button focusKey={`profile-avatar-${user.Id}`} onPress={() => setPicking(user)} class="qk-link qk-profile-signout">{t.avatarChoose}</Button>
             )}
           </div>
         ))}
