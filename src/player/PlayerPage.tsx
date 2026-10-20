@@ -44,6 +44,9 @@ const SEEK_MAX_EARLY_S = 8
 /** Bild-Untertitel kann nur der Server ins Bild rechnen. */
 const IMAGE_SUBTITLES = ['pgssub', 'pgs', 'dvdsub', 'dvbsub', 'ass', 'ssa']
 
+/** So lange darf die Wiedergabe pausiert sein, danach wird sie beendet (Sitzung beim Server schließen). */
+const PAUSE_LIMIT_MS = 30 * 60 * 1000
+
 interface AudioTrackLike { enabled: boolean }
 const audioTrackList = (element: HTMLVideoElement | null) =>
   (element as (HTMLVideoElement & { audioTracks?: ArrayLike<AudioTrackLike> }) | null)?.audioTracks
@@ -260,6 +263,13 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       stopped.current = true
     }
   }, [stream])
+
+  // Lange pausiert (z. B. Fernseher nur ausgeschaltet): Wiedergabe beenden und beim Server abmelden
+  useEffect(() => {
+    if (!paused) return
+    const timer = setTimeout(() => router.pop(), PAUSE_LIMIT_MS)
+    return () => clearTimeout(timer)
+  }, [paused])
 
   function showOsd() {
     setOsd(true)

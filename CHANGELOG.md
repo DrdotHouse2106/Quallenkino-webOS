@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.3.1 – 2026-10-20
+
+- Eine Wiedergabe, die länger als 30 Minuten pausiert ist, wird beendet und beim Server abgemeldet – damit keine Jellyfin-Sitzung die ganze Nacht offen bleibt, wenn nur der Fernseher ausgeschaltet wurde.
+
 ## 1.3.0 – 2026-10-20
 
 - **„Wer schaut?“ auch nach einer Pause:** Beim Start erscheint wie bisher immer die Profilauswahl (keine automatische Anmeldung). Neu: Auch nach mehr als 10 Minuten im Hintergrund wird wieder gefragt – nicht während einer Wiedergabe. Gespeicherte Anmeldungen gelten weiter per Klick aufs Profilbild, ohne PIN.
