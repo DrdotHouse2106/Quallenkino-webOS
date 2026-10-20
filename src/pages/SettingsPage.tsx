@@ -58,7 +58,7 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
   useEffect(() => {
     if (!calendar) return
     setQr(null)
-    calendarQr(api, qrTarget).then(setQr).catch(() => setQr(null))
+    calendarQr(api, calendar.PageUrl ? 'page' : qrTarget).then(setQr).catch(() => setQr(null))
   }, [calendar?.Url, qrTarget])
   const renewCalendar = () => loadCalendar(api, true).then(next => {
     setCalendar(next)
@@ -111,15 +111,16 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
           <>
             <h2>{t.calendarTitle}</h2>
             <SettingsRow focusKey="settings-calendar">
-              <SettingsButton focusKey="settings-calendar-webcal" label={t.calendarIphone} selected={qrTarget === 'webcal'} onPress={() => setQrTarget('webcal')} />
-              <SettingsButton focusKey="settings-calendar-https" label={t.calendarOther} selected={qrTarget === 'https'} onPress={() => setQrTarget('https')} />
+              {/* Mit Abo-Seite (LocalRecs ab 12.23) ein QR-Code für alle Handys, sonst Auswahl iPhone/andere */}
+              {!calendar.PageUrl && <SettingsButton focusKey="settings-calendar-webcal" label={t.calendarIphone} selected={qrTarget === 'webcal'} onPress={() => setQrTarget('webcal')} />}
+              {!calendar.PageUrl && <SettingsButton focusKey="settings-calendar-https" label={t.calendarOther} selected={qrTarget === 'https'} onPress={() => setQrTarget('https')} />}
               <SettingsButton focusKey="settings-calendar-renew" label={t.calendarRenew} onPress={renewCalendar} />
             </SettingsRow>
             <div class="qk-settings-calendar">
               <div class="qk-qr">{qr && <img src={qr} alt="" />}</div>
               <div>
                 <p>{t.calendarHint}</p>
-                <p class="qk-muted">{qrTarget === 'webcal' ? calendar.WebcalUrl : calendar.Url}</p>
+                <p class="qk-muted">{calendar.PageUrl ?? (qrTarget === 'webcal' ? calendar.WebcalUrl : calendar.Url)}</p>
               </div>
             </div>
           </>

@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.4.1 – 2026-10-20
+
+- „Erinnerungen aufs Handy“: Mit LocalRecs ab 12.23 führt ein einziger QR-Code auf eine Abo-Seite, die auf iPhone und Android funktioniert (die iPhone-Kamera öffnet webcal-Links direkt nicht). Die Auswahl iPhone/andere entfällt dann.
+
 ## 1.4.0 – 2026-10-20
 
 - **Profilbild selbst wählen:** Eine Figur und eine Hintergrundfarbe aussuchen – daraus erzeugt der Server ein rundes Profilbild und setzt es als Jellyfin-Profilbild. Erreichbar in „Wer schaut?“ unter dem Profil („Profilbild wählen“, für auf diesem Fernseher angemeldete Profile) und in den Einstellungen unter Konto. Braucht das Plugin Local Recommendations ab 12.22; die Figuren kommen aus dessen Katalog.

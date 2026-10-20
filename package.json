@@ -1,6 +1,6 @@
 {
   "name": "quallenkino-webos",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "description": "Quallenkino für LG-Fernseher (webOS) – eigenständige TV-App für Jellyfin-Server",
   "license": "GPL-2.0-only",

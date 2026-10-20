@@ -7,6 +7,8 @@ import type { Api } from './items'
 export interface Calendar {
   Url: string
   WebcalUrl: string
+  /** Abo-Seite (ab LocalRecs 12.23): Ziel des QR-Codes für alle Handys. */
+  PageUrl?: string
 }
 
 /** Id ohne Bindestriche, klein (so liefert das Plugin sie zurück). */
@@ -50,8 +52,8 @@ export function calendar(api: Api, renew = false): Promise<Calendar> {
   return request<Calendar>(api.url, renew ? '/LocalRecs/Calendar/Renew' : '/LocalRecs/Calendar', { method: renew ? 'POST' : 'GET', token: api.token })
 }
 
-/** QR-Code als SVG (target „webcal“ fürs iPhone, „https“ für andere) – als Bildadresse zum Anzeigen. */
-export async function calendarQr(api: Api, target: 'webcal' | 'https'): Promise<string> {
+/** QR-Code als SVG (target „page“ Abo-Seite, „webcal“ fürs iPhone, „https“ für andere) – als Bildadresse. */
+export async function calendarQr(api: Api, target: 'page' | 'webcal' | 'https'): Promise<string> {
   const response = await fetch(`${api.url.replace(/\/+$/, '')}/LocalRecs/Calendar/Qr?target=${target}`, {
     headers: { Authorization: authorizationHeader(deviceId(), api.token) },
   })
