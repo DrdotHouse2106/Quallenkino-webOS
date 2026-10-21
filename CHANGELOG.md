@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.6.0 – 2026-10-21
+
+- **Empfehlungen nach Tageszeit** (Plugin Local Recommendations ab 12.36): Die Vorschläge berücksichtigen die Uhrzeit, und die Zeilen „Empfohlene Filme/Serien“ und „Heute im TV für dich“ ordnen sich je nach Tageszeit um.
+- **Suchen und angesehene Titel** fließen in die Empfehlungen ein („Weil du nach … gesucht hast“): Suchbegriffe nach 2,5 s Tipp-Pause, Detailseiten von Filmen und Serien beim Öffnen. Gespeichert wird nur auf dem eigenen Server.
+- In den Einstellungen: **„Suchen und angesehene Titel für Empfehlungen nutzen“** (An/Aus) mit der Speicherdauer vom Server und „Gespeicherte Suchen und Ansichten löschen“.
+
 ## 1.5.0 – 2026-10-21
 
 Sicherheit und Tempo (aus dem Sicherheits- und Performance-Bericht):

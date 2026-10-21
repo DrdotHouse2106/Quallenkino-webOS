@@ -4,6 +4,7 @@ import { candidateUrls } from '../src/api/server'
 import { isNewer } from '../src/api/update'
 import { parseReminders, reminderKey } from '../src/api/reminders'
 import { normalizeCatalog } from '../src/api/avatars'
+import { reorderRows } from '../src/api/behavior'
 import { withSession, withoutSession, type SavedState } from '../src/store'
 import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
@@ -103,5 +104,14 @@ describe('Profilbilder', () => {
     expect(catalog.Categories).toHaveLength(1)
     expect(catalog.Categories[0].Icons[0].ImageUrl).toBe('http://srv:8096/LocalRecs/Avatars/Icons/tiere/katze')
     expect(catalog.Categories[0].Icons[1].ImageUrl).toBe('https://cdn/hund.png')
+  })
+})
+
+describe('Tageszeit-Reihenfolge', () => {
+  const kind = (key: string) => ({ 'recs-movies': 'movies', 'recs-series': 'series', tv: 'livetv' } as Record<string, string>)[key] ?? null
+  it('tauscht nur die Plätze der Empfehlungszeilen', () => {
+    expect(reorderRows(['resume', 'recs-movies', 'recs-series', 'tv', 'top10'], kind, ['livetv', 'series', 'movies']))
+      .toEqual(['resume', 'tv', 'recs-series', 'recs-movies', 'top10'])
+    expect(reorderRows(['resume', 'recs-movies'], kind, null)).toEqual(['resume', 'recs-movies'])
   })
 })

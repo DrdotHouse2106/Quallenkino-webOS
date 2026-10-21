@@ -130,7 +130,7 @@ function once<T>(key: string, load: () => Promise<T>): Promise<T> {
 
 /** Empfehlungen des Plugins; immer 30 laden und kürzen, damit Banner und Reihe eine Anfrage teilen. */
 export const recommendations = (api: Api, type: 'movies' | 'series', limit = 30) =>
-  once(`recs|${api.url}|${api.userId}|${type}`, () => items(api, `/LocalRecs/Recommendations?type=${type}&limit=30`).catch(() => [] as Item[]))
+  once(`recs|${api.url}|${api.userId}|${type}`, () => items(api, `/LocalRecs/Recommendations?type=${type}&limit=30&utcOffsetMinutes=${-new Date().getTimezoneOffset()}`).catch(() => [] as Item[]))
     .then(list => list.slice(0, limit))
 
 /** Top 10 aller Benutzer der letzten 180 Tage (Plugin). */

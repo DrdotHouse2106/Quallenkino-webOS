@@ -9,6 +9,7 @@ import { HOMEBREW_REPO, newerVersion } from '../api/update'
 import type { Api } from '../api/items'
 import { calendar as loadCalendar, calendarQr, remindersAvailable, type Calendar } from '../api/reminders'
 import { avatarsAvailable } from '../api/avatars'
+import { behaviorMe, deleteBehavior, setBehaviorEnabled, type BehaviorMe } from '../api/behavior'
 import { AvatarPicker } from '../ui/AvatarPicker'
 import { toast } from '../ui/Toast'
 import { APP_VERSION } from '../brand'
@@ -42,6 +43,14 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
   const [settings, setSettings] = useState(loadSettings)
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [avatars, setAvatars] = useState(false)
+  // Suchen und angesehene Titel für Empfehlungen (Plugin ab 12.36)
+  const [behavior, setBehavior] = useState<BehaviorMe | null>(null)
+  useEffect(() => {
+    behaviorMe(api).then(setBehavior)
+  }, [])
+  const toggleBehavior = (enabled: boolean) =>
+    setBehaviorEnabled(api, enabled).then(() => setBehavior(b => (b ? { ...b, Enabled: enabled } : b))).catch(() => toast(t.actionFailed))
+  const clearBehavior = () => deleteBehavior(api).then(() => toast(t.behaviorDeleted)).catch(() => toast(t.actionFailed))
   const [picking, setPicking] = useState(false)
   useEffect(() => {
     avatarsAvailable(api.url, api.token).then(setAvatars)
@@ -98,6 +107,18 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
             {key === 'subtitles' && settings.subtitles === 'smart' && <p class="qk-muted">{t.subtitlesSmartHint}</p>}
           </>
         ))}
+
+        {behavior && (
+          <>
+            <h2>{t.behaviorTitle}</h2>
+            <SettingsRow focusKey="settings-behavior">
+              <SettingsButton focusKey="settings-behavior-on" label={t.trailersOn} selected={behavior.Enabled} onPress={() => toggleBehavior(true)} />
+              <SettingsButton focusKey="settings-behavior-off" label={t.trailersOff} selected={!behavior.Enabled} onPress={() => toggleBehavior(false)} />
+              <SettingsButton focusKey="settings-behavior-delete" label={t.behaviorDelete} onPress={clearBehavior} />
+            </SettingsRow>
+            <p class="qk-muted">{t.behaviorHint(behavior.RetentionDays ?? 365, behavior.MaxEntries ?? 1000)}</p>
+          </>
+        )}
 
         <h2>{t.settingsAccount}</h2>
         <SettingsRow focusKey="settings-account">

@@ -1,6 +1,7 @@
 import { setFocus } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { searchItems, searchPeople, type Api, type Item } from '../api/items'
+import { reportSearch } from '../api/behavior'
 import { Row } from '../home/Rows'
 import { t } from '../i18n'
 import { useRouter } from '../nav/router'
@@ -30,6 +31,8 @@ export function SearchPage({ api }: { api: Api }) {
       return
     }
     const run = ++counter.current
+    // Suchbegriff nach einer Tipp-Pause für die Empfehlungen melden (Plugin ab 12.36)
+    reportSearch(api, term)
     const timer = setTimeout(async () => {
       const [movies, series, people] = await Promise.all([
         searchItems(api, term, 'Movie').catch(() => []),

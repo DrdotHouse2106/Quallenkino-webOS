@@ -17,6 +17,9 @@ import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
 import type { RowData } from './Rows'
+import { daypartOrder, reorderRows } from '../api/behavior'
+
+const DAYPART_KIND: Record<string, string> = { 'recs-movies': 'movies', 'recs-series': 'series', tv: 'livetv' }
 
 const BILLBOARD_SIZE = 8
 
@@ -56,6 +59,7 @@ function cachedBillboard(userId: string): Item[] {
 export function useHomeData(api: Api) {
   const [billboard, setBillboard] = useState<Item[]>(() => cachedBillboard(api.userId))
   const [rows, setRows] = useState<Record<string, RowData>>({})
+  const [daypart, setDaypart] = useState<string[] | null>(null)
   const [reasons, setReasons] = useState<Record<string, string>>({})
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
@@ -74,6 +78,7 @@ export function useHomeData(api: Api) {
       }
     })
     loadReasons(api).then(map => active && setReasons(map))
+    daypartOrder(api).then(value => active && setDaypart(value))
 
     const sources: Array<[string, string, RowData['kind'], () => Promise<Item[]>]> = [
       ['resume', t.rowResume, 'cards', () => resume(api)],
@@ -99,7 +104,8 @@ export function useHomeData(api: Api) {
     }
   }, [api.url, api.userId, api.token])
 
-  const order = ['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest']
+  // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
+  const order = reorderRows(['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
   const orderedRows = order.map(key => (key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
   return { billboard, billboardDone, rows: orderedRows, reasons }
 }

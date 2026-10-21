@@ -25,6 +25,7 @@ import { youtubeKey } from './YouTubePage'
 import { YouTubeInline } from '../ui/YouTubeInline'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
+import { reportView } from '../api/behavior'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -54,6 +55,8 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
     let active = true
     fullItem(api, id).then(loaded => {
       if (!active) return
+      // Geöffnete Detailseite für die Empfehlungen melden (Plugin ab 12.36)
+      if (loaded.Type === 'Movie' || loaded.Type === 'Series') void reportView(api, loaded.Id)
       setItem(loaded)
       setLikes(loaded.UserData?.Likes ?? null)
       focusSoon('d-play')
