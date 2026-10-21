@@ -35,9 +35,48 @@ export function withoutResumed(nextup: RowData | undefined, resume: RowData | un
 }
 
 /** Banner-Vorschläge: zuerst aus den Empfehlungen, sonst die neuesten Filme und Serien. */
+const POOL = 30
+// Etwas mehr als 4 je Typ, weil Titel ohne Hintergrundbild noch herausfallen
+const PICK_PER_TYPE = 6
+
+/** Seed für die Banner-Auswahl: lokales Datum und Profil – gleicher Tag, gleiche Auswahl. */
+function dailySeed(userId: string): string {
+  const now = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}|${userId}`
+}
+
+/** Kleiner deterministischer Zufallsgenerator (mulberry32) aus einem Text-Seed. */
+function seededRandom(seed: string): () => number {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619)
+  return () => {
+    h = (h + 0x6d2b79f5) | 0
+    let x = Math.imul(h ^ (h >>> 15), 1 | h)
+    x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * `count` Einträge gewichtet ziehen, ohne Zurücklegen: Rang r hat Gewicht 1/(r+2), vordere Empfehlungen
+ * kommen also öfter, aber nicht immer dran. Gleicher Seed ergibt dieselbe Auswahl.
+ */
+export function dailyPick<T>(list: T[], count: number, seed: string): T[] {
+  const random = seededRandom(seed)
+  // Efraimidis-Spirakis: Schlüssel u^(1/w) = u^(r+2), die größten gewinnen
+  return list
+    .map((value, rank) => ({ value, key: Math.pow(random(), rank + 2) }))
+    .sort((a, b) => b.key - a.key)
+    .slice(0, count)
+    .map(e => e.value)
+}
+
 async function loadBillboard(api: Api): Promise<Item[]> {
-  const [movies, series] = await Promise.all([recommendations(api, 'movies', BILLBOARD_SIZE / 2), recommendations(api, 'series', BILLBOARD_SIZE / 2)])
-  const ids = [...movies, ...series].map(i => i.Id)
+  // Täglich wechselnde Auswahl aus den ersten 30 Empfehlungen je Typ (nicht immer die obersten)
+  const [movies, series] = await Promise.all([recommendations(api, 'movies', POOL), recommendations(api, 'series', POOL)])
+  const seed = dailySeed(api.userId)
+  const ids = [...dailyPick(movies, PICK_PER_TYPE, `${seed}|movies`), ...dailyPick(series, PICK_PER_TYPE, `${seed}|series`)].map(i => i.Id)
   const items = ids.length ? await byIds(api, ids).catch(() => []) : await newestWithBackdrop(api, BILLBOARD_SIZE).catch(() => [])
   return interleave(items.filter(i => backdropUrl(api, i))).slice(0, BILLBOARD_SIZE)
 }
