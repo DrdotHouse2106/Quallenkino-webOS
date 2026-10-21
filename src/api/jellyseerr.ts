@@ -232,21 +232,6 @@ export async function findPerson(api: Api, name: string): Promise<number | null>
 
 // --- „Für dich“ ---
 
-const libraryIds = new Map<string, Promise<Set<string>>>()
-
-/** TMDB-Ids aller Filme und Serien, die dieses Profil sehen darf (einmal je App-Start und Profil). */
-function library(api: Api): Promise<Set<string>> {
-  const key = `${api.url}|${api.userId}`
-  let cached = libraryIds.get(key)
-  if (!cached) {
-    cached = items(api, `/Users/${api.userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&Fields=ProviderIds&EnableImages=false`)
-      .then(list => new Set(list.flatMap(i => (i.ProviderIds?.Tmdb ? [`${i.Type === 'Series' ? 'tv' : 'movie'}-${i.ProviderIds.Tmdb}`] : []))))
-      .catch(() => new Set<string>())
-    libraryIds.set(key, cached)
-  }
-  return cached
-}
-
 /** Ausgangstitel: Favoriten/„Gefällt mir“ zuerst, dann zuletzt gesehene Filme und Serien. */
 async function seeds(api: Api): Promise<{ type: MediaType; id: number }[]> {
   const q = `/Users/${api.userId}/Items?Recursive=true&Fields=ProviderIds&SortOrder=Descending&EnableImages=false`
@@ -281,13 +266,14 @@ async function seeds(api: Api): Promise<{ type: MediaType; id: number }[]> {
  * sind; neueste zuerst, dann wie oft empfohlen. Höchstens 60.
  */
 export async function forYou(api: Api): Promise<Result[]> {
-  const [start, owned] = await Promise.all([seeds(api), library(api)])
+  // Was schon auf dem Server oder angefragt ist, meldet Jellyseerr selbst (status) – kein Abgleich mit der ganzen Bibliothek
+  const start = await seeds(api)
   const lists = await Promise.all(start.map(s => recommendationsFor(api, s.type, s.id)))
   const seedKeys = new Set(start.map(s => `${s.type}-${s.id}`))
   const counts = new Map<string, { result: Result; count: number }>()
   for (const result of lists.flat()) {
     const key = `${result.type}-${result.id}`
-    if (result.status !== 'none' || owned.has(key) || seedKeys.has(key)) continue
+    if (result.status !== 'none' || seedKeys.has(key)) continue
     const entry = counts.get(key)
     if (entry) entry.count++
     else counts.set(key, { result, count: 1 })

@@ -81,7 +81,7 @@ export async function worldSections(api: Api, world: World): Promise<WorldSectio
 async function collectionSections(api: Api, world: World): Promise<WorldSection[]> {
   const parts = (world.Collections ?? []).map(c => c.toLowerCase()).filter(Boolean)
   if (!parts.length) return []
-  const sets = await items(api, `/Users/${api.userId}/Items?IncludeItemTypes=BoxSet&Recursive=true&SortBy=SortName`)
+  const sets = await items(api, `/Users/${api.userId}/Items?IncludeItemTypes=BoxSet&Recursive=true&SortBy=SortName&EnableImages=false&Limit=1000`)
   const matching = parts
     .map(part => sets.find(set => (set.Name ?? '').toLowerCase().includes(part)))
     .filter((set, index, list): set is Item => !!set && list.indexOf(set) === index)
@@ -89,7 +89,7 @@ async function collectionSections(api: Api, world: World): Promise<WorldSection[
     matching.map(async set => ({
       key: `set-${set.Id}`,
       title: collectionTitle(set.Name ?? ''),
-      items: await items(api, `/Users/${api.userId}/Items?ParentId=${set.Id}&SortBy=PremiereDate&SortOrder=Ascending&Fields=Overview,ProductionYear&EnableImageTypes=Primary,Backdrop,Thumb&ImageTypeLimit=1`).catch(() => []),
+      items: await items(api, `/Users/${api.userId}/Items?ParentId=${set.Id}&SortBy=PremiereDate&SortOrder=Ascending&Fields=Overview,ProductionYear&EnableImageTypes=Primary,Backdrop,Thumb&ImageTypeLimit=1&Limit=200`).catch(() => []),
     })),
   )
   return rows

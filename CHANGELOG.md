@@ -1,5 +1,14 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.7.1 – 2026-10-21
+
+Leistung auf schwachen Fernsehern (zweite Nachprüfung):
+
+- **Bilder erst kurz vor dem Sichtbarwerden laden:** Statt `loading="lazy"` (lädt auf dem alten Chromium der Fernseher fast alle Karten) sieht die App je Reihe nur knapp über den Rand.
+- **Höchstens 6 Seiten übereinander:** Bei sehr tiefer Navigation fällt die älteste Seite heraus, „Zurück“ führt dann früher zur Startseite.
+- **Weniger Grafiklast:** Reihen springen ohne weiche Scroll-Animation, die Welt-Karten haben keinen Schatten-Filter mehr auf dem Logo.
+- **Kleinere Abfragen:** „Für dich“ unter Entdecken lädt nicht mehr die ganze Bibliothek (Jellyseerr meldet selbst, was schon da ist); Sammlungen der Welten und Episodenlisten sind begrenzt.
+
 ## 1.7.0 – 2026-10-21
 
 Nacharbeiten aus dem Sicherheits- und Performance-Bericht:

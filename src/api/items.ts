@@ -159,7 +159,7 @@ export const seasons = (api: Api, seriesId: string) =>
   items(api, `/Shows/${seriesId}/Seasons?userId=${api.userId}&${IMAGES}`).catch(() => [] as Item[])
 
 export const episodes = (api: Api, seriesId: string, seasonId: string) =>
-  items(api, `/Shows/${seriesId}/Episodes?userId=${api.userId}&seasonId=${seasonId}&Fields=${FIELDS}&${IMAGES}`).catch(() => [] as Item[])
+  items(api, `/Shows/${seriesId}/Episodes?userId=${api.userId}&seasonId=${seasonId}&limit=500&Fields=${FIELDS}&${IMAGES}`).catch(() => [] as Item[])
 
 /** Filme bzw. Serien mit dieser Person, neueste zuerst. */
 export const personItems = (api: Api, personId: string, type: 'Movie' | 'Series') =>

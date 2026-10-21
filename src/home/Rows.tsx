@@ -113,7 +113,7 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
     const backdrop = worldBackdrop(api, item.World)
     return (
       <div ref={ref} class={`qk-card qk-world ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
-        {backdrop && <img class="qk-world-backdrop" src={backdrop} alt="" loading="lazy" />}
+        <Img className="qk-world-backdrop" src={backdrop} fallback={null} />
         <div class="qk-world-shade" />
         <Img src={logo} fallback={<span class="qk-world-name large">{item.World.Name}</span>} />
         {logo && <span class="qk-world-name">{item.World.Name}</span>}

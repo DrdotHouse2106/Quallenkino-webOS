@@ -23,6 +23,17 @@ import { RequestPage } from '../discover/RequestPage'
 import { SeerrPersonPage } from '../discover/SeerrPersonPage'
 import { HomeScreen } from './HomeScreen'
 
+/** Seitenstapel begrenzen, damit auf schwachen Fernsehern nicht beliebig viele Seiten im Speicher bleiben. */
+const MAX_DEPTH = 6
+
+interface Entry {
+  id: number
+  page: Page
+}
+
+let nextEntryId = 0
+const entry = (page: Page): Entry => ({ id: nextEntryId++, page })
+
 interface Props {
   server: ServerInfo
   session: Session
@@ -37,7 +48,7 @@ interface Props {
  */
 export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeServer }: Props) {
   const api: Api = useMemo(() => ({ url: server.url, token: session.token, userId: session.userId }), [server.url, session])
-  const [stack, setStack] = useState<Page[]>([])
+  const [stack, setStack] = useState<Entry[]>([])
   const focusMemory = useRef<string[]>([])
   /** Bereich (z. B. Entdecken), aus dem es per „Links“ in die Navigation ging – „Rechts“ führt zurück. */
   const railReturn = useRef<Page | null>(null)
@@ -49,7 +60,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
 
   // Bildschirmschoner nach einiger Zeit ohne Tastendruck – nicht während der Wiedergabe
   const [idle, setIdle] = useState(false)
-  const top = stack[stack.length - 1]?.name
+  const top = stack[stack.length - 1]?.page.name
   const playing = top === 'player' || top === 'trailer' || top === 'youtube'
   useEffect(() => {
     if (playing) return
@@ -73,7 +84,9 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
     push: (page: Page) => {
       railReturn.current = null
       focusMemory.current.push(getCurrentFocusKey())
-      setStack(s => [...s, page])
+      // Höchstens MAX_DEPTH Seiten im DOM: die älteste fällt heraus („Zurück“ führt dann früher zur Startseite)
+      if (focusMemory.current.length > MAX_DEPTH) focusMemory.current.shift()
+      setStack(s => [...s, entry(page)].slice(-MAX_DEPTH))
     },
     pop: () => {
       setStack(s => s.slice(0, -1))
@@ -82,19 +95,19 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
     },
     toRail: (label: string) => {
       setStack(s => {
-        railReturn.current = s[0] ?? null
+        railReturn.current = s[0]?.page ?? null
         return []
       })
       focusMemory.current = []
       focusSoon(`rail-${label}`)
     },
-    replace: (page: Page) => setStack(s => [...s.slice(0, -1), page]),
+    replace: (page: Page) => setStack(s => [...s.slice(0, -1), entry(page)]),
     resume: () => {
       const page = railReturn.current
       if (!page) return false
       railReturn.current = null
       focusMemory.current.push(getCurrentFocusKey())
-      setStack([page])
+      setStack([entry(page)])
       return true
     },
     forget: () => {
@@ -107,12 +120,12 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
       <div class={stack.length ? 'qk-covered' : ''}>
         <HomeScreen api={api} session={session} covered={stack.length > 0 || idle} onSwitchProfile={onSwitchProfile} onSignOut={onSignOut} />
       </div>
-      {stack.map((page, index) => {
+      {stack.map(({ id: entryId, page }, index) => {
         // Verdeckt: eine Seite liegt darüber oder der Bildschirmschoner läuft (dann keine Trailer)
         const covered = index < stack.length - 1 || idle
         // Nur die oberste Seite ist sichtbar; die darunter bleiben erhalten (Fokus, Daten)
         return (
-          <div key={index} class={`qk-layer ${covered ? 'hidden' : ''}`}>
+          <div key={entryId} class={`qk-layer ${covered ? 'hidden' : ''}`}>
             {page.name === 'details' && <DetailsPage api={api} id={page.id} season={page.season} reasons={reasons} covered={covered} />}
             {page.name === 'person' && <PersonPage api={api} id={page.id} />}
             {page.name === 'search' && <SearchPage api={api} />}
