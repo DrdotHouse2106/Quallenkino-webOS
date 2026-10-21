@@ -9,6 +9,14 @@ export function isOwnLanguage(language?: string): boolean {
   return !!language && OWN_LANGUAGES.includes(language.toLowerCase())
 }
 
+/**
+ * Erzwungene Untertitel (nur fremdsprachige Stellen): Flag in der Datei ODER „Forced“/„erzwungen“/„nur
+ * fremdsprachige“ im Titel – viele Dateien setzen das Flag nicht, nennen die Spur aber so.
+ */
+export function isForced(stream: MediaStream): boolean {
+  return !!stream.IsForced || /forced|erzwungen|nur fremdsprachig/i.test(`${stream.Title ?? ''} ${stream.DisplayTitle ?? ''}`)
+}
+
 export const audioStreams = (source: MediaSource) => (source.MediaStreams ?? []).filter(s => s.Type === 'Audio')
 export const subtitleStreams = (source: MediaSource) => (source.MediaStreams ?? []).filter(s => s.Type === 'Subtitle')
 
@@ -42,10 +50,10 @@ export function pickSubtitle(source: MediaSource, audioIndex: number | undefined
   if (mode === 'off') return -1
   const audio = audioStreams(source).find(s => s.Index === audioIndex)
   if (mode === 'smart' && isOwnLanguage(audio?.Language)) {
-    const forced = subtitles.find(s => s.IsForced && (isOwnLanguage(s.Language) || !s.Language))
+    const forced = subtitles.find(s => isForced(s) && (isOwnLanguage(s.Language) || !s.Language))
     return forced?.Index ?? -1
   }
-  const own = subtitles.find(s => isOwnLanguage(s.Language) && !s.IsForced) ?? subtitles.find(s => isOwnLanguage(s.Language))
+  const own = subtitles.find(s => isOwnLanguage(s.Language) && !isForced(s)) ?? subtitles.find(s => isOwnLanguage(s.Language))
   if (own) return own.Index
   const fallback = subtitles.find(s => s.Index === source.DefaultSubtitleStreamIndex)
   return fallback?.Index ?? -1

@@ -26,7 +26,7 @@ import { canPlayAudio } from './profile'
 import { authorizationHeader, deviceId } from '../api/auth'
 import { programProgress, timeRange } from '../api/livetv'
 import { loadSettings } from '../settings'
-import { audioStreams, audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
+import { audioStreams, audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, isForced, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
 const OSD_TIMEOUT_MS = 5_000
 const PROGRESS_INTERVAL_MS = 10_000
@@ -614,7 +614,7 @@ function TrackDialog({ stream, audio, subtitle, onAudio, onSubtitle }: { stream:
         <div class="qk-tracks-column">
           <div class="qk-tracks-title">{t.subtitles}</div>
           <OsdButton focusKey="track-s-off" label={t.off} selected={subtitle < 0} onPress={() => onSubtitle(-1)} />
-          {subtitles.map(s => <OsdButton key={s.Index} focusKey={`track-s-${s.Index}`} label={trackLabel(s) + (s.IsForced && !/erzwungen|forced/i.test(trackLabel(s)) ? ` (${t.forced})` : '')} selected={s.Index === subtitle} onPress={() => onSubtitle(s.Index)} />)}
+          {subtitles.map(s => <OsdButton key={s.Index} focusKey={`track-s-${s.Index}`} label={trackLabel(s) + (isForced(s) && !/erzwungen|forced/i.test(trackLabel(s)) ? ` (${t.forced})` : '')} selected={s.Index === subtitle} onPress={() => onSubtitle(s.Index)} />)}
         </div>
       </div>
     </FocusContext.Provider>

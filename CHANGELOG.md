@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.1 – 2026-10-22
+
+- **Erzwungene Untertitel auch ohne Markierung:** Eine Spur mit „Forced“, „erzwungen“ oder „nur fremdsprachige“ im Namen gilt als erzwungen, auch wenn die Datei sie nicht so markiert. „Intelligent“ wählt sie bei deutschem Ton automatisch; im Menü steht „(erzwungen)“ dabei.
+
 ## 1.9.0 – 2026-10-21
 
 - **Neu: Quallenkino für Samsung-Fernseher (Tizen, Modelle ab 2020).** Dieselbe App aus demselben Code, als `quallenkino-tizen.wgt` bei jedem Release. Fernbedienung mit Samsung-Tasten (Zurück, Play/Pause, Spulen, Farbtasten), Abspielprofil je nach Modell (H.264, HEVC, VP9, AV1 werden am Fernseher geprüft; DTS/TrueHD rechnet der Server in Dolby Digital um), Update-Hinweis mit Anleitung statt Homebrew. Installation mit eigenem Samsung-Zertifikat über den Entwicklermodus – Anleitung im README. Noch nicht auf einem Samsung-Gerät getestet.

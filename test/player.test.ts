@@ -17,6 +17,18 @@ describe('Tonspur und Untertitel', () => {
     expect(pickSubtitle(s, 1)).toBe(4)
   })
 
+  it('Erzwungen am Namen erkannt („German Forced“ ohne Flag)', () => {
+    const s = source([
+      { Index: 1, Type: 'Audio', Language: 'ger', IsDefault: true },
+      { Index: 2, Type: 'Audio', Language: 'eng' },
+      { Index: 3, Type: 'Subtitle', Language: 'ger', Title: 'German Forced' },
+      { Index: 4, Type: 'Subtitle', Language: 'ger' },
+      { Index: 5, Type: 'Subtitle', Language: 'eng', Title: 'Englisch Full' },
+    ])
+    expect(pickSubtitle(s, 1)).toBe(3)
+    expect(pickSubtitle(s, 2)).toBe(4)
+  })
+
   it('Fremder Ton → deutsche Untertitel', () => {
     const s = source([
       { Index: 1, Type: 'Audio', Language: 'jpn' },
