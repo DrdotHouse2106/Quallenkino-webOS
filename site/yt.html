@@ -47,6 +47,7 @@
         onReady: function (e) {
           e.target.setVolume(volume)
           if (mute) e.target.mute()
+          else e.target.unMute()
           e.target.playVideo()
           send('ready')
         },

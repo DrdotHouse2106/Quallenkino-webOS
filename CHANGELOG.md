@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.7.2 – 2026-10-21
+
+- **„Trailer abspielen“ mit voller Lautstärke:** Selbst gestartete Trailer (vom Server oder YouTube) laufen jetzt laut wie normal. Automatisch laufende Vorschauen (Banner, Detailseite, Bildschirmschoner) bleiben leiser.
+
 ## 1.7.1 – 2026-10-21
 
 Leistung auf schwachen Fernsehern (zweite Nachprüfung):

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'preact/hooks'
 
 /** Lautstärke der Vorschau (wie in der Android-App). */
 export const TRAILER_VOLUME = 0.75
+/** Selbst gestartete Trailer („Trailer abspielen“): volle Lautstärke, ohne Absenkung der Vorschau. */
+export const FULL_VOLUME = 1
 /** Läuft bis dahin kein Bild, wird der Trailer verworfen (z. B. Format, das der Fernseher nicht kann). */
 const NO_PICTURE_TIMEOUT_MS = 6_000
 

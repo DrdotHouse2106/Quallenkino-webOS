@@ -1,6 +1,6 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef } from 'preact/hooks'
-import { TRAILER_VOLUME } from '../home/TrailerVideo'
+import { FULL_VOLUME } from '../home/TrailerVideo'
 import { t } from '../i18n'
 import { focusSoon } from '../nav/focus'
 import { Keys } from '../nav/keys'
@@ -62,7 +62,7 @@ export function YouTubePage({ videoKey }: { videoKey: string }) {
 
   return (
     <Page focusKey="youtube" class="qk-youtube-page">
-      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, TRAILER_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
+      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, FULL_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
       <FocusHolder onEnter={() => commandPlayer(frame.current, 'toggle')} />
     </Page>
   )

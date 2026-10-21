@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks'
 import { useRouter } from '../nav/router'
-import { TRAILER_VOLUME } from '../home/TrailerVideo'
+import { FULL_VOLUME } from '../home/TrailerVideo'
 import { Page } from './Page'
 
 /** Trailer im Vollbild; am Ende oder mit „Zurück“ geht es zurück. */
@@ -10,7 +10,8 @@ export function TrailerPage({ url }: { url: string }) {
   useEffect(() => {
     const element = video.current
     if (!element) return
-    element.volume = TRAILER_VOLUME
+    element.volume = FULL_VOLUME
+    element.muted = false
     element.play().catch(() => router.pop())
     return () => element.pause()
   }, [url])
