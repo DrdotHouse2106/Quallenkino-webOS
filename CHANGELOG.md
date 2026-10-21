@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.8.0 – 2026-10-21
+
+- **Banner vom Server** (Plugin Local Recommendations ab 12.41): Täglich neue Auswahl, gemischt mit gerade Passendem – angefangene Serien und Filme, neue Folgen. Ein Hinweis wie „Weiterschauen“ oder „Neue Folgen“ steht über dem Titel. Ohne neues Plugin wechselt das Banner wie bisher täglich aus den Empfehlungen.
+- **„Später“ im Banner:** Der Titel verschwindet für drei Wochen aus dem Banner, ohne als Ablehnung zu zählen. In den Einstellungen unter „Aus dem Banner weggelegt“ lässt er sich wieder zeigen.
+- **Ton-Umwandlung behält 5.1:** Muss der Server den Ton umrechnen (z. B. DTS), erzeugt er zuerst Dolby Digital statt AAC – so kommt 5.1 auch über Soundbar oder AV-Receiver an.
+
 ## 1.7.3 – 2026-10-21
 
 - **Banner wechselt täglich:** Statt immer der obersten Empfehlungen zieht die App jeden Tag eine neue Auswahl aus den ersten 30 Empfehlungen je Typ. Vordere Empfehlungen kommen öfter dran, aber nicht immer. Am selben Tag bleibt die Auswahl gleich.

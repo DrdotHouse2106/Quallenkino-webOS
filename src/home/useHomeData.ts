@@ -16,6 +16,7 @@ import { tvForYou } from '../api/livetv'
 import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
+import { serverBillboard } from '../api/billboard'
 import type { RowData } from './Rows'
 import { daypartOrder, reorderRows } from '../api/behavior'
 
@@ -72,7 +73,24 @@ export function dailyPick<T>(list: T[], count: number, seed: string): T[] {
     .map(e => e.value)
 }
 
-async function loadBillboard(api: Api): Promise<Item[]> {
+interface BillboardResult {
+  items: Item[]
+  reasons: Record<string, string>
+}
+
+async function loadBillboard(api: Api): Promise<BillboardResult> {
+  // Auswahl vom Server (Plugin ab 12.41) – Reihenfolge kommt von dort, nicht umsortieren
+  const server = await serverBillboard(api, BILLBOARD_SIZE)
+  if (server?.ids.length) {
+    const found = await byIds(api, server.ids).catch(() => [] as Item[])
+    const byId = new Map(found.map(i => [i.Id, i]))
+    const items = server.ids.map(id => byId.get(id)).filter((i): i is Item => !!i && !!backdropUrl(api, i)).slice(0, BILLBOARD_SIZE)
+    if (items.length) return { items, reasons: server.reasons }
+  }
+  return { items: await clientBillboard(api), reasons: {} }
+}
+
+async function clientBillboard(api: Api): Promise<Item[]> {
   // Täglich wechselnde Auswahl aus den ersten 30 Empfehlungen je Typ (nicht immer die obersten)
   const [movies, series] = await Promise.all([recommendations(api, 'movies', POOL), recommendations(api, 'series', POOL)])
   const seed = dailySeed(api.userId)
@@ -102,12 +120,15 @@ export function useHomeData(api: Api) {
   const [reasons, setReasons] = useState<Record<string, string>>({})
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
+  const [billboardReasons, setBillboardReasons] = useState<Record<string, string>>({})
+  const [billboardVersion, setBillboardVersion] = useState(0)
 
   useEffect(() => {
     let active = true
-    loadBillboard(api).catch(() => [] as Item[]).then(items => {
+    loadBillboard(api).catch(() => ({ items: [] as Item[], reasons: {} })).then(({ items, reasons: badges }) => {
       if (!active) return
       setBillboardDone(true)
+      setBillboardReasons(badges)
       if (items.length === 0) return
       setBillboard(items)
       try {
@@ -116,6 +137,13 @@ export function useHomeData(api: Api) {
         // Speicher voll – egal
       }
     })
+    return () => {
+      active = false
+    }
+  }, [api.url, api.userId, api.token, billboardVersion])
+
+  useEffect(() => {
+    let active = true
     loadReasons(api).then(map => active && setReasons(map))
     daypartOrder(api).then(value => active && setDaypart(value))
 
@@ -146,5 +174,11 @@ export function useHomeData(api: Api) {
   // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
   const order = reorderRows(['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
   const orderedRows = order.map(key => (key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
-  return { billboard, billboardDone, rows: orderedRows, reasons }
+  /** „Später“: Titel sofort aus dem Banner nehmen und die Auswahl neu laden. */
+  const dropFromBillboard = (id: string) => {
+    setBillboard(list => list.filter(i => i.Id !== id))
+    setBillboardVersion(v => v + 1)
+  }
+
+  return { billboard, billboardDone, billboardReasons, dropFromBillboard, rows: orderedRows, reasons }
 }

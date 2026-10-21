@@ -36,7 +36,8 @@ export function deviceProfile(maxBitrate = MAX_BITRATE) {
         Container: 'ts',
         Type: 'Video',
         VideoCodec: 'h264,hevc',
-        AudioCodec: 'aac,ac3,eac3',
+        // Muss der Ton umgerechnet werden, zuerst Dolby Digital: behält 5.1 auch über Soundbar/AV-Receiver (ARC)
+        AudioCodec: 'ac3,eac3,aac',
         Context: 'Streaming',
         Protocol: 'hls',
         MaxAudioChannels: '6',

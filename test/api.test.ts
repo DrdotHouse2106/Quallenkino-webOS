@@ -115,3 +115,12 @@ describe('Tageszeit-Reihenfolge', () => {
     expect(reorderRows(['resume', 'recs-movies'], kind, null)).toEqual(['resume', 'recs-movies'])
   })
 })
+
+describe('Banner vom Server', () => {
+  it('übernimmt Reihenfolge und Badges', async () => {
+    const { parseBillboard } = await import('../src/api/billboard')
+    const result = parseBillboard({ Items: [{ Id: 'a1' }, {}, { Id: 'b2' }], Reasons: { 'B2-x': 'Neue Folgen', c: ' ' } })
+    expect(result.ids).toEqual(['a1', 'b2'])
+    expect(result.reasons).toEqual({ b2x: 'Neue Folgen' })
+  })
+})

@@ -9,6 +9,7 @@ import { HOMEBREW_REPO, newerVersion } from '../api/update'
 import type { Api } from '../api/items'
 import { calendar as loadCalendar, calendarQr, remindersAvailable, type Calendar } from '../api/reminders'
 import { avatarsAvailable } from '../api/avatars'
+import { billboardLaterList, billboardShowAgain, type LaterEntry } from '../api/billboard'
 import { behaviorMe, deleteBehavior, setBehaviorEnabled, type BehaviorMe } from '../api/behavior'
 import { AvatarPicker } from '../ui/AvatarPicker'
 import { toast } from '../ui/Toast'
@@ -51,6 +52,12 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
   }, [])
   const toggleBehavior = (enabled: boolean) =>
     setBehaviorEnabled(api, enabled).then(() => setBehavior(b => (b ? { ...b, Enabled: enabled } : b))).catch(() => toast(t.actionFailed))
+  const [laterList, setLaterList] = useState<LaterEntry[] | null>(null)
+  useEffect(() => {
+    billboardLaterList(api).then(setLaterList)
+  }, [api])
+  const showAgain = (id: string) =>
+    billboardShowAgain(api, id).then(() => setLaterList(list => list?.filter(e => e.ItemId !== id) ?? null)).catch(() => toast(t.actionFailed))
   const clearBehavior = () => deleteBehavior(api).then(() => toast(t.behaviorDeleted)).catch(() => toast(t.actionFailed))
   const [picking, setPicking] = useState(false)
   useEffect(() => {
@@ -118,6 +125,17 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
               <SettingsButton focusKey="settings-behavior-delete" label={t.behaviorDelete} onPress={clearBehavior} />
             </SettingsRow>
             <p class="qk-muted">{t.behaviorHint(behavior.RetentionDays ?? 365, behavior.MaxEntries ?? 1000)}</p>
+          </>
+        )}
+
+        {laterList && laterList.length > 0 && (
+          <>
+            <h2>{t.billboardLaterTitle}</h2>
+            <SettingsRow focusKey="settings-later">
+              {laterList.map(entry => (
+                <SettingsButton key={entry.ItemId} focusKey={`settings-later-${entry.ItemId}`} label={t.billboardShowAgain(entry.Name ?? '')} onPress={() => showAgain(entry.ItemId)} />
+              ))}
+            </SettingsRow>
           </>
         )}
 

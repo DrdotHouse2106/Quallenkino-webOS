@@ -11,6 +11,7 @@ import { openItem } from '../nav/open'
 import { Logo } from '../ui/Logo'
 import { Icon, type IconName } from '../ui/Icon'
 import { toast } from '../ui/Toast'
+import { billboardAvailable, billboardLater } from '../api/billboard'
 import { HeroBackdrop, HeroInfo } from './Hero'
 import { Rail } from './Rail'
 import { Row } from './Rows'
@@ -43,7 +44,11 @@ interface Props {
 
 export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }: Props) {
   const router = useRouter()
-  const { billboard, billboardDone, rows, reasons } = useHomeData(api)
+  const { billboard, billboardDone, billboardReasons, dropFromBillboard, rows, reasons } = useHomeData(api)
+  const [laterAvailable, setLaterAvailable] = useState(false)
+  useEffect(() => {
+    billboardAvailable(api).then(setLaterAvailable)
+  }, [api])
 
   const [index, setIndex] = useState(0)
   const [rowItem, setRowItem] = useState<Item | null>(null)
@@ -194,7 +199,21 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
     localTrailerUrl(api, billboardItem).then(url => (url ? setTrailerUrl(url) : toast(t.noTrailer)))
   }
 
-  const reason = heroItem ? reasons[reasonKey(heroItem.Id)] : undefined
+  /** „Später“: Titel für drei Wochen aus dem Banner nehmen (keine Ablehnung). */
+  function laterNow() {
+    const current = billboardItem
+    if (!current) return
+    billboardLater(api, current.Id)
+      .then(() => {
+        toast(t.billboardLaterDone)
+        setTrailerPlaying(false)
+        dropFromBillboard(current.Id)
+      })
+      .catch(() => toast(t.actionFailed))
+  }
+
+  // Badge der Banner-Auswahl („Weiterschauen“, „Neue Folgen“) geht vor
+  const reason = heroItem ? billboardReasons[reasonKey(heroItem.Id)] ?? reasons[reasonKey(heroItem.Id)] : undefined
   const avatar = session.imageTag ? userImageUrl(api.url, session.userId, session.imageTag, 96) : null
 
   return (
@@ -235,6 +254,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
             onPlay={() => billboardItem && startPlayback(api, router, billboardItem)}
             onInfo={() => billboardItem && router.push({ name: 'details', id: billboardItem.Id })}
             onTrailer={playTrailerNow}
+            onLater={laterAvailable ? laterNow : undefined}
             count={billboard.length}
             current={index % Math.max(billboard.length, 1)}
           />
@@ -293,6 +313,8 @@ interface ButtonsProps {
   onPlay: () => void
   onInfo: () => void
   onTrailer: () => void
+  /** „Später“ (nur mit Plugin ab 12.41) */
+  onLater?: () => void
 }
 
 /** Knöpfe des Banners: nur sichtbar, solange der Fokus hier ist; Links/Rechts am Rand blättern. */
@@ -306,7 +328,11 @@ function BillboardButtons(props: ButtonsProps) {
           onArrow={dir => (dir === 'left' && props.canStepBack ? !props.onStep(-1) : true)} />
         <BillboardButton focusKey="bb-info" label={t.moreInfo} icon="info" onPress={props.onInfo} />
         <BillboardButton focusKey="bb-trailer" label={t.trailer} icon="trailer" dimmed={!props.hasTrailer} onPress={props.onTrailer}
-          onArrow={dir => (dir === 'right' ? !props.onStep(1) : true)} />
+          onArrow={dir => (dir === 'right' && !props.onLater ? !props.onStep(1) : true)} />
+        {props.onLater && (
+          <BillboardButton focusKey="bb-later" label={t.billboardLater} icon="later" onPress={props.onLater}
+            onArrow={dir => (dir === 'right' ? !props.onStep(1) : true)} />
+        )}
         {props.visible && props.count > 1 && (
           <div class="qk-dots">
             {Array.from({ length: props.count }, (_, i) => <span class={i === props.current ? 'active' : ''} />)}
