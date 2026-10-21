@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.8.1 – 2026-10-21
+
+- **Personenseite übersichtlicher:** Oben „In deiner Bibliothek“, darunter „Weitere Filme“ und „Weitere Serien“ nur mit den Titeln, die noch nicht auf dem Server sind (zum Anfragen). Bisher standen die vorhandenen Titel doppelt da.
+
 ## 1.8.0 – 2026-10-21
 
 - **Banner vom Server** (Plugin Local Recommendations ab 12.41): Täglich neue Auswahl, gemischt mit gerade Passendem – angefangene Serien und Filme, neue Folgen. Ein Hinweis wie „Weiterschauen“ oder „Neue Folgen“ steht über dem Titel. Ohne neues Plugin wechselt das Banner wie bisher täglich aus den Empfehlungen.

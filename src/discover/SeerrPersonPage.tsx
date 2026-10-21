@@ -18,6 +18,9 @@ function owned(person: PersonDetails) {
     .sort((a, b) => (a.status === b.status ? 0 : a.status === 'available' ? -1 : 1))
 }
 
+/** Weitere Titel, die noch nicht auf dem Server liegen (zum Anfragen). */
+const missing = (list: PersonDetails['movies']) => list.filter(r => r.status !== 'available' && r.status !== 'partial')
+
 /**
  * Person aus Jellyseerr (z. B. aus der Besetzung einer Sendung): Foto, Geburtstag, Biografie, Filme, Serien. */
 export function SeerrPersonPage({ api, id }: { api: Api; id: number }) {
@@ -29,7 +32,7 @@ export function SeerrPersonPage({ api, id }: { api: Api; id: number }) {
     loadPerson(api, id)
       .then(loaded => {
         setPerson(loaded)
-        const first = owned(loaded).length ? 'row-sp-owned' : loaded.movies.length ? 'row-sp-movies' : 'row-sp-series'
+        const first = owned(loaded).length ? 'row-sp-owned' : missing(loaded.movies).length ? 'row-sp-movies' : 'row-sp-series'
         focusSoon(first)
       })
       .catch(() => setFailed(true))
@@ -50,8 +53,8 @@ export function SeerrPersonPage({ api, id }: { api: Api; id: number }) {
         </div>
         <div class="qk-rows qk-page-rows">
           {person && owned(person).length > 0 && <Row api={api} row={{ key: 'sp-owned', title: t.inLibrary, items: owned(person).map(resultCard), kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />}
-          {person && person.movies.length > 0 && <Row api={api} row={{ key: 'sp-movies', title: t.movies, items: person.movies.map(resultCard), kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />}
-          {person && person.series.length > 0 && <Row api={api} row={{ key: 'sp-series', title: t.series, items: person.series.map(resultCard), kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />}
+          {person && missing(person.movies).length > 0 && <Row api={api} row={{ key: 'sp-movies', title: t.moreMovies, items: missing(person.movies).map(resultCard), kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />}
+          {person && missing(person.series).length > 0 && <Row api={api} row={{ key: 'sp-series', title: t.moreSeries, items: missing(person.series).map(resultCard), kind: 'posters' }} onFocusItem={() => {}} onOpen={item => openItem(router, item)} />}
         </div>
       </div>
     </Page>
