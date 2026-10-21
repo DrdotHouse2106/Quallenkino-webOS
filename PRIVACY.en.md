@@ -1,8 +1,8 @@
-# Privacy policy – Quallenkino for LG TVs (webOS)
+# Privacy policy – Quallenkino for LG TVs (webOS) and Samsung (Tizen)
 
 *Last updated: 18 October 2026* · [Deutsche Fassung](PRIVACY.md)
 
-Quallenkino ("the app") is an app for LG TVs with webOS for watching media from **your own Jellyfin server**. It is not an official product of the Jellyfin project.
+Quallenkino ("the app") is an app for LG TVs with webOS for watching media from **your own Jellyfin server**. It is not an official product of the Jellyfin project. The same app, built from the same code, is available for Samsung TVs with Tizen; everything here applies there as well (the Jellyfin dashboard shows the device as "Samsung Tizen").
 
 ## In short
 

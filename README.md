@@ -1,4 +1,4 @@
-# Quallenkino für LG-Fernseher (webOS)
+# Quallenkino für LG-Fernseher (webOS) und Samsung (Tizen)
 
 [![Spendier mir einen Kaffee](https://img.shields.io/badge/☕_Spendier_mir_einen_Kaffee-PayPal-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/DrdotHouse)
 
@@ -79,13 +79,38 @@ Gibt es eine neue Version, fragt Quallenkino beim Öffnen und zeigt links in der
 
 Ohne Homebrew Channel die neue IPK wie oben mit `ares-install` installieren.
 
+## Samsung-Fernseher (Tizen)
+
+Quallenkino gibt es auch für **Samsung-Fernseher mit Tizen** (Ziel: Modelle ab 2020, Tizen 5.5). Es ist dieselbe App aus demselben Code, nur anders verpackt. **Neu und noch nicht auf einem Samsung-Gerät getestet** – Rückmeldungen sind willkommen.
+
+Download (unsigniert, wird beim Installieren mit dem eigenen Zertifikat signiert):
+https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/latest/download/quallenkino-tizen.wgt
+
+Samsung lässt eigene Apps nur mit einem **Samsung-Zertifikat** zu, das an den Fernseher gebunden ist. Das ist einmalig etwas Arbeit:
+
+1. **Tizen Studio** am Computer installieren (https://developer.tizen.org/development/tizen-studio/download). Im *Package Manager* unter „Extension SDK“ die **Samsung Certificate Extension** und die **TV Extensions** dazu installieren.
+2. **Entwicklermodus am Fernseher:** *Apps* öffnen, auf der Fernbedienung nacheinander **1 2 3 4 5** eingeben, „Developer mode“ auf **On**, bei „Host PC IP“ die IP-Adresse des Computers eintragen. Fernseher ganz aus- und wieder einschalten.
+3. **Verbinden:** Im Tizen Studio *Device Manager* den Fernseher per IP hinzufügen – oder in der Befehlszeile `sdb connect <IP des Fernsehers>`. `sdb devices` zeigt danach den Gerätenamen.
+4. **Zertifikat anlegen:** *Tools → Certificate Manager → +* → **Samsung** → **TV** → neues Autor-Zertifikat (Name und Passwort frei wählbar, **gut aufheben**) → mit dem Samsung-Konto anmelden → Distributor-Zertifikat erstellen. Ist der Fernseher verbunden, wird seine Geräte-ID (DUID) automatisch eingetragen. Das Profil z. B. `quallenkino` nennen.
+5. **Signieren und installieren** (Tizen-Befehlszeile aus `tizen-studio/tools/ide/bin`):
+   ```
+   tizen package -t wgt -s quallenkino -- quallenkino-tizen.wgt
+   tizen install -n quallenkino-tizen.wgt -t <Gerätename>
+   tizen run -p QKinoTzn01.Quallenkino -t <Gerätename>
+   ```
+
+**Updates:** Eine Selbst-Aktualisierung gibt es auf Samsung ohne Store nicht. Die App prüft beim Öffnen (abschaltbar in den Einstellungen), ob es eine neue Version gibt, und zeigt einen Hinweis. Dann die neue `quallenkino-tizen.wgt` laden und Schritt 5 wiederholen – mit **demselben** Zertifikatsprofil, dann bleiben Einstellungen und Anmeldung erhalten.
+
+**Bekannt:** Auf Modellen von 2020/2021 (Tizen 5.5/6.0) fehlen evtl. Abstände zwischen Karten und Knöpfen (der ältere Browser kennt Flexbox-`gap` nicht). Ab 2022 (Tizen 6.5) passt es.
+
 ## Selbst bauen
 
 ```
 npm ci
 npm test
-npm run build              # → dist/
+npm run build              # → dist/ (webOS)
 npx ares-package dist -o out
+npm run build:tizen        # → dist-tizen/ (Samsung, mit config.xml)
 ```
 
 GitHub Actions baut bei jedem Push auf `main` und legt das IPK als Artefakt ab. „Run workflow“ mit „release“ erstellt ein Release `v{Version aus package.json}`.

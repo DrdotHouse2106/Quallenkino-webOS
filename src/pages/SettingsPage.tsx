@@ -5,7 +5,8 @@ import type { ServerInfo } from '../api/server'
 import type { Session } from '../api/users'
 import { t } from '../i18n'
 import { loadSettings, saveSettings, type Settings } from '../settings'
-import { HOMEBREW_REPO, newerVersion } from '../api/update'
+import { HOMEBREW_REPO, newerVersion, RELEASES_PAGE } from '../api/update'
+import { isTizen } from '../platform/platform'
 import type { Api } from '../api/items'
 import { calendar as loadCalendar, calendarQr, remindersAvailable, type Calendar } from '../api/reminders'
 import { avatarsAvailable } from '../api/avatars'
@@ -171,8 +172,8 @@ export function SettingsPage({ api, server, session, onSwitchProfile, onSignOut,
           <SettingsButton focusKey="settings-update-check" label={t.updateCheck} onPress={checkUpdate} />
         </SettingsRow>
         {updateStatus && <p>{updateStatus}</p>}
-        <p class="qk-muted">{t.updateHowTo}</p>
-        <p class="qk-muted">{HOMEBREW_REPO}</p>
+        <p class="qk-muted">{isTizen ? t.updateHowToTizen : t.updateHowTo}</p>
+        {isTizen ? <p class="qk-muted">{RELEASES_PAGE}</p> : <p class="qk-muted">{HOMEBREW_REPO}</p>}
 
         <h2>{t.settingsAbout}</h2>
         <div class="qk-settings-about">

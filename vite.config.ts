@@ -3,6 +3,8 @@ import preact from '@preact/preset-vite'
 import { readFileSync } from 'node:fs'
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
+// Samsung Tizen 5.5 (2020) hat Chromium 69, webOS ab 6 Chromium 79
+const tizen = process.env.VITE_PLATFORM === 'tizen'
 
 // Quallenkino für webOS: relative Pfade (die App läuft per file:// aus dem IPK),
 // Ziel Chromium der webOS-Versionen ab 6 (webOS 23 hat einen deutlich neueren)
@@ -27,8 +29,8 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   build: {
-    target: 'chrome79',
-    outDir: 'dist',
+    target: tizen ? 'chrome69' : 'chrome79',
+    outDir: tizen ? 'dist-tizen' : 'dist',
     assetsInlineLimit: 0,
     modulePreload: false,
     rollupOptions: {

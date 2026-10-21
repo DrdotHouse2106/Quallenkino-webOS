@@ -181,6 +181,8 @@ export const t = {
   updateRail: (v: string) => `Update ${v}`,
   updateOpenHomebrew: 'Im Homebrew Channel aktualisieren',
   updateLater: 'Später',
+  updateShowHowTo: 'So wird aktualisiert',
+  updateHowToTizen: 'Aktualisieren am PC: die neue „quallenkino-tizen.wgt“ von GitHub laden und wie bei der ersten Installation mit Tizen Studio bzw. der Tizen-Befehlszeile auf den Fernseher bringen (Anleitung im README unter „Samsung“). Einstellungen und Anmeldung bleiben erhalten.',
   updateNoHomebrew: 'Homebrew Channel nicht gefunden – Anleitung in den Einstellungen unter „Updates“.',
   updateHowTo: 'Aktualisieren über den Homebrew Channel: Dort einmalig unter Einstellungen → „Repositories“ diese Quelle hinzufügen, danach erscheint Quallenkino mit „Update“. Ohne Homebrew Channel die neue IPK wie beim ersten Mal installieren.',
   loadingHome: 'Startseite wird geladen …',

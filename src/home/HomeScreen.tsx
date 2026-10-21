@@ -22,6 +22,7 @@ import { startPlayback } from '../player/start'
 import { useAuthorizedImage } from '../ui/authImage'
 import { autoCheck, HOMEBREW_APP, postpone, shouldAsk } from '../api/update'
 import { launchApp } from '../platform/youtube'
+import { exitApp, isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 
 /** Ruhezeit, bevor der Infobereich zur ausgewählten Karte wechselt. */
@@ -73,6 +74,11 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   }, [])
   async function installUpdate() {
     setDialog(null)
+    // Samsung: kein Store und kein Homebrew – die neue Version wird vom PC aus installiert (Anleitung in den Einstellungen)
+    if (isTizen) {
+      router.push({ name: 'settings' })
+      return
+    }
     if (!(await launchApp(HOMEBREW_APP))) {
       toast(t.updateNoHomebrew)
       router.push({ name: 'settings' })
@@ -271,7 +277,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
           title={t.exitTitle}
           initial="cancel"
           choices={[
-            { key: 'exit', label: t.exitApp, onPress: () => window.close() },
+            { key: 'exit', label: t.exitApp, onPress: exitApp },
             { key: 'profile', label: t.switchProfile, onPress: () => { setDialog(null); onSwitchProfile() } },
             { key: 'cancel', label: t.cancel, onPress: closeDialog },
           ]}
@@ -282,7 +288,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
           title={t.updateAvailable(update)}
           initial="install"
           choices={[
-            { key: 'install', label: t.updateOpenHomebrew, onPress: installUpdate },
+            { key: 'install', label: isTizen ? t.updateShowHowTo : t.updateOpenHomebrew, onPress: installUpdate },
             { key: 'later', label: t.updateLater, onPress: () => { postpone(update); closeDialog() } },
           ]}
         />

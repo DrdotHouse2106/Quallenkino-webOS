@@ -366,7 +366,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     const handler = (event: KeyboardEvent) => {
       const code = event.keyCode
       const isMedia = (list: readonly number[]) => list.includes(code)
-      if (isMedia(Keys.play) || isMedia(Keys.pause) || code === 32) {
+      if (isMedia(Keys.play) || isMedia(Keys.pause) || isMedia(Keys.playPause) || code === 32) {
         event.preventDefault()
         if (isMedia(Keys.play)) video.current?.play().catch(() => {})
         else if (isMedia(Keys.pause)) video.current?.pause()

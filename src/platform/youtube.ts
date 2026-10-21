@@ -1,3 +1,5 @@
+import { isTizen, openTizenYouTube } from './platform'
+
 /**
  * YouTube-Trailer in der YouTube-App des Fernsehers öffnen (wie die Android-App die YouTube-App startet).
  * Die App zeigt das Video selbst – Quallenkino legt nichts darüber und greift nicht in den Stream ein.
@@ -10,6 +12,7 @@ interface ServiceBridge {
 const YOUTUBE_APP = 'youtube.leanback.v4'
 
 export function openYouTube(key: string): Promise<boolean> {
+  if (isTizen) return openTizenYouTube(key)
   return launchApp(YOUTUBE_APP, { contentTarget: `https://www.youtube.com/tv?v=${encodeURIComponent(key)}` })
 }
 

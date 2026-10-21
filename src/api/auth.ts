@@ -1,3 +1,4 @@
+import { DEVICE_NAME } from '../platform/platform'
 import { APP_NAME, APP_VERSION } from '../brand'
 
 const DEVICE_ID_KEY = 'qk.deviceId'
@@ -20,7 +21,7 @@ function quote(value: string): string {
 }
 
 /** Authorization-Header im Jellyfin-Format; mit Token, sobald angemeldet. */
-export function authorizationHeader(device: string, token?: string, deviceName = 'LG webOS'): string {
+export function authorizationHeader(device: string, token?: string, deviceName = DEVICE_NAME): string {
   const parts = [
     `Client="${quote(APP_NAME)}"`,
     `Device="${quote(deviceName)}"`,

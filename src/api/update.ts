@@ -4,6 +4,9 @@ const LATEST_URL = 'https://api.github.com/repos/DrdotHouse2106/Quallenkino-webO
 const LAST_CHECK = 'qk.updateCheck'
 const INTERVAL_MS = 20 * 60 * 60 * 1000
 
+/** Releases (Samsung: dort liegt die neue .wgt). */
+export const RELEASES_PAGE = 'https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/latest'
+
 /** Paketquelle für den Homebrew Channel (GitHub Pages, wird bei jedem Release neu erzeugt). */
 export const HOMEBREW_REPO = 'https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json'
 

@@ -46,7 +46,7 @@ export function YouTubePage({ videoKey }: { videoKey: string }) {
     // Play/Pause der Fernbedienung (OK übernimmt der unsichtbare Fokus-Halter unten)
     const keys = (event: KeyboardEvent) => {
       const code = event.keyCode
-      if ((Keys.play as readonly number[]).includes(code) || (Keys.pause as readonly number[]).includes(code)) {
+      if ([...Keys.play, ...Keys.pause, ...Keys.playPause].includes(code as never)) {
         event.preventDefault()
         commandPlayer(frame.current, 'toggle')
       }

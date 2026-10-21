@@ -1,9 +1,13 @@
-/** Tasten der LG-Fernbedienung (webOS) und Entsprechungen auf der Tastatur zum Testen im Browser. */
+/**
+ * Tasten der Fernbedienung – LG (webOS), Samsung (Tizen: Zurück 10009, Play/Pause-Kombitaste 10252) – und
+ * Entsprechungen auf der Tastatur zum Testen im Browser.
+ */
 export const Keys = {
-  back: [461, 27, 8],
+  back: [461, 10009, 27, 8],
   enter: [13],
   play: [415],
   pause: [19],
+  playPause: [10252],
   stop: [413],
   fastForward: [417],
   rewind: [412],

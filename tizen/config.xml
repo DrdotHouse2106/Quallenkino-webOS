@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Quallenkino für Samsung-Fernseher (Tizen ab 5.5). Version wird beim Bauen aus package.json eingesetzt. -->
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="https://github.com/DrdotHouse2106/Quallenkino-webOS" version="0.0.0" viewmodes="maximized">
+    <tizen:application id="QKinoTzn01.Quallenkino" package="QKinoTzn01" required_version="2.3"/>
+    <tizen:profile name="tv-samsung"/>
+    <name>Quallenkino</name>
+    <description>Eigenständige TV-App für Jellyfin-Server</description>
+    <author href="https://github.com/DrdotHouse2106/Quallenkino-webOS">DrdotHouse2106</author>
+    <license href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html">GPL-2.0-only</license>
+    <content src="index.html"/>
+    <icon src="icon.png"/>
+    <!-- Jellyfin-Server (beliebige Adresse im Heimnetz oder Internet), GitHub (Update-Hinweis), YouTube-Seite -->
+    <access origin="*" subdomains="true"/>
+    <tizen:allow-navigation>*</tizen:allow-navigation>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"/>
+    <feature name="http://tizen.org/feature/screen.size.normal.1920.1080"/>
+</widget>

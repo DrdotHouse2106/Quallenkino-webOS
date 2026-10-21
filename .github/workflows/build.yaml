@@ -42,10 +42,19 @@ jobs:
           cp "$IPK" out/quallenkino-webos.ipk
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
+      # Samsung (Tizen): unsigniertes .wgt – signiert wird auf dem PC mit dem eigenen Samsung-Zertifikat (README)
+      - name: Tizen bauen und packen
+        run: |
+          npm run build:tizen
+          (cd dist-tizen && zip -qr "../out/quallenkino-tizen-v${VERSION}.wgt" .)
+          cp "out/quallenkino-tizen-v${VERSION}.wgt" out/quallenkino-tizen.wgt
+
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: quallenkino-webos-${{ env.VERSION }}
-          path: out/quallenkino-webos-v*.ipk
+          path: |
+            out/quallenkino-webos-v*.ipk
+            out/quallenkino-tizen-v*.wgt
 
       - name: Release
         if: github.event_name == 'workflow_dispatch' && inputs.release
@@ -54,4 +63,5 @@ jobs:
         run: |
           NOTES=$(awk "/^## ${VERSION}/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md)
           gh release create "v${VERSION}" out/quallenkino-webos-v${VERSION}.ipk out/quallenkino-webos.ipk \
+            out/quallenkino-tizen-v${VERSION}.wgt out/quallenkino-tizen.wgt \
             --title "Quallenkino webOS ${VERSION}" --notes "${NOTES:-Quallenkino webOS ${VERSION}}"

@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.0 – 2026-10-21
+
+- **Neu: Quallenkino für Samsung-Fernseher (Tizen, Modelle ab 2020).** Dieselbe App aus demselben Code, als `quallenkino-tizen.wgt` bei jedem Release. Fernbedienung mit Samsung-Tasten (Zurück, Play/Pause, Spulen, Farbtasten), Abspielprofil je nach Modell (H.264, HEVC, VP9, AV1 werden am Fernseher geprüft; DTS/TrueHD rechnet der Server in Dolby Digital um), Update-Hinweis mit Anleitung statt Homebrew. Installation mit eigenem Samsung-Zertifikat über den Entwicklermodus – Anleitung im README. Noch nicht auf einem Samsung-Gerät getestet.
+
 ## 1.8.1 – 2026-10-21
 
 - **Personenseite übersichtlicher:** Oben „In deiner Bibliothek“, darunter „Weitere Filme“ und „Weitere Serien“ nur mit den Titeln, die noch nicht auf dem Server sind (zum Anfragen). Bisher standen die vorhandenen Titel doppelt da.

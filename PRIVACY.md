@@ -1,8 +1,8 @@
-# Datenschutzerklärung – Quallenkino für LG-Fernseher (webOS)
+# Datenschutzerklärung – Quallenkino für LG-Fernseher (webOS) und Samsung (Tizen)
 
 *Stand: 18. Oktober 2026* · [English version](PRIVACY.en.md)
 
-Quallenkino („die App“) ist eine App für LG-Fernseher mit webOS, mit der man Medien von einem **eigenen Jellyfin-Server** ansieht. Sie ist kein offizielles Produkt des Jellyfin-Projekts.
+Quallenkino („die App“) ist eine App für LG-Fernseher mit webOS, mit der man Medien von einem **eigenen Jellyfin-Server** ansieht. Sie ist kein offizielles Produkt des Jellyfin-Projekts. Für Samsung-Fernseher mit Tizen gibt es dieselbe App aus demselben Code; alles hier Gesagte gilt dort genauso (im Jellyfin-Dashboard erscheint das Gerät als „Samsung Tizen“).
 
 ## Kurz gesagt
 

@@ -1,4 +1,4 @@
-# Quallenkino for LG TVs (webOS)
+# Quallenkino for LG TVs (webOS) and Samsung (Tizen)
 
 [![Buy me a coffee](https://img.shields.io/badge/☕_Buy_me_a_coffee-PayPal-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/DrdotHouse)
 
@@ -21,6 +21,14 @@ Latest build: https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/lates
 **Extend Dev Mode automatically:** run `scripts/devmode-refresh.sh` daily (cron) on a machine at home. Read the token once with `ares-novacom --device lgtv --run "cat /var/luna/preferences/devmode_enabled"` and store it in `~/.config/quallenkino/devmode-token` (keep it secret, never commit it).
 
 **Updates:** the app checks once a day and shows a hint; Settings → Updates checks on demand. Updates install via the **Homebrew Channel**: add the repository `https://drdothouse2106.github.io/Quallenkino-webOS/homebrew/apps.json` there, then Quallenkino shows an “Update” button.
+
+## Samsung TVs (Tizen)
+
+Quallenkino is also built for **Samsung TVs running Tizen** (target: 2020 models and newer, Tizen 5.5) – same app, same code, different package. **New and not yet tested on a Samsung TV.**
+
+Download (unsigned): https://github.com/DrdotHouse2106/Quallenkino-webOS/releases/latest/download/quallenkino-tizen.wgt
+
+Samsung only accepts apps signed with a **Samsung certificate** bound to the TV: install Tizen Studio with the Samsung Certificate Extension and TV Extensions, enable Developer mode on the TV (Apps → 1 2 3 4 5 → On, enter the PC's IP, restart the TV), `sdb connect <TV-IP>`, create a Samsung TV certificate profile in the Certificate Manager (keep the author certificate!), then `tizen package -t wgt -s <profile> -- quallenkino-tizen.wgt`, `tizen install -n quallenkino-tizen.wgt -t <device>`. Updates: the app shows a hint when a new version exists; repeat the last two commands with the same certificate profile. Details (German): [README.md](README.md#samsung-fernseher-tizen).
 
 ## Build
 

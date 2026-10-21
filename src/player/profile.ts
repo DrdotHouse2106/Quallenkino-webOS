@@ -1,16 +1,42 @@
+import { PLATFORM, type Platform } from '../platform/platform'
+
 /**
- * Abspiel-Fähigkeiten eines LG-Fernsehers mit webOS (ab webOS 6, Ziel webOS 23) für den Server.
+ * Abspiel-Fähigkeiten eines LG-Fernsehers mit webOS (ab webOS 6, Ziel webOS 23) bzw. eines Samsung-Fernsehers
+ * mit Tizen (ab 5.5) für den Server.
  * Der Server entscheidet damit: direkt abspielen, nur umpacken oder umrechnen (HLS).
  *
  * - Video: H.264, HEVC (auch 10 Bit/HDR10), VP9, AV1 – direkt.
- * - Ton: AAC, MP3, AC3, E-AC3 (auch Atmos), FLAC, Opus direkt. DTS und TrueHD können neuere LG-Geräte
+ * - Ton: AAC, MP3, AC3, E-AC3 (auch Atmos), FLAC, Opus direkt. DTS und TrueHD können neuere LG- und Samsung-Geräte
  *   nicht → der Server rechnet nur den Ton um, das Bild bleibt unverändert.
  * - Untertitel: Text (SRT, VTT) als WebVTT von außen (zeigt die App selbst an), Bild-Untertitel
  *   (PGS, DVD) und ASS/SSA werden vom Server ins Bild gerechnet.
  */
 export const MAX_BITRATE = 120_000_000
 
-const VIDEO = 'h264,hevc,vp9,av1'
+const VIDEO_WEBOS = 'h264,hevc,vp9,av1'
+
+/**
+ * Samsung (Tizen ab 5.5, Modelle ab 2020): HEVC, VP9 und AV1 je nach Modell – deshalb zur Laufzeit prüfen.
+ * Ohne Antwort (z. B. im Test) gelten H.264 und HEVC.
+ */
+export function tizenVideoCodecs(canPlay: (type: string) => string = defaultCanPlay): string {
+  const checks: Array<[string, string]> = [
+    ['hevc', 'video/mp4; codecs="hvc1.1.6.L120.90"'],
+    ['vp9', 'video/webm; codecs="vp9"'],
+    ['av1', 'video/mp4; codecs="av01.0.08M.08"'],
+  ]
+  const supported = checks.filter(([, type]) => canPlay(type) !== '').map(([codec]) => codec)
+  return ['h264', ...(supported.length ? supported : ['hevc'])].join(',')
+}
+
+function defaultCanPlay(type: string): string {
+  if (typeof document === 'undefined') return ''
+  try {
+    return document.createElement('video').canPlayType(type)
+  } catch {
+    return ''
+  }
+}
 const AUDIO = 'aac,mp3,ac3,eac3,flac,opus,vorbis,alac,pcm_s16le,pcm_s24le'
 
 /** Kann der Fernseher diesen Ton selbst abspielen? (DTS, TrueHD nicht → Server rechnet um.) */
@@ -18,9 +44,10 @@ export function canPlayAudio(codec?: string): boolean {
   return !!codec && AUDIO.split(',').includes(codec.toLowerCase())
 }
 
-export function deviceProfile(maxBitrate = MAX_BITRATE) {
+export function deviceProfile(maxBitrate = MAX_BITRATE, platform: Platform = PLATFORM) {
+  const VIDEO = platform === 'tizen' ? tizenVideoCodecs() : VIDEO_WEBOS
   return {
-    Name: 'Quallenkino webOS',
+    Name: platform === 'tizen' ? 'Quallenkino Tizen' : 'Quallenkino webOS',
     MaxStreamingBitrate: maxBitrate,
     MaxStaticBitrate: maxBitrate,
     MusicStreamingTranscodingBitrate: 384_000,
