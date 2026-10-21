@@ -36,8 +36,10 @@ export function candidateUrls(input: string): string[] {
     if (hasPort) return [`http://${trimmed}`, `https://${trimmed}`]
     return [`http://${host}:8096${path}`, `http://${trimmed}`, `https://${host}:8920${path}`, `https://${trimmed}`]
   }
-  const urls = [`https://${trimmed}`, `http://${trimmed}`]
-  if (!hasPort) urls.push(`https://${host}:8920${path}`, `http://${host}:8096${path}`)
+  // Namen (z. B. kino.example.de) nur verschlüsselt – http nur bei IP-Adressen oder ausdrücklichem „http://“,
+  // sonst könnte das Passwort unbemerkt im Klartext übertragen werden
+  const urls = [`https://${trimmed}`]
+  if (!hasPort) urls.push(`https://${host}:8920${path}`)
   return urls
 }
 

@@ -20,11 +20,12 @@ This data goes only to the server you entered, never to the developer.
 
 ## Data on the TV
 
-The app stores the server address, the sign-in per profile (an access token, not your password) and your settings on the TV. "Sign out" (Settings → Account) removes the sign-in of that profile; uninstalling the app removes everything.
+The app stores the server address, the sign-in per profile (an access token, not your password) and your settings on the TV. "Sign out" (Settings → Account or "Who's watching?") also revokes the sign-in on the server and removes it from the TV; the same happens for all profiles when switching to another server. Uninstalling the app removes everything. For server names the app only connects encrypted (https); plain http only for an IP address or when you explicitly type "http://" – the sign-in screen then shows a warning.
 
 ## Third-party services
 
 - **Images from TMDB**: for titles not yet on your server (e.g. under "Discover"), the app loads posters directly from `image.tmdb.org`. TMDB thereby learns your connection's IP address; TMDB's privacy policy applies.
+- **Update check**: at most every 20 hours the app asks GitHub's public release list (`api.github.com`) for a newer version; GitHub receives the usual connection data (including the IP address). The result is stored on the TV.
 - **YouTube trailers**: YouTube trailers are shown with the official YouTube player, embedded through a small page on GitHub Pages (`drdothouse2106.github.io`). GitHub and Google/YouTube receive the usual connection data (including the IP address); Google's privacy policy applies to YouTube. With Settings → Trailer preview "Off", no trailer starts on its own; YouTube is then only loaded when you press the "Trailer" button.
 
 The app contains no third-party services for advertising or analytics.

@@ -31,9 +31,30 @@ export async function newerVersion(): Promise<string | null> {
 /** Homebrew Channel (dort steht Quallenkino mit „Update“, wenn die Quelle eingetragen ist). */
 export const HOMEBREW_APP = 'org.webosbrew.hbchannel'
 
-/** Beim Öffnen still prüfen; null ohne neue Version oder bei Fehlern. */
-export function autoCheck(): Promise<string | null> {
-  return newerVersion().catch(() => null)
+const CHECK_CACHE = 'qk.updateResult'
+
+/**
+ * Beim Öffnen still prüfen; null ohne neue Version oder bei Fehlern. GitHub wird höchstens alle 20 Stunden
+ * gefragt, dazwischen gilt das gemerkte Ergebnis.
+ */
+export async function autoCheck(): Promise<string | null> {
+  try {
+    const cached = JSON.parse(localStorage.getItem(CHECK_CACHE) ?? 'null') as { at: number; version: string | null } | null
+    if (cached && Date.now() - cached.at < INTERVAL_MS) return cached.version && isNewer(cached.version, APP_VERSION) ? cached.version : null
+  } catch {
+    // ohne Speicher einfach fragen
+  }
+  try {
+    const version = await newerVersion()
+    try {
+      localStorage.setItem(CHECK_CACHE, JSON.stringify({ at: Date.now(), version }))
+    } catch {
+      // nicht schlimm
+    }
+    return version
+  } catch {
+    return null
+  }
 }
 
 /** Nach „Später“ für diese Version einen Tag lang nicht mehr fragen (der Knopf in der Navigation bleibt). */

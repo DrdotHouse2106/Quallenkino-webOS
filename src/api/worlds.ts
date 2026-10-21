@@ -25,12 +25,15 @@ export async function worlds(api: Api): Promise<World[]> {
   }
 }
 
-/** Logo der Welt (vom Server des Benutzers, nie in der App mitgeliefert). */
+/**
+ * Logo der Welt (vom Server des Benutzers, nie in der App mitgeliefert). Ohne Token in der Adresse –
+ * angezeigt wird es über useAuthorizedImage (Anmeldung im Header).
+ */
 export function worldLogo(api: Api, world: World): string | null {
   if (!world.LogoUrl) return null
   if (/^https?:\/\//i.test(world.LogoUrl)) return world.LogoUrl
   const path = world.LogoUrl.startsWith('/') ? world.LogoUrl : `/${world.LogoUrl}`
-  return `${base(api)}${path}${path.includes('?') ? '&' : '?'}ApiKey=${encodeURIComponent(api.token)}`
+  return `${base(api)}${path}`
 }
 
 export function worldBackdrop(api: Api, world: World, width = 640): string | null {

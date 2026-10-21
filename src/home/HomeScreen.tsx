@@ -1,5 +1,6 @@
 import { FocusContext, getCurrentFocusKey, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
+import { backdropUrl } from '../api/images'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
 import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
@@ -17,9 +18,13 @@ import { useHomeData } from './useHomeData'
 import { worldBackdrop, worldLogo, type World } from '../api/worlds'
 import { available as seerrAvailable } from '../api/jellyseerr'
 import { startPlayback } from '../player/start'
+import { useAuthorizedImage } from '../ui/authImage'
 import { autoCheck, HOMEBREW_APP, postpone, shouldAsk } from '../api/update'
 import { launchApp } from '../platform/youtube'
 import { loadSettings } from '../settings'
+
+/** Ruhezeit, bevor der Infobereich zur ausgewählten Karte wechselt. */
+const HERO_DEBOUNCE_MS = 300
 
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
 const ROTATION_MS = 9_000
@@ -72,6 +77,20 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   const billboardItem = billboard.length ? billboard[index % billboard.length] : null
   // Infobereich: im Banner der Vorschlag, in den Reihen die ausgewählte Karte
   const shown = billboardFocused || !rowItem ? billboardItem : rowItem
+  // Hintergrund und Logo erst nach kurzer Ruhe wechseln – beim schnellen Durchblättern keine Bilderflut
+  const [heroItem, setHeroItem] = useState<Item | null>(shown)
+  useEffect(() => {
+    if (!heroItem) return setHeroItem(shown)
+    const timer = setTimeout(() => setHeroItem(shown), HERO_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [shown?.Id])
+  // Nächstes Bannerbild schon vorladen
+  useEffect(() => {
+    if (billboard.length < 2) return
+    const next = billboard[(index + 1) % billboard.length]
+    const url = next && backdropUrl(api, next)
+    if (url) new Image().src = url
+  }, [index, billboard.length])
 
   // Fokus kurz entprellt, damit ein Knopfwechsel Trailer und Wechsel nicht neu startet
   const [stableFocus, setStableFocus] = useState(true)
@@ -174,14 +193,14 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
     localTrailerUrl(api, billboardItem).then(url => (url ? setTrailerUrl(url) : toast(t.noTrailer)))
   }
 
-  const reason = shown ? reasons[reasonKey(shown.Id)] : undefined
+  const reason = heroItem ? reasons[reasonKey(heroItem.Id)] : undefined
   const avatar = session.imageTag ? userImageUrl(api.url, session.userId, session.imageTag, 96) : null
 
   return (
     <div class="qk-home">
       <HeroBackdrop
         api={api}
-        item={shown}
+        item={heroItem}
         image={world ? worldBackdrop(api, world, 1280) : undefined}
         trailerUrl={!covered && (billboardFocused || stableFocus || world) ? trailerUrl : null}
         onTrailerEnd={() => setTrailerUrl(null)}
@@ -205,7 +224,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
       />
       <div class="qk-home-main">
         <div class="qk-home-top">
-          {world ? <WorldInfo api={api} world={world} /> : shown ? <HeroInfo api={api} item={shown} reason={reason} overview={overviews[shown.Id]} /> : <div class="qk-hero-info"><Logo size={96} /><p class="qk-muted">{t.loadingHome}</p></div>}
+          {world ? <WorldInfo api={api} world={world} /> : heroItem ? <HeroInfo api={api} item={heroItem} reason={reason} overview={overviews[heroItem.Id]} /> : <div class="qk-hero-info"><Logo size={96} /><p class="qk-muted">{t.loadingHome}</p></div>}
           <BillboardButtons
             visible={billboardFocused}
             hasTrailer={!!billboardItem?.LocalTrailerCount}
@@ -323,7 +342,7 @@ function BillboardButton({ focusKey, label, icon, dimmed, onPress, onArrow }: Bi
 
 /** Infobereich einer Welt: Logo (bzw. Name) und Zahl der Titel. */
 function WorldInfo({ api, world }: { api: Api; world: World }) {
-  const logo = worldLogo(api, world)
+  const logo = useAuthorizedImage(api, worldLogo(api, world))
   const [failed, setFailed] = useState(false)
   return (
     <div class="qk-hero-info" key={world.Id}>

@@ -112,7 +112,8 @@ export function streamFor(api: Api, itemId: string, info: PlaybackInfo, options:
  * (die kann SRT sein oder nur einen Ausschnitt ab der Startposition enthalten).
  */
 export function subtitleUrl(api: Api, itemId: string, source: MediaSource, stream: MediaStream): string {
-  return `${base(api)}/Videos/${itemId}/${source.Id}/Subtitles/${stream.Index}/0/Stream.vtt?ApiKey=${encodeURIComponent(api.token)}`
+  // Ohne Token in der Adresse – geladen wird mit Anmeldung im Header (PlayerPage)
+  return `${base(api)}/Videos/${itemId}/${source.Id}/Subtitles/${stream.Index}/0/Stream.vtt`
 }
 
 // Fortschritt an den Server melden (Weiterschauen, Gesehen, Dashboard)

@@ -1,5 +1,16 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.5.0 – 2026-10-21
+
+Sicherheit und Tempo (aus dem Sicherheits- und Performance-Bericht):
+
+- **Abmelden widerruft die Anmeldung beim Server** (nicht nur auf dem Fernseher) – ebenso für alle Profile beim Wechsel auf einen anderen Server.
+- **Kein stilles http mehr:** Bei Servernamen verbindet sich die App nur noch per https. Unverschlüsselt nur bei IP-Adressen oder ausdrücklich eingegebenem „http://“ – dann zeigt die Anmeldung einen Hinweis, dass das Passwort unverschlüsselt übertragen wird.
+- **Profilwechsel:** „Für dich“ unter Entdecken und der Abgleich mit der Bibliothek gelten jetzt pro Profil (vorher konnte ein anderes Profil die Vorschläge des vorigen sehen).
+- **Untertitel und Welten-Logos** werden mit der Anmeldung im Header geladen, ohne Token in der Adresse.
+- **Schnellere Startseite:** Der Infobereich wechselt erst nach 300 ms Ruhe (beim schnellen Durchblättern keine Bilderflut), das nächste Bannerbild wird vorgeladen, Reihen und Karten zeichnen sich nur bei Änderungen neu, doppelte Abfragen von Empfehlungen und Begründungen werden zusammengelegt.
+- Die Update-Prüfung fragt GitHub höchstens alle 20 Stunden (in den Datenschutzhinweisen ergänzt).
+
 ## 1.4.1 – 2026-10-20
 
 - „Erinnerungen aufs Handy“: Mit LocalRecs ab 12.23 führt ein einziger QR-Code auf eine Abo-Seite, die auf iPhone und Android funktioniert (die iPhone-Kamera öffnet webcal-Links direkt nicht). Die Auswahl iPhone/andere entfällt dann.

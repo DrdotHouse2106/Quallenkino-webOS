@@ -23,6 +23,7 @@ import {
   type Stream,
 } from './playback'
 import { canPlayAudio } from './profile'
+import { authorizationHeader, deviceId } from '../api/auth'
 import { programProgress, timeRange } from '../api/livetv'
 import { loadSettings } from '../settings'
 import { audioStreams, audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
@@ -212,7 +213,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     setCues([])
     const track = subtitleStreams(current.source).find(s => s.Index === index)
     if (!track || isBurnedIn(track)) return
-    fetch(subtitleUrl(api, id, current.source, track))
+    fetch(subtitleUrl(api, id, current.source, track), { headers: { Authorization: authorizationHeader(deviceId(), api.token) } })
       .then(response => response.text())
       .then(text => setCues(parseVtt(text)))
       .catch(() => setCues([]))

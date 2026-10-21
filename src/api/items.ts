@@ -113,8 +113,25 @@ export const latest = (api: Api, limit = 30) =>
     .then(list => list.map(i => (i.Type === 'Episode' ? { ...i, ImageUrl: seriesThumbUrl(api, i) ?? undefined } : i)))
 
 /** Empfehlungen des Plugins Local Recommendations (ohne Plugin: leer). */
+/**
+ * Gleiche Anfragen kurz zusammenlegen (Banner, Reihen und Bildschirmschoner fragen beim Start dieselben
+ * Empfehlungen bzw. Begründungen ab).
+ */
+const shared = new Map<string, { at: number; value: Promise<unknown> }>()
+const SHARED_MS = 60_000
+
+function once<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const hit = shared.get(key)
+  if (hit && Date.now() - hit.at < SHARED_MS) return hit.value as Promise<T>
+  const value = load()
+  shared.set(key, { at: Date.now(), value })
+  return value
+}
+
+/** Empfehlungen des Plugins; immer 30 laden und kürzen, damit Banner und Reihe eine Anfrage teilen. */
 export const recommendations = (api: Api, type: 'movies' | 'series', limit = 30) =>
-  items(api, `/LocalRecs/Recommendations?type=${type}&limit=${limit}`).catch(() => [] as Item[])
+  once(`recs|${api.url}|${api.userId}|${type}`, () => items(api, `/LocalRecs/Recommendations?type=${type}&limit=30`).catch(() => [] as Item[]))
+    .then(list => list.slice(0, limit))
 
 /** Top 10 aller Benutzer der letzten 180 Tage (Plugin). */
 export const top10 = (api: Api) =>
@@ -190,7 +207,11 @@ export const newestWithBackdrop = (api: Api, limit = 8) =>
   items(api, `/Users/${api.userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&SortBy=DateCreated&SortOrder=Descending&ImageTypes=Backdrop&limit=${limit}&Fields=${FIELDS}&${IMAGES}`)
 
 /** Begründungen der Empfehlungen: Id ohne Bindestriche (klein) → Text. */
-export async function reasons(api: Api): Promise<Record<string, string>> {
+export function reasons(api: Api): Promise<Record<string, string>> {
+  return once(`reasons|${api.url}|${api.userId}`, () => loadReasons(api))
+}
+
+async function loadReasons(api: Api): Promise<Record<string, string>> {
   try {
     const result = await get<Record<string, unknown>>(api, '/LocalRecs/Recommendations/Reasons')
     const map: Record<string, string> = {}

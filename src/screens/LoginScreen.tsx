@@ -84,6 +84,7 @@ export function LoginScreen({ server, username: preset, onSignedIn, onBack }: Pr
     <Screen focusKey="login" class="qk-center" onBack={() => { stopPolling(); onBack(); return true }}>
       <h1>{preset ? t.signInAs(preset) : t.signInTitle}</h1>
       <p class="qk-muted">{server.name}</p>
+      {/^http:/i.test(server.url) && <p class="qk-error">{t.insecureConnection}</p>}
       {quickCode ? (
         <div class="qk-form">
           <p>{t.quickConnectHint}</p>

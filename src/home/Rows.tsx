@@ -1,9 +1,12 @@
 import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation'
+import { memo } from 'preact/compat'
+import { useRef } from 'preact/hooks'
 import type { Api, Item } from '../api/items'
 import { primaryUrl, thumbUrl } from '../api/images'
 import { progress, title } from './format'
 import { Img } from '../ui/Img'
 import { worldBackdrop, worldLogo } from '../api/worlds'
+import { useAuthorizedImage } from '../ui/authImage'
 import { clock, dayLabel, programProgress } from '../api/livetv'
 
 /** Initialen für Personen ohne Foto (Vor- und Nachname). */
@@ -42,8 +45,17 @@ function scrollIntoPlace(node: HTMLElement) {
   }
 }
 
-export function Row({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
+/**
+ * Reihe (mit memo: zeichnet nur neu, wenn sich Inhalt oder Server ändern – nicht bei jedem Fokuswechsel
+ * auf der Startseite). Die Rückrufe laufen über eine Referenz und sind so immer aktuell.
+ */
+export const Row = memo(RowView, (a, b) => a.api === b.api && a.row === b.row)
+
+function RowView({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
   const { ref, focusKey } = useFocusable({ focusKey: `row-${row.key}`, trackChildren: true, saveLastFocusedChild: true })
+  const latest = useRef({ onFocusItem, onOpen, onArrow })
+  latest.current = { onFocusItem, onOpen, onArrow }
+  const arrow = useRef((direction: string) => (latest.current.onArrow ? latest.current.onArrow(direction) : true)).current
   return (
     <FocusContext.Provider value={focusKey}>
       <div ref={ref} class="qk-row">
@@ -59,10 +71,10 @@ export function Row({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
               rank={row.kind === 'top10' ? index + 1 : undefined}
               onFocus={node => {
                 scrollIntoPlace(node)
-                onFocusItem(item)
+                latest.current.onFocusItem(item)
               }}
-              onOpen={() => onOpen(item)}
-              onArrow={onArrow}
+              onOpen={() => latest.current.onOpen(item)}
+              onArrow={arrow}
             />
           ))}
         </div>
@@ -83,7 +95,10 @@ interface CardProps {
 }
 
 /** Karte im Querformat ohne Titel (der steht im Infobereich), bei Top 10 Plakat mit großer Zahl. */
-function Card({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }: CardProps) {
+/** Karte (mit memo: zeichnet nur neu, wenn sich Titel, Art oder Platz ändern). */
+const Card = memo(CardView, (a, b) => a.focusKey === b.focusKey && a.api === b.api && a.item === b.item && a.kind === b.kind && a.rank === b.rank)
+
+function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }: CardProps) {
   const { ref, focused, focusSelf } = useFocusable({
     focusKey,
     onEnterPress: onOpen,
@@ -91,9 +106,10 @@ function Card({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }: Car
     onFocus: layout => onFocus(layout.node as HTMLElement),
   })
   const percent = progress(item)
+  const worldLogoSrc = useAuthorizedImage(api, item.World ? worldLogo(api, item.World) : null)
   if (item.World) {
     // Welt: Hintergrund eines Titels abgedunkelt, darauf das Logo (vom Server) bzw. der Name
-    const logo = worldLogo(api, item.World)
+    const logo = worldLogoSrc
     const backdrop = worldBackdrop(api, item.World)
     return (
       <div ref={ref} class={`qk-card qk-world ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>

@@ -146,7 +146,7 @@ describe('Tonspur wechseln', () => {
 describe('Untertitel laden', () => {
   it('immer die ganze Datei als WebVTT, nicht die DeliveryUrl', () => {
     const url = subtitleUrl({ url: 'http://srv/', token: 't', userId: 'u' }, 'i', { Id: 'ms' }, { Index: 3, Type: 'Subtitle', DeliveryUrl: '/Videos/i/ms/Subtitles/3/930000000/Stream.subrip' })
-    expect(url).toBe('http://srv/Videos/i/ms/Subtitles/3/0/Stream.vtt?ApiKey=t')
+    expect(url).toBe('http://srv/Videos/i/ms/Subtitles/3/0/Stream.vtt')
   })
 
   it('SRT-Zeiten mit Komma werden gelesen', () => {

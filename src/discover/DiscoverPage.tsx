@@ -13,8 +13,9 @@ const DEBOUNCE_MS = 500
 /** Plakate je Zeile des Rasters. */
 const PER_ROW = 8
 
-/** „Für dich“ bleibt für die Sitzung erhalten (die Berechnung braucht etliche Anfragen). */
-let cachedForYou: Item[] | null = null
+/** „Für dich“ bleibt pro Profil erhalten (die Berechnung braucht etliche Anfragen). */
+const cachedForYou = new Map<string, Item[]>()
+const forYouKey = (api: Api) => `${api.url}|${api.userId}`
 
 /**
  * Entdecken & Anfragen (Jellyseerr): ohne Suchbegriff „Für dich“ (neueste zuerst), sonst die Treffer.
@@ -23,16 +24,19 @@ let cachedForYou: Item[] | null = null
 export function DiscoverPage({ api }: { api: Api }) {
   const router = useRouter()
   const [query, setQuery] = useState('')
-  const [suggestions, setSuggestions] = useState<Item[] | null>(cachedForYou)
+  const [suggestions, setSuggestions] = useState<Item[] | null>(cachedForYou.get(forYouKey(api)) ?? null)
   const [results, setResults] = useState<Item[] | null>(null)
   const counter = useRef(0)
 
   useEffect(() => {
-    if (cachedForYou) return
+    const key = forYouKey(api)
+    const cached = cachedForYou.get(key)
+    if (cached) return setSuggestions(cached)
     forYou(api)
       .then(list => {
-        cachedForYou = list.map(resultCard)
-        setSuggestions(cachedForYou)
+        const cards = list.map(resultCard)
+        cachedForYou.set(key, cards)
+        setSuggestions(cards)
       })
       .catch(() => setSuggestions([]))
   }, [api])

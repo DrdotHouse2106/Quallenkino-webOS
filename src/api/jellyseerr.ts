@@ -232,14 +232,19 @@ export async function findPerson(api: Api, name: string): Promise<number | null>
 
 // --- „Für dich“ ---
 
-let libraryIds: Promise<Set<string>> | null = null
+const libraryIds = new Map<string, Promise<Set<string>>>()
 
-/** TMDB-Ids aller Filme und Serien auf dem Server (einmal je App-Start). */
+/** TMDB-Ids aller Filme und Serien, die dieses Profil sehen darf (einmal je App-Start und Profil). */
 function library(api: Api): Promise<Set<string>> {
-  libraryIds ??= items(api, `/Users/${api.userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&Fields=ProviderIds&EnableImages=false`)
-    .then(list => new Set(list.flatMap(i => (i.ProviderIds?.Tmdb ? [`${i.Type === 'Series' ? 'tv' : 'movie'}-${i.ProviderIds.Tmdb}`] : []))))
-    .catch(() => new Set<string>())
-  return libraryIds
+  const key = `${api.url}|${api.userId}`
+  let cached = libraryIds.get(key)
+  if (!cached) {
+    cached = items(api, `/Users/${api.userId}/Items?IncludeItemTypes=Movie,Series&Recursive=true&Fields=ProviderIds&EnableImages=false`)
+      .then(list => new Set(list.flatMap(i => (i.ProviderIds?.Tmdb ? [`${i.Type === 'Series' ? 'tv' : 'movie'}-${i.ProviderIds.Tmdb}`] : []))))
+      .catch(() => new Set<string>())
+    libraryIds.set(key, cached)
+  }
+  return cached
 }
 
 /** Ausgangstitel: Favoriten/„Gefällt mir“ zuerst, dann zuletzt gesehene Filme und Serien. */

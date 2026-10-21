@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks'
 import type { ServerInfo } from './api/server'
-import { checkSession, type Session, type UserSummary } from './api/users'
+import { checkSession, logout, type Session, type UserSummary } from './api/users'
 import { Shell } from './home/Shell'
 import { LoginScreen } from './screens/LoginScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
@@ -64,8 +64,19 @@ export function App() {
     setView({ name: 'home', session })
   }
 
+  /** Profil abmelden: Token beim Server widerrufen, dann lokal vergessen. */
+  function signOut(userId: string) {
+    const session = state.sessions.find(s => s.userId === userId)
+    if (session && server) void logout(server.url, session.token)
+    setState(s => withoutSession(s, userId))
+  }
+
   function connected(next: ServerInfo) {
-    // Anderer Server: alte Anmeldungen gelten dort nicht
+    // Anderer Server: alte Anmeldungen gelten dort nicht – beim alten Server widerrufen
+    if (state.server && state.server.id !== next.id) {
+      const old = state.server
+      state.sessions.forEach(s => void logout(old.url, s.token))
+    }
     setState(s => (s.server?.id === next.id ? { ...s, server: next } : { server: next, sessions: [] }))
     setView({ name: 'profiles' })
   }
@@ -83,7 +94,7 @@ export function App() {
           onChangeServer={() => setView({ name: 'server' })}
           onEmpty={() => setView({ name: 'login', direct: true })}
           signedIn={state.sessions.map(s => s.userId)}
-          onSignOut={user => setState(s => withoutSession(s, user.Id))}
+          onSignOut={user => signOut(user.Id)}
           tokenFor={user => state.sessions.find(s => s.userId === user.Id)?.token}
         />
       )
@@ -97,7 +108,7 @@ export function App() {
           onSwitchProfile={() => setView({ name: 'profiles' })}
           onChangeServer={() => setView({ name: 'server' })}
           onSignOut={() => {
-            setState(s => withoutSession(s, view.session.userId))
+            signOut(view.session.userId)
             setView({ name: 'profiles' })
           }}
         />

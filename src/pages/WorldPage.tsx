@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks'
 import type { Api } from '../api/items'
 import { backdropUrl } from '../api/images'
 import { worlds as loadWorlds, worldLogo, worldSections, type World, type WorldSection } from '../api/worlds'
+import { useAuthorizedImage } from '../ui/authImage'
 import { HeroBackdrop } from '../home/Hero'
 import { Row } from '../home/Rows'
 import { t } from '../i18n'
@@ -38,7 +39,7 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
   }, [id])
 
   const backdropItem = sections?.flatMap(s => s.items).find(item => backdropUrl(api, item))
-  const logo = world ? worldLogo(api, world) : null
+  const logo = useAuthorizedImage(api, world ? worldLogo(api, world) : null)
   return (
     <Page focusKey="world" class="qk-details qk-world-page">
       <HeroBackdrop api={api} item={backdropItem ?? null} trailerUrl={null} onTrailerEnd={() => {}} onTrailerPlaying={() => {}} />

@@ -45,6 +45,15 @@ export async function checkSession(baseUrl: string, session: Session): Promise<b
   }
 }
 
+/** Anmeldung beim Server widerrufen (Token ungültig machen); Fehler werden ignoriert. */
+export async function logout(baseUrl: string, token: string): Promise<void> {
+  try {
+    await request(baseUrl, '/Sessions/Logout', { method: 'POST', token, timeoutMs: 4_000 })
+  } catch {
+    // offline oder schon abgemeldet – lokal wird trotzdem gelöscht
+  }
+}
+
 export function userImageUrl(baseUrl: string, userId: string, tag: string, size = 300): string {
   return `${baseUrl.replace(/\/+$/, '')}/Users/${userId}/Images/Primary?tag=${encodeURIComponent(tag)}&maxHeight=${size}&quality=90`
 }

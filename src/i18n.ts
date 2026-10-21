@@ -141,6 +141,7 @@ export const t = {
   exitApp: 'Beenden',
   cancel: 'Abbrechen',
   save: 'Speichern',
+  insecureConnection: 'Unverschlüsselte Verbindung (http): Das Passwort wird ohne Verschlüsselung übertragen. Im Heimnetz ist das üblich, über das Internet bitte https verwenden.',
   avatarChoose: 'Profilbild wählen',
   avatarTitle: (name: string) => `Profilbild für ${name}`,
   avatarColor: 'Hintergrundfarbe',

@@ -20,11 +20,12 @@ Diese Daten gehen ausschließlich an den von dir eingetragenen Server, nicht an 
 
 ## Daten auf dem Fernseher
 
-Die App speichert auf dem Fernseher die Serveradresse, die Anmeldung pro Profil (ein Zugangstoken, nicht dein Passwort) und deine Einstellungen. „Abmelden“ (Einstellungen → Konto) entfernt die Anmeldung des jeweiligen Profils; beim Deinstallieren der App wird alles gelöscht.
+Die App speichert auf dem Fernseher die Serveradresse, die Anmeldung pro Profil (ein Zugangstoken, nicht dein Passwort) und deine Einstellungen. „Abmelden“ (Einstellungen → Konto oder „Wer schaut?“) widerruft die Anmeldung auch beim Server und entfernt sie vom Fernseher; das gilt ebenso für alle Profile beim Wechsel auf einen anderen Server. Beim Deinstallieren der App wird alles gelöscht. Bei Servernamen verbindet sich die App nur verschlüsselt (https); unverschlüsselt (http) nur bei einer IP-Adresse oder wenn du ausdrücklich „http://“ eingibst – dann erscheint bei der Anmeldung ein Hinweis.
 
 ## Dienste Dritter
 
 - **Bilder von TMDB**: Für Titel, die noch nicht auf deinem Server sind (z. B. unter „Entdecken“), lädt die App Plakate direkt von `image.tmdb.org`. Dabei erfährt TMDB die IP-Adresse deines Anschlusses. Es gelten die Datenschutzbestimmungen von TMDB.
+- **Update-Prüfung**: Höchstens alle 20 Stunden fragt die App die öffentliche Release-Liste bei GitHub (`api.github.com`) nach einer neueren Version; dabei erhält GitHub die üblichen Verbindungsdaten (u. a. IP-Adresse). Das Ergebnis merkt sich die App auf dem Fernseher.
 - **YouTube-Trailer**: Trailer von YouTube zeigt die App mit dem offiziellen YouTube-Player. Dieser wird über eine kleine Seite bei GitHub Pages (`drdothouse2106.github.io`) eingebettet. Dabei erhalten GitHub und Google/YouTube die üblichen Verbindungsdaten (u. a. IP-Adresse); für YouTube gelten die Datenschutzbestimmungen von Google. Mit Einstellungen → Trailer-Vorschau „Aus“ startet kein Trailer mehr von selbst; YouTube wird dann nur noch geladen, wenn du die Taste „Trailer“ drückst.
 
 Die App enthält keine Dienste Dritter für Werbung oder Analyse.

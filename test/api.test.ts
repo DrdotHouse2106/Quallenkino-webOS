@@ -8,17 +8,13 @@ import { withSession, withoutSession, type SavedState } from '../src/store'
 import { mergeProfiles, tileColor } from '../src/screens/ProfileScreen'
 
 describe('Server-Adresse', () => {
-  it('ohne Schema: zuerst https, dann http, dann Standard-Ports', () => {
-    expect(candidateUrls('kino.example.de')).toEqual([
-      'https://kino.example.de',
-      'http://kino.example.de',
-      'https://kino.example.de:8920',
-      'http://kino.example.de:8096',
-    ])
+  it('Name ohne Schema: nur https (kein stilles http)', () => {
+    expect(candidateUrls('kino.example.de')).toEqual(['https://kino.example.de', 'https://kino.example.de:8920'])
+    expect(candidateUrls('http://kino.example.de')).toEqual(['http://kino.example.de'])
   })
 
   it('mit Port keine Zusatz-Ports', () => {
-    expect(candidateUrls('kino.example.de:8443')).toEqual(['https://kino.example.de:8443', 'http://kino.example.de:8443'])
+    expect(candidateUrls('kino.example.de:8443')).toEqual(['https://kino.example.de:8443'])
     expect(candidateUrls('192.168.1.10:8096/')).toEqual(['http://192.168.1.10:8096', 'https://192.168.1.10:8096'])
   })
 
