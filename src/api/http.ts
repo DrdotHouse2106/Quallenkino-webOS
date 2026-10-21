@@ -27,6 +27,9 @@ export async function request<T>(baseUrl: string, path: string, options: Request
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
+      // Keine Weiterleitungen folgen: Chromium 79 (webOS) behält den Authorization-Header auch bei
+      // Weiterleitungen auf fremde Server. Die Server-Suche prüft jede Adresse direkt.
+      redirect: 'error',
     })
     if (!response.ok) throw new HttpError(response.status, `HTTP ${response.status}`)
     const text = await response.text()

@@ -154,6 +154,7 @@ export const t = {
   settingsAccount: 'Konto',
   settingsAbout: 'Über',
   settingsUpdates: 'Updates',
+  settingsUpdateCheck: 'Beim Öffnen nach Updates suchen',
   reminderSave: 'Merken',
   reminderSaved: 'Gemerkt',
   reminderSeriesSave: 'Serie merken',

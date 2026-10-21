@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=1920, height=1080" />
     <title>Quallenkino</title>
+    <!-- Nur eigene Skripte; Bilder, Videos und Anfragen an den eingetragenen Jellyfin-Server (beliebige
+         Adresse), YouTube-Player über die eigene GitHub-Pages-Seite -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data: blob:; media-src * blob:; connect-src *; frame-src https://drdothouse2106.github.io https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'" />
   </head>
   <body>
     <div id="app"></div>

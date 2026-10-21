@@ -58,6 +58,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   // Neue Version: beim Öffnen fragen und Download-Knopf in der Navigation zeigen
   const [update, setUpdate] = useState<string | null>(null)
   useEffect(() => {
+    if (!loadSettings().updateCheck) return
     const timer = setTimeout(() => autoCheck().then(version => {
       if (!version) return
       setUpdate(version)

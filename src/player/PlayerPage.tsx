@@ -104,13 +104,17 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     let active = true
     ;(async () => {
       try {
+        // Titel und Abspiel-Infos gleichzeitig holen (bei Sendern wird dieselbe Antwort genutzt – eine
+        // zweite Anfrage würde einen weiteren Tuner belegen)
+        const infoPromise = playbackInfo(api, id, { startTicks: startTicks ?? 0 })
+        infoPromise.catch(() => {})
         const loaded = await fullItem(api, id)
         if (!active) return
         setItem(loaded)
         if (loaded.Type === 'TvChannel') {
           // Sender: laufende Sendung für die Leiste; kein Fortsetzen, keine Abschnitte
           loadChannel(api, id).then(channel => active && setNowOn(channel.CurrentProgram ?? null)).catch(() => {})
-          const info = await playbackInfo(api, id)
+          const info = await infoPromise
           const source = info.MediaSources?.[0]
           if (!source) throw new Error('keine Quelle')
           const settings = loadSettings()
@@ -124,7 +128,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
         else if (target) fullItem(api, target).then(series => active && setLikes(series.UserData?.Likes ?? null)).catch(() => {})
         loadSegments(api, id).then(list => active && setSegmentList(list))
         nextEpisode(api, loaded).then(found => active && setNext(found))
-        const info = await playbackInfo(api, id, { startTicks: startTicks ?? 0 })
+        const info = await infoPromise
         const source = info.MediaSources?.[0]
         if (!source) throw new Error('keine Quelle')
         const settings = loadSettings()

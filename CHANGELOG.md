@@ -1,5 +1,15 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.7.0 – 2026-10-21
+
+Nacharbeiten aus dem Sicherheits- und Performance-Bericht:
+
+- Neuer Schalter in den Einstellungen: **„Beim Öffnen nach Updates suchen“** (An/Aus). Aus = die App fragt GitHub nicht mehr von selbst.
+- **Keine Weiterleitungen mit Anmeldung:** Anfragen mit Anmeldung folgen keinen Weiterleitungen mehr, damit der Token nie an eine fremde Adresse geht.
+- **Schnellerer Start der Wiedergabe:** Titel- und Abspiel-Infos werden parallel geladen.
+- **Content-Security-Policy:** Die App lädt Skripte nur aus sich selbst; eingebettet werden nur die Kalender-Seite und der YouTube-Player.
+- Die Build-Aktionen sind auf feste Versionen (Commit-Hashes) gepinnt.
+
 ## 1.6.0 – 2026-10-21
 
 - **Empfehlungen nach Tageszeit** (Plugin Local Recommendations ab 12.36): Die Vorschläge berücksichtigen die Uhrzeit, und die Zeilen „Empfohlene Filme/Serien“ und „Heute im TV für dich“ ordnen sich je nach Tageszeit um.

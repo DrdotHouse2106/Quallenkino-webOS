@@ -17,10 +17,12 @@ export interface Settings {
   screensaverTrailers: boolean
   /** Ton der Teaser im Bildschirmschoner: 0 = stumm, sonst Lautstärke (0–1). */
   screensaverVolume: number
+  /** Beim Öffnen nach einer neuen Version suchen (GitHub, höchstens alle 20 Stunden). */
+  updateCheck: boolean
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0 }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0, updateCheck: true }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {
