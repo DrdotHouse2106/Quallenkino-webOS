@@ -1,5 +1,12 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.10.0 – 2026-10-22
+
+Neue Abschnitte aus dem Plugin Local Recommendations (ab 12.45), auf LG und Samsung:
+
+- **Filmreihen für dich:** Zeile mit dem jeweils nächsten Teil einer Filmreihe; im Infobereich steht „Weiter mit Teil 3“ bzw. „4 Teile“. Auf der Detailseite eines Films zeigt „Weitere Teile der Reihe“ alle Teile in Erscheinungsreihenfolge.
+- **Saison-Zeile:** Zur passenden Zeit erscheint direkt nach „Als Nächstes“ z. B. „Weihnachtsfilme“, „Halloween“ oder „Ostern“ – sonst nicht.
+
 ## 1.9.5 – 2026-10-22
 
 - **Samsung: YouTube-Trailer in der YouTube-App.** Der eingebettete YouTube-Player ruckelt auf Samsung-Fernsehern (der Browser dekodiert ohne Hardware). „Trailer“ öffnet dort jetzt die YouTube-App des Fernsehers mit dem Video; mit „Zurück“ geht es zu Quallenkino. Nur wenn die App nicht startet, kommt der eingebettete Player. Die automatische YouTube-Vorschau auf Detail- und Anfrageseiten ist auf Samsung aus. Trailer aus der eigenen Bibliothek (z. B. von Trailarr) haben wie bisher Vorrang und laufen direkt.

@@ -107,6 +107,8 @@ export const t = {
   seerrSeasonCount: (n: number) => `${n} ${n === 1 ? 'Staffel' : 'Staffeln'}`,
   seerrDirector: 'Regie',
   inLibrary: 'In deiner Bibliothek',
+  rowMovieSeries: 'Filmreihen für dich',
+  moreParts: 'Weitere Teile der Reihe',
   moreMovies: 'Weitere Filme',
   moreSeries: 'Weitere Serien',
   youtubeMissing: 'Die YouTube-App ließ sich nicht öffnen.',

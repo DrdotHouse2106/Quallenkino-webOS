@@ -124,3 +124,12 @@ describe('Banner vom Server', () => {
     expect(result.reasons).toEqual({ b2x: 'Neue Folgen' })
   })
 })
+
+describe('Filmreihen (Plugin ab 12.45)', () => {
+  it('nimmt je Reihe den Teil zum Weiterschauen und die Begründung', async () => {
+    const { parseMovieSeries } = await import('../src/api/sections')
+    const result = parseMovieSeries({ Items: [{ Name: 'Reihe A', Reason: 'Weiter mit Teil 2', Next: { Id: 'AB-12', Name: 'Teil 2' } as never }, { Name: 'Ohne nächsten Teil' }] })
+    expect(result.items.map(i => i.Id)).toEqual(['AB-12'])
+    expect(result.reasons).toEqual({ ab12: 'Weiter mit Teil 2' })
+  })
+})

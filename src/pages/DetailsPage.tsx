@@ -28,6 +28,7 @@ import { isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 import { reportView } from '../api/behavior'
+import { seriesParts } from '../api/sections'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -46,6 +47,7 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
   const router = useRouter()
   const [item, setItem] = useState<Item | null>(null)
   const [similar, setSimilar] = useState<Item[]>([])
+  const [parts, setParts] = useState<Item[]>([])
   const [seasons, setSeasons] = useState<Item[]>([])
   const [season, setSeason] = useState<string | null>(null)
   const [episodes, setEpisodes] = useState<Item[]>([])
@@ -64,6 +66,9 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
       focusSoon('d-play')
     }).catch(() => active && setFailed(true))
     loadSimilar(api, id).then(list => active && setSimilar(list))
+    // Weitere Teile der Filmreihe (Plugin Local Recommendations ab 12.45)
+    setParts([])
+    seriesParts(api, id).then(list => active && setParts(list)).catch(() => {})
     return () => {
       active = false
     }
@@ -151,6 +156,10 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
           {cast.length > 0 && (
             <Row api={api} row={{ key: 'd-cast', title: t.cast, items: cast, kind: 'people' }}
               onFocusItem={() => {}} onOpen={person => router.push({ name: 'person', id: person.Id })} />
+          )}
+          {parts.length > 0 && (
+            <Row api={api} row={{ key: 'd-parts', title: t.moreParts, items: parts, kind: 'posters' }}
+              onFocusItem={() => {}} onOpen={other => other.Id !== id && router.push({ name: 'details', id: other.Id })} />
           )}
           {similar.length > 0 && (
             <Row api={api} row={{ key: 'd-similar', title: t.similar, items: similar, kind: 'posters' }}

@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.10.0** (Plugin Local Recommendations ab 12.45): Zeile „Filmreihen für dich“ mit dem nächsten Teil („Weiter mit Teil 3“), „Weitere Teile der Reihe“ auf der Detailseite eines Films und – nur zur passenden Zeit – eine Saison-Zeile wie „Weihnachtsfilme“ direkt nach „Als Nächstes“.
+
 Version **1.0** – alle 7 Etappen:
 
 - [x] Grundgerüst, Quallenkino-Erscheinungsbild (Symbol, Startbild, Farben), Bedienung mit der Fernbedienung

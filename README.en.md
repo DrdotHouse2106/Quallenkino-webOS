@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.10.0 (Local Recommendations 12.45+): "Movie series for you" with the next part, "More parts of the series" on a movie's detail page, and a seasonal row (e.g. Christmas movies) when active.
+
 Version 1.0 – all 7 stages: app shell and branding, server connection (tries https/http and default ports), "Who's watching?" profile picker (at every start and after more than 10 minutes in the background; never signs in automatically, saved sign-ins with one click, no PIN), sign-in with password or Quick Connect, home screen with billboard (trailer preview, recommendation reasons), Continue watching, Next up, recommendations, Top 10, recently added, detail page (background trailer, thumbs up/down, seasons and episodes, cast, similar titles), person page, search, player (direct play or server transcoding, resume, smart subtitles, audio & subtitles dialog, skip intro, next episode), live TV (TV for you today, programme guide with filters and favourite channels, programme details with director and cast, watch a channel), worlds (tiles with logo and trailer, world page), discover & request via Jellyseerr (for you, search, choose seasons), settings (subtitles and audio at start, trailer preview, switch profile/server, sign out, about). Plus a personal screensaver (recommendations and started movies, server trailers), an exit prompt on Back from the home screen, and YouTube trailers inside the app (automatic preview top right, full screen via the Trailer button).
 
 ## Install (Developer Mode)

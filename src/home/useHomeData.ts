@@ -17,6 +17,7 @@ import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
 import { serverBillboard } from '../api/billboard'
+import { movieSeries, seasonal } from '../api/sections'
 import type { RowData } from './Rows'
 import { daypartOrder, reorderRows } from '../api/behavior'
 
@@ -118,6 +119,7 @@ export function useHomeData(api: Api) {
   const [rows, setRows] = useState<Record<string, RowData>>({})
   const [daypart, setDaypart] = useState<string[] | null>(null)
   const [reasons, setReasons] = useState<Record<string, string>>({})
+  const [seriesReasons, setSeriesReasons] = useState<Record<string, string>>({})
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
   const [billboardReasons, setBillboardReasons] = useState<Record<string, string>>({})
@@ -157,6 +159,17 @@ export function useHomeData(api: Api) {
       ['top10', t.rowTop10, 'top10', () => top10(api)],
       ['latest', t.rowLatest, 'cards', () => latest(api)],
     ]
+    // Plugin ab 12.45: Filmreihen und Saison-Zeile (Titel kommt vom Server)
+    movieSeries(api, t.rowMovieSeries).then(section => {
+      if (!active || !section) return
+      setSeriesReasons(section.reasons)
+      setRows(current => ({ ...current, 'movie-series': { key: 'movie-series', title: section.title, kind: 'cards', items: section.items } }))
+    }).catch(() => {})
+    seasonal(api).then(section => {
+      if (!active || !section) return
+      setRows(current => ({ ...current, seasonal: { key: 'seasonal', title: section.title, kind: 'cards', items: section.items } }))
+    }).catch(() => {})
+
     for (const [key, title, kind, load] of sources) {
       load()
         .then(async items => {
@@ -172,7 +185,7 @@ export function useHomeData(api: Api) {
   }, [api.url, api.userId, api.token])
 
   // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
-  const order = reorderRows(['resume', 'nextup', 'recs-movies', 'recs-series', 'tv', 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
+  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', 'movie-series', 'tv', 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
   const orderedRows = order.map(key => (key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
   /** „Später“: Titel sofort aus dem Banner nehmen und die Auswahl neu laden. */
   const dropFromBillboard = (id: string) => {
@@ -180,5 +193,5 @@ export function useHomeData(api: Api) {
     setBillboardVersion(v => v + 1)
   }
 
-  return { billboard, billboardDone, billboardReasons, dropFromBillboard, rows: orderedRows, reasons }
+  return { billboard, billboardDone, billboardReasons, dropFromBillboard, rows: orderedRows, reasons: { ...reasons, ...seriesReasons } }
 }
