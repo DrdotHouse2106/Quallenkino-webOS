@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.4 – 2026-10-22
+
+- **Bild-Untertitel (DVD, PGS, ASS) werden angezeigt:** Ist eine solche Spur gewählt – beim Start oder während der Wiedergabe –, startet die App den Stream jetzt mit eingebrannten Untertiteln neu. Bisher blieb sie bei direkter Wiedergabe, weil der Server die Datei trotzdem als direkt abspielbar meldet; die Untertitel fehlten dann (LG und Samsung). Zurück zu Text-Untertiteln oder „Aus“ wird wieder direkt abgespielt.
+
 ## 1.9.3 – 2026-10-22
 
 - **Samsung: Startbildschirm ohne Gestaltung behoben.** Ohne eigene Angabe verbietet Tizen eingebettete Styles – dadurch fehlte das komplette Aussehen (riesiges Logo, ungestaltetes Eingabefeld, Überschrift und Knopf unsichtbar). Die Tizen-Fassung bringt jetzt ihre Sicherheitsrichtlinie in `config.xml` mit und lädt das CSS zusätzlich als eigene Datei.

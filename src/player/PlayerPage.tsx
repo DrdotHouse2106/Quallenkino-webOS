@@ -158,6 +158,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     // Live-TV entscheidet der Server allein (eine zweite Anfrage würde einen weiteren Tuner belegen)
     const liveSource = !!preloaded || !!next.source.LiveStreamId || !!next.source.IsInfiniteStream
     const direct = liveSource || (next.method !== 'Transcode' && directAudioPossible(next.source, audioIndex, supportsAudioTracks()))
+    // Bild-Untertitel (DVD, PGS, ASS) kann der Fernseher nicht selbst zeigen – der Server muss sie einbrennen.
+    // Jellyfin meldet die Datei trotzdem als direkt abspielbar, deshalb hier die Umrechnung erzwingen.
+    const chosen = subtitleStreams(next.source).find(s => s.Index === subtitleIndex)
+    const burnIn = !liveSource && subtitleIndex >= 0 && !!chosen && isBurnedIn(chosen)
     // Für die Fehlersuche am Fernseher (Konsole über den Web-Inspector)
     console.info('[Quallenkino] Wiedergabe', {
       method: next.method,
@@ -166,9 +170,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       fileDefault: fileDefaultAudio(next.source),
       serverDefault: next.source.DefaultAudioStreamIndex,
       switching,
-      forceTranscode: next.method !== 'Transcode' && !direct,
+      burnIn,
+      forceTranscode: next.method !== 'Transcode' && (!direct || burnIn),
     })
-    if (next.method !== 'Transcode' && !direct) {
+    if (next.method !== 'Transcode' && (!direct || burnIn)) {
       const forced = await playbackInfo(api, id, { audio: audioIndex, subtitle: subtitleIndex, startTicks, transcode: true })
       next = streamFor(api, id, forced, { audio: audioIndex, transcode: true }) ?? next
     }
