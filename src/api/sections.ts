@@ -8,6 +8,7 @@ import { utcOffsetMinutes } from './behavior'
  */
 
 interface SectionsConfig {
+  Moments?: boolean
   MovieSeries?: boolean
   MovieSeriesTitle?: string
   Seasonal?: boolean
@@ -90,4 +91,42 @@ export async function seriesParts(api: Api, itemId: string): Promise<Item[]> {
   const full = await byIds(api, parts.map(i => i.Id)).catch(() => parts)
   const byId = new Map(full.map(i => [i.Id, i]))
   return parts.map(i => byId.get(i.Id) ?? i)
+}
+
+interface RawMoment {
+  Key?: string
+  Title?: string
+  Items?: Item[]
+  Reasons?: Record<string, string>
+}
+
+export interface Moment extends Section {
+  key: string
+}
+
+/** Antwort von GET /LocalRecs/Moments: Zeilen in Anzeigereihenfolge, leere fallen weg (testbar). */
+export function parseMoments(raw: { Rows?: RawMoment[] } | null): Moment[] {
+  return (raw?.Rows ?? [])
+    .filter(row => row.Title && row.Items?.length)
+    .map(row => {
+      const reasons: Record<string, string> = {}
+      for (const [id, text] of Object.entries(row.Reasons ?? {})) if (text) reasons[key(id)] = text
+      return { key: row.Key ?? '', title: row.Title!, items: row.Items!, reasons }
+    })
+}
+
+/**
+ * Zeitabhängige Zeilen (Plugin ab 12.46): „Läuft heute im TV – hier ohne Werbung“, „Neu diese Woche“,
+ * „Vor dem Kinostart“, „Heute vor X Jahren“ … – Auswahl und Reihenfolge vom Server.
+ */
+export async function moments(api: Api): Promise<Moment[]> {
+  const config = await sectionsConfig(api)
+  if (!config.Moments) return []
+  const raw = await request<{ Rows?: RawMoment[] }>(api.url, `/LocalRecs/Moments?utcOffsetMinutes=${utcOffsetMinutes()}`, { token: api.token }).catch(() => null)
+  const rows = parseMoments(raw)
+  // Mit allen Feldern der App nachladen (eine Abfrage für alle Zeilen), Reihenfolge behalten
+  const ids = [...new Set(rows.flatMap(row => row.items.map(i => i.Id)))]
+  const full = ids.length ? await byIds(api, ids).catch(() => [] as Item[]) : []
+  const byId = new Map(full.map(i => [i.Id, i]))
+  return rows.map(row => ({ ...row, items: row.items.map(i => byId.get(i.Id) ?? i) }))
 }

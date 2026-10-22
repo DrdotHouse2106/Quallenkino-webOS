@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.11.0 – 2026-10-22
+
+- **Momente** (Plugin Local Recommendations ab 12.46, LG und Samsung): zeitabhängige Zeilen vom Server – „Läuft heute im TV – hier ohne Werbung“, „Neu diese Woche“, „Vor dem Kinostart: Hol die Reihe nach“, „Heute vor X Jahren“, „Vor einem Jahr hast du …“. Welche Zeilen erscheinen und in welcher Reihenfolge, bestimmt der Server; die Begründung (z. B. „Heute 20:15 auf ZDF – hier ohne Werbung“) steht im Infobereich.
+
 ## 1.10.0 – 2026-10-22
 
 Neue Abschnitte aus dem Plugin Local Recommendations (ab 12.45), auf LG und Samsung:

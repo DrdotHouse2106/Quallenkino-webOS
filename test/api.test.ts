@@ -133,3 +133,15 @@ describe('Filmreihen (Plugin ab 12.45)', () => {
     expect(result.reasons).toEqual({ ab12: 'Weiter mit Teil 2' })
   })
 })
+
+describe('Momente (Plugin ab 12.46)', () => {
+  it('übernimmt Zeilen mit Titel und Begründungen, leere fallen weg', async () => {
+    const { parseMoments } = await import('../src/api/sections')
+    const rows = parseMoments({ Rows: [
+      { Key: 'ontv', Title: 'Läuft heute im TV – hier ohne Werbung', Items: [{ Id: 'AB-12', Name: 'Film' } as never], Reasons: { 'AB-12': 'Heute 20:15 auf ZDF – hier ohne Werbung' } },
+      { Key: 'leer', Title: 'Leer', Items: [] },
+    ] })
+    expect(rows.map(r => r.key)).toEqual(['ontv'])
+    expect(rows[0].reasons).toEqual({ ab12: 'Heute 20:15 auf ZDF – hier ohne Werbung' })
+  })
+})
