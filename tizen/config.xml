@@ -12,6 +12,9 @@
     <!-- Jellyfin-Server (beliebige Adresse im Heimnetz oder Internet), GitHub (Update-Hinweis), YouTube-Seite -->
     <access origin="*" subdomains="true"/>
     <tizen:allow-navigation>*</tizen:allow-navigation>
+    <!-- Ohne eigene Angabe setzt Tizen „style-src 'self'“ – das blockiert das eingebettete CSS der App (Bildschirm
+         ohne Gestaltung). Dieselbe Richtlinie wie in index.html, mit 'unsafe-inline' für Styles. -->
+    <tizen:content-security-policy>default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src * data: blob:; media-src * blob:; connect-src *; frame-src https://drdothouse2106.github.io https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'none'; form-action 'none'</tizen:content-security-policy>
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
     <tizen:privilege name="http://tizen.org/privilege/application.launch"/>

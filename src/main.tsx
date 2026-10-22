@@ -4,8 +4,12 @@ import { App } from './app'
 import { ToastHost } from './ui/Toast'
 import { installBackHandling } from './nav/keys'
 import { installSystemScreensaverGuard } from './platform/systemScreensaver'
-import { registerKeys } from './platform/platform'
+import { isTizen, registerKeys } from './platform/platform'
+import { installErrorOverlay } from './platform/errorOverlay'
 import './styles.css'
+
+// Samsung: Fehler sichtbar machen (keine einfach erreichbare Konsole)
+if (isTizen) installErrorOverlay()
 
 // Fernbedienung: Pfeiltasten bewegen den Fokus; Magic-Remote-Zeiger setzt ihn per Hover
 init({ debug: false, visualDebug: false, shouldFocusDOMNode: false })

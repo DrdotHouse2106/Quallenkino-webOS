@@ -2,6 +2,8 @@
 
 ## 1.9.3 – 2026-10-22
 
+- **Samsung: Startbildschirm ohne Gestaltung behoben.** Ohne eigene Angabe verbietet Tizen eingebettete Styles – dadurch fehlte das komplette Aussehen (riesiges Logo, ungestaltetes Eingabefeld, Überschrift und Knopf unsichtbar). Die Tizen-Fassung bringt jetzt ihre Sicherheitsrichtlinie in `config.xml` mit und lädt das CSS zusätzlich als eigene Datei.
+- **Samsung: Fehler auf dem Bildschirm.** Skriptfehler erscheinen unten als rote Meldung (dort gibt es keine einfach erreichbare Konsole) – hilft bei Rückmeldungen.
 - **Samsung: scharfes App-Symbol.** Die Tizen-Fassung bringt jetzt ein Symbol mit 512 × 512 Pixeln mit (bisher 80 × 80 – auf der großen Kachel verpixelt). Die LG-Symbole (80 und 130 Pixel) entsprechen den webOS-Vorgaben und bleiben.
 
 ## 1.9.2 – 2026-10-22

@@ -39,6 +39,8 @@ export default defineConfig({
   },
   build: {
     target: tizen ? 'chrome69' : 'chrome79',
+    // Tizen: CSS als eigene Datei (nicht per Skript eingebettet) – übersteht auch eine strenge style-src-Richtlinie
+    cssCodeSplit: !tizen,
     outDir: tizen ? 'dist-tizen' : 'dist',
     assetsInlineLimit: 0,
     modulePreload: false,
