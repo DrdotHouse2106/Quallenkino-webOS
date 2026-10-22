@@ -30,6 +30,16 @@ Download (unsigned): https://github.com/DrdotHouse2106/Quallenkino-webOS/release
 
 Samsung only accepts apps signed with a **Samsung certificate** bound to the TV: install Tizen Studio with the Samsung Certificate Extension and TV Extensions, enable Developer mode on the TV (Apps → 1 2 3 4 5 → On, enter the PC's IP, restart the TV), `sdb connect <TV-IP>`, create a Samsung TV certificate profile in the Certificate Manager (keep the author certificate!), then `tizen package -t wgt -s <profile> -- quallenkino-tizen.wgt`, `tizen install -n quallenkino-tizen.wgt -t <device>`. Updates: the app shows a hint when a new version exists; repeat the last two commands with the same certificate profile. Details (German): [README.md](README.md#samsung-fernseher-tizen).
 
+## Troubleshooting
+
+- **webOS app disappeared:** the Developer Mode session expired – extend it (or automatically, see above) and reinstall the IPK.
+- **DTS/TrueHD:** newer LG and Samsung TVs can't play them; the server converts only the audio to Dolby Digital 5.1.
+- **Picture subtitles (PGS/DVD):** the server burns them in and re-encodes the video – prefer text subtitles (SRT).
+- **Forced subtitles not detected:** many MKVs only name the track "Forced"; since 1.9.1 the name is enough. Fix the file with `mkvpropedit file.mkv --edit track:sN --set flag-forced=1` and refresh the item (stagger bulk changes).
+- **Samsung:** the TV only accepts the PC whose IP is entered in Developer mode (Apps → 12345); signing needs a Samsung TV certificate with the TV's DUID; the Tizen SDK 10 package manager on Windows reported "Network disconnected" – Tizen Studio 6.1 (web-ide) worked; the Certificate Manager needs a desktop GUI, and the TV extension could not be installed via CLI on Linux; always sign updates with the same certificate profile.
+
+Details (German): [README.md](README.md#häufige-probleme).
+
 ## Build
 
 `npm ci && npm test && npm run build && npx ares-package dist -o out`

@@ -103,6 +103,56 @@ Samsung lässt eigene Apps nur mit einem **Samsung-Zertifikat** zu, das an den F
 
 **Bekannt:** Auf Modellen von 2020/2021 (Tizen 5.5/6.0) fehlen evtl. Abstände zwischen Karten und Knöpfen (der ältere Browser kennt Flexbox-`gap` nicht). Ab 2022 (Tizen 6.5) passt es.
 
+## Häufige Probleme
+
+Hürden, auf die wir selbst gestoßen sind – jeweils mit Symptom, Ursache und Lösung.
+
+### LG (webOS)
+
+**App ist nach einigen Tagen verschwunden**
+- *Ursache:* Die Developer-Mode-Sitzung ist abgelaufen; der Fernseher entfernt dann selbst installierte Apps.
+- *Lösung:* In der Developer-Mode-App rechtzeitig verlängern oder automatisch verlängern lassen (siehe „Entwicklermodus automatisch verlängern“). Danach die IPK erneut installieren.
+
+**Update-Hinweis, aber „Homebrew Channel nicht gefunden“**
+- *Ursache:* Updates laufen über den Homebrew Channel, der auf dem Fernseher fehlt.
+- *Lösung:* Homebrew Channel installieren und dort unter Einstellungen → Repositories die Quelle aus „Updates“ eintragen – oder die neue IPK wie beim ersten Mal per `ares-install` aufspielen.
+
+### Ton und Untertitel (LG und Samsung)
+
+**Film mit DTS- oder TrueHD-Ton: Server rechnet um**
+- *Ursache:* Neuere LG- und Samsung-Fernseher spielen DTS und TrueHD nicht ab.
+- *Lösung:* Nichts zu tun – der Server wandelt nur den Ton in Dolby Digital 5.1 um, das Bild bleibt unverändert. Das kostet etwas Rechenzeit auf dem Server.
+
+**Bild-Untertitel (PGS, DVD) machen den Film langsam**
+- *Ursache:* Bild-Untertitel kann die App nicht selbst anzeigen; der Server brennt sie ins Bild ein und muss dafür das Video neu kodieren.
+- *Lösung:* Wenn möglich Text-Untertitel (SRT) wählen. Für häufig genutzte Titel hilft eine SRT-Spur neben der Datei.
+
+**Erzwungene Untertitel („Forced“) werden nicht erkannt**
+- *Ursache:* Viele MKV-Dateien nennen die Spur „Forced“, setzen aber das Forced-Flag nicht.
+- *Lösung:* Ab 1.9.1 erkennt die App solche Spuren auch am Namen („Forced“, „erzwungen“, „nur fremdsprachige“). In der Datei korrigieren: `mkvpropedit datei.mkv --edit track:sN --set flag-forced=1` (N = Nummer der Untertitelspur), danach die Metadaten in Jellyfin aktualisieren. *Achtung:* Viele Dateien auf einmal zu ändern, löst ein Neueinlesen in Jellyfin und in Sonarr/Radarr aus – besser gestaffelt.
+
+### Samsung (Tizen) – Installation
+
+**Fernseher taucht in Tizen Studio / `sdb` nicht auf**
+- *Ursache:* Der Entwicklermodus erlaubt nur Verbindungen vom eingetragenen Rechner.
+- *Lösung:* Apps → **1 2 3 4 5** → Developer mode **On** und bei „Host PC IP“ die IP genau des Rechners eintragen, von dem installiert wird; danach den Fernseher ganz aus- und wieder einschalten.
+
+**Installation scheitert mit Zertifikatsfehler**
+- *Ursache:* Samsung-Fernseher nehmen nur Apps an, die mit einem **Samsung-Zertifikat** signiert sind; das Distributor-Zertifikat muss die Geräte-ID (DUID) des Fernsehers enthalten.
+- *Lösung:* Im Certificate Manager ein Profil vom Typ **Samsung → TV** anlegen (Samsung-Konto nötig), dabei muss der Fernseher verbunden sein, damit die DUID übernommen wird. Bei einem weiteren Fernseher das Distributor-Zertifikat mit beiden DUIDs neu erstellen.
+
+**Package Manager meldet „Network disconnected“**
+- *Beobachtet:* Mit dem Package Manager des Tizen SDK 10 unter Windows (auch ohne Proxy).
+- *Lösung:* **Tizen Studio 6.1** (Variante „web-ide“) verwenden – damit ließen sich die Erweiterungen installieren.
+
+**Certificate Manager startet nicht bzw. Erweiterung lässt sich unter Linux nicht installieren**
+- *Ursache:* Der Certificate Manager braucht eine grafische Oberfläche (kein Betrieb ohne Bildschirm/Server ohne Desktop). Die Erweiterung „TV-SAMSUNG-Extension-Tools“ ließ sich unter Linux über die Befehlszeile nicht installieren.
+- *Lösung:* Zertifikat und Erweiterungen am Desktop-Rechner (Windows oder Linux mit Oberfläche) über den Package Manager einrichten; signieren und installieren geht danach auch per Befehlszeile.
+
+**Update eingespielt, aber Anmeldung weg**
+- *Ursache:* Mit einem anderen Zertifikatsprofil signiert – für den Fernseher ist das eine andere App.
+- *Lösung:* Für Updates immer dasselbe Zertifikatsprofil verwenden (Autor-Zertifikat sichern).
+
 ## Selbst bauen
 
 ```
