@@ -157,6 +157,14 @@ Hürden, auf die wir selbst gestoßen sind – jeweils mit Symptom, Ursache und 
 - *Ursache:* Der Certificate Manager braucht eine grafische Oberfläche (kein Betrieb ohne Bildschirm/Server ohne Desktop). Die Erweiterung „TV-SAMSUNG-Extension-Tools“ ließ sich unter Linux über die Befehlszeile nicht installieren.
 - *Lösung:* Zertifikat und Erweiterungen am Desktop-Rechner (Windows oder Linux mit Oberfläche) über den Package Manager einrichten; signieren und installieren geht danach auch per Befehlszeile.
 
+**`tizen package` bricht unter Linux ab (NoClassDefFoundError `org.tizen.core.gputil.XMLUtil`)**
+- *Beobachtet:* Tizen-Befehlszeile aus Tizen Studio 6.1 unter Linux; das fehlende Paket („Baseline-SDK“) ließ sich per `package-manager-cli` nicht nachinstallieren.
+- *Lösung:* Unter Windows signieren (`tizen package …` läuft dort fehlerfrei) und die signierte `.wgt` dann von Windows oder Linux aus installieren – `tizen install` funktioniert auch unter Linux.
+
+**Certificate Manager startet unter Windows nicht**
+- *Ursache:* Die mitgelieferte Java-8-Laufzeit kennt eine Startoption in der Konfiguration nicht.
+- *Lösung:* In `tools\certificate-manager\eclipse.ini` (im Tizen-Studio-Ordner) die Zeile `--add-modules=ALL-SYSTEM` entfernen und den Certificate Manager neu starten.
+
 **Update eingespielt, aber Anmeldung weg**
 - *Ursache:* Mit einem anderen Zertifikatsprofil signiert – für den Fernseher ist das eine andere App.
 - *Lösung:* Für Updates immer dasselbe Zertifikatsprofil verwenden (Autor-Zertifikat sichern).
