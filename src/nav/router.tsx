@@ -13,6 +13,7 @@ export type Page =
   | { name: 'guide' }
   | { name: 'program'; id: string }
   | { name: 'world'; id: string }
+  | { name: 'movieSeries'; id: string }
   | { name: 'discover' }
   | { name: 'request'; type: 'movie' | 'tv'; id: number }
   | { name: 'seerrPerson'; id: number }

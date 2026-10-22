@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.12.0:** Filmreihen wie im Web – eigene Karte mit Bild und Name der Reihe, Fortschrittsbalken und „x von y gesehen · Weiter mit Teil n“; ein Klick öffnet die Reihen-Seite mit allen Teilen (gesehene mit Haken) und dem Knopf „Weiter mit Teil n“. Momente-Karten zeigen ihre Begründung als Untertitel.
+
 **Neu ab 1.11.0** (Plugin ab 12.46): „Momente“ – zeitabhängige Zeilen vom Server wie „Läuft heute im TV – hier ohne Werbung“, „Neu diese Woche“, „Vor dem Kinostart: Hol die Reihe nach“ oder „Heute vor X Jahren“; Auswahl und Reihenfolge bestimmt der Server, die Begründung steht im Infobereich.
 
 **Neu ab 1.10.0** (Plugin Local Recommendations ab 12.45): Zeile „Filmreihen für dich“ mit dem nächsten Teil („Weiter mit Teil 3“), „Weitere Teile der Reihe“ auf der Detailseite eines Films und – nur zur passenden Zeit – eine Saison-Zeile wie „Weihnachtsfilme“ direkt nach „Als Nächstes“.

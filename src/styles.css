@@ -385,3 +385,11 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-avatar-color.selected, .qk-avatar-choice.selected { border-color: #46d369; }
 .qk-avatar-color.focused, .qk-avatar-choice.focused { border-color: #fff; }
 .qk-avatar-choice { display: flex; flex-direction: column; align-items: center; padding: 8px; border: 3px solid transparent; border-radius: 16px; }
+
+/* Filmreihe (Plugin ab 12.45): Name der Reihe auf dem Bild */
+.qk-series-card .qk-card { display: flex; align-items: center; justify-content: center; }
+.qk-series-card .qk-card > img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.qk-series-name { position: relative; width: 100%; padding: 0 20px; font-size: 26px; font-weight: 800; line-height: 1.2; text-align: center; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); }
+.qk-series-head { padding: 0 0 12px 28px; }
+.qk-series-actions { display: flex; gap: 16px; margin-top: 20px; }
+.qk-poster.watched .qk-poster-image::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 18px; background: rgba(46, 125, 50, 0.92); color: #fff; font-size: 24px; font-weight: 800; text-align: center; line-height: 36px; }

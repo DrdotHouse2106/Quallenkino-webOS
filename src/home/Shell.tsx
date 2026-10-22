@@ -18,6 +18,7 @@ import { PlayerPage } from '../player/PlayerPage'
 import { GuidePage } from '../livetv/GuidePage'
 import { ProgramPage } from '../livetv/ProgramPage'
 import { WorldPage } from '../pages/WorldPage'
+import { MovieSeriesPage } from '../pages/MovieSeriesPage'
 import { DiscoverPage } from '../discover/DiscoverPage'
 import { RequestPage } from '../discover/RequestPage'
 import { SeerrPersonPage } from '../discover/SeerrPersonPage'
@@ -135,6 +136,7 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
             {page.name === 'guide' && <GuidePage api={api} />}
             {page.name === 'program' && <ProgramPage api={api} id={page.id} />}
             {page.name === 'world' && <WorldPage api={api} id={page.id} />}
+            {page.name === 'movieSeries' && <MovieSeriesPage api={api} id={page.id} />}
             {page.name === 'discover' && <DiscoverPage api={api} />}
             {page.name === 'request' && <RequestPage api={api} type={page.type} id={page.id} covered={covered} />}
             {page.name === 'seerrPerson' && <SeerrPersonPage api={api} id={page.id} />}

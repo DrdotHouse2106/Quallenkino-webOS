@@ -64,6 +64,10 @@ export interface Item {
   Seerr?: { type: 'movie' | 'tv' | 'person'; id: number; jellyfinId?: string }
   /** Nur in der App: Karte einer Welt (Startseite). */
   World?: import('./worlds').World
+  /** Nur in der App: Karte einer Filmreihe (Plugin ab 12.45); das Item selbst ist der nächste Teil. */
+  Series?: import('./sections').SeriesInfo
+  /** Nur in der App: Untertitel unter der Karte (z. B. Begründung eines Moments). */
+  Caption?: string
 }
 
 export interface Person {

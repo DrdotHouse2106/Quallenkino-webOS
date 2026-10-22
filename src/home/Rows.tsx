@@ -2,7 +2,8 @@ import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-naviga
 import { memo } from 'preact/compat'
 import { useRef } from 'preact/hooks'
 import type { Api, Item } from '../api/items'
-import { primaryUrl, thumbUrl } from '../api/images'
+import { backdropUrl, primaryUrl, thumbUrl } from '../api/images'
+import { seriesImage } from '../api/sections'
 import { progress, title } from './format'
 import { Img } from '../ui/Img'
 import { worldBackdrop, worldLogo } from '../api/worlds'
@@ -120,6 +121,22 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
       </div>
     )
   }
+  if (item.Series) {
+    // Filmreihe (wie im Web): Bild der Reihe (sonst des nächsten Teils), Name, Fortschritt, „x von y gesehen …“
+    const series = item.Series
+    const watched = series.Total > 0 ? Math.round((series.Watched / series.Total) * 100) : 0
+    return (
+      <div ref={ref} class={`qk-episode qk-series-card ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+        <div class="qk-card">
+          <Img src={seriesImage(api, series) ?? backdropUrl(api, item, 640) ?? thumbUrl(api, item)} fallback={<span class="qk-card-title">{series.Name}</span>} />
+          <div class="qk-world-shade" />
+          <span class="qk-series-name">{series.Name}</span>
+          {watched > 0 && <div class="qk-card-progress"><div style={{ width: `${watched}%` }} /></div>}
+        </div>
+        <div class="qk-card-caption muted">{item.Caption}</div>
+      </div>
+    )
+  }
   if (rank !== undefined) {
     const poster = primaryUrl(api, item, 240)
     return (
@@ -132,7 +149,7 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
   if (kind === 'posters') {
     const poster = primaryUrl(api, item, 240)
     return (
-      <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+      <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''} ${item.UserData?.Played ? 'watched' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
         <div class="qk-poster-image">
           <Img src={poster} fallback={<span>{title(item)}</span>} />
           {item.Badge && <span class="qk-badge" style={{ background: item.Badge.color }}>{item.Badge.label}</span>}
@@ -174,6 +191,19 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
         </div>
         <div class="qk-card-caption">{item.Name}</div>
         <div class="qk-card-caption muted">{startLine(item)}</div>
+      </div>
+    )
+  }
+  if (item.Caption) {
+    // Mit Untertitel (z. B. Begründung eines Moments: „Heute 20:15 auf ZDF – hier ohne Werbung“)
+    return (
+      <div ref={ref} class={`qk-episode ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+        <div class="qk-card">
+          <Img src={image} fallback={<span class="qk-card-title">{title(item)}</span>} />
+          {percent !== null && <div class="qk-card-progress"><div style={{ width: `${percent}%` }} /></div>}
+        </div>
+        <div class="qk-card-caption">{title(item)}</div>
+        <div class="qk-card-caption muted">{item.Caption}</div>
       </div>
     )
   }

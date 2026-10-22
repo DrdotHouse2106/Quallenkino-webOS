@@ -1,5 +1,14 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.12.0 – 2026-10-22
+
+Filmreihen und Momente wie in Jellyfin Web (LG und Samsung):
+
+- **Filmreihen-Karte:** Bild der Reihe (sonst des nächsten Teils), Name, Fortschrittsbalken und darunter „1 von 3 gesehen · Weiter mit Teil 2“ bzw. „4 Teile“.
+- **Reihen-Seite:** Ein Klick auf die Karte zeigt alle Teile in Erscheinungsreihenfolge (gesehene mit Haken) und oben den Knopf „Weiter mit Teil n“, der direkt abspielt bzw. fortsetzt; sind alle gesehen, „Von vorn (Teil 1)“.
+- **Momente:** Die Begründung (z. B. „Heute 20:15 auf ZDF – hier ohne Werbung“) steht jetzt als Untertitel unter der Karte.
+- Gesehene Titel tragen auf Plakat-Karten einen Haken.
+
 ## 1.11.0 – 2026-10-22
 
 - **Momente** (Plugin Local Recommendations ab 12.46, LG und Samsung): zeitabhängige Zeilen vom Server – „Läuft heute im TV – hier ohne Werbung“, „Neu diese Woche“, „Vor dem Kinostart: Hol die Reihe nach“, „Heute vor X Jahren“, „Vor einem Jahr hast du …“. Welche Zeilen erscheinen und in welcher Reihenfolge, bestimmt der Server; die Begründung (z. B. „Heute 20:15 auf ZDF – hier ohne Werbung“) steht im Infobereich.

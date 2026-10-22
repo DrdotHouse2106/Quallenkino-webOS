@@ -17,8 +17,62 @@ interface SectionsConfig {
 interface RawSeries {
   Id?: string
   Name?: string
+  Total?: number
+  Watched?: number
+  NextIndex?: number
   Reason?: string
+  HasBackdrop?: boolean
+  HasPoster?: boolean
   Next?: Item
+}
+
+/** Filmreihe für Karte und Reihen-Seite. */
+export interface SeriesInfo {
+  Id: string
+  Name: string
+  Total: number
+  Watched: number
+  NextIndex: number
+  Reason?: string
+  HasBackdrop?: boolean
+}
+
+export interface SeriesDetail extends SeriesInfo {
+  Parts: Item[]
+}
+
+/** Bild der Reihe (ohne Anmeldung); null, wenn der Server keins hat. */
+export function seriesImage(api: Api, series: SeriesInfo): string | null {
+  return series.HasBackdrop ? `${api.url.replace(/\/+$/, '')}/LocalRecs/MovieSeries/${encodeURIComponent(series.Id)}/Images/Backdrop` : null
+}
+
+/** „2 von 4 gesehen · Weiter mit Teil 3“ bzw. „4 Teile“ (testbar). */
+export function seriesCaption(series: SeriesInfo): string {
+  if (series.Watched > 0 && series.Watched < series.Total) return `${series.Watched} von ${series.Total} gesehen · Weiter mit Teil ${series.NextIndex + 1}`
+  if (series.Watched >= series.Total && series.Total > 0) return `Alle ${series.Total} Teile gesehen`
+  return series.Reason || `${series.Total} Teile`
+}
+
+function info(raw: RawSeries): SeriesInfo {
+  return {
+    Id: String(raw.Id ?? ''),
+    Name: raw.Name ?? '',
+    Total: raw.Total ?? 0,
+    Watched: raw.Watched ?? 0,
+    NextIndex: raw.NextIndex ?? 0,
+    Reason: raw.Reason,
+    HasBackdrop: raw.HasBackdrop,
+  }
+}
+
+/** Reihen-Seite: GET /LocalRecs/MovieSeries/{Id} – alle Teile in Erscheinungsreihenfolge. */
+export async function seriesDetail(api: Api, seriesId: string): Promise<SeriesDetail | null> {
+  const raw = await request<RawSeries & { Parts?: Item[] }>(api.url, `/LocalRecs/MovieSeries/${encodeURIComponent(seriesId)}`, { token: api.token }).catch(() => null)
+  if (!raw) return null
+  const parts = raw.Parts ?? []
+  const full = parts.length ? await byIds(api, parts.map(i => i.Id)).catch(() => parts) : []
+  const byId = new Map(full.map(i => [i.Id, i]))
+  return { ...info(raw), Parts: parts.map(i => byId.get(i.Id) ?? i) }
 }
 
 export interface Section {
@@ -47,7 +101,8 @@ export function parseMovieSeries(raw: { Items?: RawSeries[] } | null): { items: 
   const reasons: Record<string, string> = {}
   for (const series of raw?.Items ?? []) {
     if (!series.Next?.Id) continue
-    items.push(series.Next)
+    const meta = info(series)
+    items.push({ ...series.Next, Series: meta, Caption: seriesCaption(meta) })
     reasons[key(series.Next.Id)] = series.Reason || series.Name || ''
   }
   return { items, reasons }
@@ -63,7 +118,7 @@ export async function movieSeries(api: Api, fallbackTitle: string): Promise<Sect
   // Mit allen Feldern der App nachladen, Reihenfolge der Reihen behalten
   const full = await byIds(api, items.map(i => i.Id)).catch(() => items)
   const byId = new Map(full.map(i => [i.Id, i]))
-  return { title: config.MovieSeriesTitle || fallbackTitle, items: items.map(i => byId.get(i.Id) ?? i), reasons }
+  return { title: config.MovieSeriesTitle || fallbackTitle, items: items.map(i => ({ ...(byId.get(i.Id) ?? i), Series: i.Series, Caption: i.Caption })), reasons }
 }
 
 /** Saison-Zeile (z. B. „Weihnachtsfilme“) – nur wenn der Server sie gerade aktiv meldet. */
@@ -128,5 +183,6 @@ export async function moments(api: Api): Promise<Moment[]> {
   const ids = [...new Set(rows.flatMap(row => row.items.map(i => i.Id)))]
   const full = ids.length ? await byIds(api, ids).catch(() => [] as Item[]) : []
   const byId = new Map(full.map(i => [i.Id, i]))
-  return rows.map(row => ({ ...row, items: row.items.map(i => byId.get(i.Id) ?? i) }))
+  // Begründung als Untertitel der Karte (wie im Web)
+  return rows.map(row => ({ ...row, items: row.items.map(i => ({ ...(byId.get(i.Id) ?? i), Caption: row.reasons[key(i.Id)] })) }))
 }

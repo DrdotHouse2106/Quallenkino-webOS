@@ -145,3 +145,12 @@ describe('Momente (Plugin ab 12.46)', () => {
     expect(rows[0].reasons).toEqual({ ab12: 'Heute 20:15 auf ZDF – hier ohne Werbung' })
   })
 })
+
+describe('Filmreihen-Karte', () => {
+  it('Untertitel wie im Web', async () => {
+    const { seriesCaption } = await import('../src/api/sections')
+    expect(seriesCaption({ Id: '1', Name: 'R', Total: 4, Watched: 2, NextIndex: 2 })).toBe('2 von 4 gesehen · Weiter mit Teil 3')
+    expect(seriesCaption({ Id: '1', Name: 'R', Total: 4, Watched: 0, NextIndex: 0, Reason: '4 Teile' })).toBe('4 Teile')
+    expect(seriesCaption({ Id: '1', Name: 'R', Total: 3, Watched: 3, NextIndex: 0 })).toBe('Alle 3 Teile gesehen')
+  })
+})
