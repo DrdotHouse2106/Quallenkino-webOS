@@ -23,6 +23,8 @@ import { Page } from './Page'
 import { startPlayback } from '../player/start'
 import { youtubeKey } from './YouTubePage'
 import { YouTubeInline } from '../ui/YouTubeInline'
+// Samsung: keine eingebettete YouTube-Vorschau (ruckelt dort), Trailer über die YouTube-App
+import { isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 import { reportView } from '../api/behavior'
@@ -123,7 +125,7 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
     <Page focusKey="details" class="qk-details">
       {item && <HeroBackdrop api={api} item={item} trailerUrl={covered ? null : trailerUrl} onTrailerEnd={() => setTrailerUrl(null)} onTrailerPlaying={() => {}} />}
       {/* Ohne Trailer auf dem Server: YouTube-Trailer oben rechts (wie Android) */}
-      {item && !item.LocalTrailerCount && !covered && loadSettings().trailers && remoteTrailerKey(item) && <YouTubeInline key={item.Id} videoKey={remoteTrailerKey(item)!} />}
+      {item && !item.LocalTrailerCount && !covered && !isTizen && loadSettings().trailers && remoteTrailerKey(item) && <YouTubeInline key={item.Id} videoKey={remoteTrailerKey(item)!} />}
       <div class="qk-page-main">
         {failed && <p class="qk-error">{t.detailsFailed}</p>}
         {item && (

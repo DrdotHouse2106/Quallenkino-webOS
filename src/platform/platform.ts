@@ -16,7 +16,8 @@ interface TizenApi {
     launchAppControl(control: unknown, appId: string | null, onSuccess?: () => void, onError?: (error: unknown) => void): void
     ApplicationControl?: unknown
   }
-  ApplicationControl: new (operation: string, uri?: string) => unknown
+  ApplicationControl: new (operation: string, uri?: string | null, mime?: string | null, category?: string | null, data?: unknown[]) => unknown
+  ApplicationControlData: new (key: string, value: string[]) => unknown
   tvinputdevice?: {
     registerKey(name: string): void
     getSupportedKeys(): { name: string }[]
@@ -72,7 +73,9 @@ export function openTizenYouTube(key: string): Promise<boolean> {
   if (!api) return Promise.resolve(false)
   return new Promise(resolve => {
     try {
-      const control = new api.ApplicationControl('http://tizen.org/appcontrol/operation/view', `https://www.youtube.com/watch?v=${encodeURIComponent(key)}`)
+      // Video-Adresse plus „PAYLOAD“ (so übergeben Samsung-Apps die Video-Id an die YouTube-App)
+      const payload = new api.ApplicationControlData('PAYLOAD', [JSON.stringify({ values: `v=${key}` })])
+      const control = new api.ApplicationControl('http://tizen.org/appcontrol/operation/view', `https://www.youtube.com/watch?v=${encodeURIComponent(key)}`, null, null, [payload])
       api.application.launchAppControl(control, '111299001912', () => resolve(true), () => resolve(false))
     } catch {
       resolve(false)

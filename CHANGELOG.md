@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.5 – 2026-10-22
+
+- **Samsung: YouTube-Trailer in der YouTube-App.** Der eingebettete YouTube-Player ruckelt auf Samsung-Fernsehern (der Browser dekodiert ohne Hardware). „Trailer“ öffnet dort jetzt die YouTube-App des Fernsehers mit dem Video; mit „Zurück“ geht es zu Quallenkino. Nur wenn die App nicht startet, kommt der eingebettete Player. Die automatische YouTube-Vorschau auf Detail- und Anfrageseiten ist auf Samsung aus. Trailer aus der eigenen Bibliothek (z. B. von Trailarr) haben wie bisher Vorrang und laufen direkt.
+
 ## 1.9.4 – 2026-10-22
 
 - **Bild-Untertitel (DVD, PGS, ASS) werden angezeigt:** Ist eine solche Spur gewählt – beim Start oder während der Wiedergabe –, startet die App den Stream jetzt mit eingebrannten Untertiteln neu. Bisher blieb sie bei direkter Wiedergabe, weil der Server die Datei trotzdem als direkt abspielbar meldet; die Untertitel fehlten dann (LG und Samsung). Zurück zu Text-Untertiteln oder „Aus“ wird wieder direkt abgespielt.

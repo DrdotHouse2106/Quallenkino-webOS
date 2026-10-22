@@ -25,6 +25,8 @@ import { Page } from '../pages/Page'
 import { Icon } from '../ui/Icon'
 import { toast } from '../ui/Toast'
 import { YouTubeInline } from '../ui/YouTubeInline'
+// Samsung: keine eingebettete YouTube-Vorschau (ruckelt dort), Trailer über die YouTube-App
+import { isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 
@@ -112,7 +114,7 @@ export function RequestPage({ api, type, id, covered }: { api: Api; type: MediaT
   return (
     <Page focusKey="request" class="qk-details" onBackPress={() => (picking ? (setPicking(false), requestAnimationFrame(() => setFocus('r-buttons')), true) : false)}>
       <HeroBackdrop api={api} item={null} image={backdropImage(info?.backdropPath)} trailerUrl={covered ? null : trailerUrl} onTrailerEnd={() => setTrailerUrl(null)} onTrailerPlaying={() => {}} />
-      {info?.trailer && !local?.LocalTrailerCount && !covered && loadSettings().trailers && <YouTubeInline key={info.trailer.key} videoKey={info.trailer.key} label={info.trailer.label || undefined} />}
+      {info?.trailer && !local?.LocalTrailerCount && !covered && !isTizen && loadSettings().trailers && <YouTubeInline key={info.trailer.key} videoKey={info.trailer.key} label={info.trailer.label || undefined} />}
       <div class="qk-page-main">
         {failed && <p class="qk-error">{t.detailsFailed}</p>}
         {info && (

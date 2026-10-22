@@ -1,5 +1,5 @@
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation'
-import { useEffect, useRef } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { FULL_VOLUME } from '../home/TrailerVideo'
 import { t } from '../i18n'
 import { focusSoon } from '../nav/focus'
@@ -7,6 +7,7 @@ import { Keys } from '../nav/keys'
 import { useRouter } from '../nav/router'
 import { commandPlayer, listenToPlayer, openYouTube, playerUrl } from '../platform/youtube'
 import { toast } from '../ui/Toast'
+import { isTizen } from '../platform/platform'
 import { Page } from './Page'
 
 /** Kommt der Player bis dahin nicht in Gang (z. B. ohne Internet), wird die YouTube-App versucht. */
@@ -18,6 +19,27 @@ const READY_TIMEOUT_MS = 10_000
  * an, „Zurück“ schließt. Geht der Player nicht (Fehler, nicht einbettbar), öffnet sich die YouTube-App.
  */
 export function YouTubePage({ videoKey }: { videoKey: string }) {
+  const router = useRouter()
+  // Samsung: Der eingebettete Player ruckelt dort (Software-Dekodierung im Browser) – zuerst die YouTube-App
+  // des Fernsehers öffnen, nur wenn das nicht geht, der eingebettete Player
+  const [embedded, setEmbedded] = useState(!isTizen)
+  useEffect(() => {
+    if (embedded) return
+    let active = true
+    openYouTube(videoKey).then(opened => {
+      if (!active) return
+      if (opened) router.pop()
+      else setEmbedded(true)
+    })
+    return () => {
+      active = false
+    }
+  }, [videoKey])
+  if (!embedded) return <Page focusKey="youtube" class="qk-youtube-page"><FocusHolder onEnter={() => {}} /></Page>
+  return <YouTubeFrame videoKey={videoKey} />
+}
+
+function YouTubeFrame({ videoKey }: { videoKey: string }) {
   const router = useRouter()
   const frame = useRef<HTMLIFrameElement>(null)
 
