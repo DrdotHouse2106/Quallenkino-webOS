@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.3 – 2026-10-22
+
+- **Samsung: scharfes App-Symbol.** Die Tizen-Fassung bringt jetzt ein Symbol mit 512 × 512 Pixeln mit (bisher 80 × 80 – auf der großen Kachel verpixelt). Die LG-Symbole (80 und 130 Pixel) entsprechen den webOS-Vorgaben und bleiben.
+
 ## 1.9.2 – 2026-10-22
 
 - **Samsung 2020/2021 (Tizen 5.5/6.0):** Abstände zwischen Karten, Knöpfen und Menüpunkten stimmen jetzt auch dort – der ältere Browser kennt Flexbox-Abstände (`gap`) nicht, der Tizen-Build rechnet sie deshalb in Ränder um. LG ist unverändert.
