@@ -101,8 +101,6 @@ Samsung lässt eigene Apps nur mit einem **Samsung-Zertifikat** zu, das an den F
 
 **Updates:** Eine Selbst-Aktualisierung gibt es auf Samsung ohne Store nicht. Die App prüft beim Öffnen (abschaltbar in den Einstellungen), ob es eine neue Version gibt, und zeigt einen Hinweis. Dann die neue `quallenkino-tizen.wgt` laden und Schritt 5 wiederholen – mit **demselben** Zertifikatsprofil, dann bleiben Einstellungen und Anmeldung erhalten.
 
-**Bekannt:** Auf Modellen von 2020/2021 (Tizen 5.5/6.0) fehlen evtl. Abstände zwischen Karten und Knöpfen (der ältere Browser kennt Flexbox-`gap` nicht). Ab 2022 (Tizen 6.5) passt es.
-
 ## Häufige Probleme
 
 Hürden, auf die wir selbst gestoßen sind – jeweils mit Symptom, Ursache und Lösung.
@@ -137,6 +135,11 @@ Hürden, auf die wir selbst gestoßen sind – jeweils mit Symptom, Ursache und 
 - *Ergebnis:* Oben „In deiner Bibliothek“, darunter „Weitere Filme“ und „Weitere Serien“ mit Stand und Anfrage-Knopf.
 
 ### Samsung (Tizen) – Installation
+
+**Entwicklermodus: Bei „1 2 3 4 5“ passiert nichts oder die Ziffern landen im Suchfeld**
+- *Ursache:* Die Eingabe ist zeitkritisch und funktioniert nur, wenn der Fokus auf einer App-Kachel liegt.
+- *Lösung:* Auf der Apps-Seite eine App-Kachel auswählen (nicht die Suche) und die Ziffern zügig hintereinander eingeben – innerhalb von etwa 2 Sekunden. Bei der Smart Remote ohne Zifferntasten über die Taste „123“ bzw. das Ziffernfeld auf dem Bildschirm; alternativ die Fernbedienung in der SmartThings-App. Danach den Fernseher neu starten: Ein/Aus gedrückt halten, bis das Logo erscheint.
+- *Tipp:* Im Browser `http://<IP des Fernsehers>:8001/api/v2/` aufrufen – „developerMode“ und „developerIP“ zeigen, ob der Modus aktiv ist und welcher Rechner eingetragen ist.
 
 **Fernseher taucht in Tizen Studio / `sdb` nicht auf**
 - *Ursache:* Der Entwicklermodus erlaubt nur Verbindungen vom eingetragenen Rechner.

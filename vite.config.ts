@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import preact from '@preact/preset-vite'
 import { readFileSync } from 'node:fs'
+import { flexGapFallback } from './src/platform/flexGap'
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
 // Samsung Tizen 5.5 (2020) hat Chromium 69, webOS ab 6 Chromium 79
@@ -22,9 +23,17 @@ const classicScript = {
   },
 }
 
+const tizenFlexGap = {
+  name: 'qk-tizen-flex-gap',
+  enforce: 'pre' as const,
+  transform(code: string, id: string) {
+    return tizen && id.endsWith('.css') ? flexGapFallback(code) : null
+  },
+}
+
 export default defineConfig({
   base: './',
-  plugins: [preact(), classicScript],
+  plugins: [preact(), classicScript, tizenFlexGap],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

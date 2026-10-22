@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.9.2 – 2026-10-22
+
+- **Samsung 2020/2021 (Tizen 5.5/6.0):** Abstände zwischen Karten, Knöpfen und Menüpunkten stimmen jetzt auch dort – der ältere Browser kennt Flexbox-Abstände (`gap`) nicht, der Tizen-Build rechnet sie deshalb in Ränder um. LG ist unverändert.
+- README „Häufige Probleme“: Samsung-Entwicklermodus („1 2 3 4 5“ auf der Apps-Seite).
+
 ## 1.9.1 – 2026-10-22
 
 - **Erzwungene Untertitel auch ohne Markierung:** Eine Spur mit „Forced“, „erzwungen“ oder „nur fremdsprachige“ im Namen gilt als erzwungen, auch wenn die Datei sie nicht so markiert. „Intelligent“ wählt sie bei deutschem Ton automatisch; im Menü steht „(erzwungen)“ dabei.

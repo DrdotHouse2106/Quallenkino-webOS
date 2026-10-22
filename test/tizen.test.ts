@@ -16,3 +16,16 @@ describe('Samsung (Tizen)', () => {
     expect(deviceProfile(undefined, 'webos').Name).toBe('Quallenkino webOS')
   })
 })
+
+describe('Samsung (Tizen): Flexbox-Abstände ohne gap', () => {
+  it('rechnet gap in Ränder der Kinder um', async () => {
+    const { flexGapFallback } = await import('../src/platform/flexGap')
+    const css = flexGapFallback('.a { display: flex; gap: 20px; }\n.b { display: flex; flex-direction: column; gap: 12px; }\n.c { display: flex; flex-wrap: wrap; gap: 16px; }\n.d { display: grid; gap: 8px; }')
+    expect(css).not.toMatch(/\.a \{[^}]*gap/)
+    expect(css).toContain('.a > * + * { margin-left: 20px; }')
+    expect(css).toContain('.b > * + * { margin-top: 12px; }')
+    expect(css).toContain('.c > * { margin: 0 16px 16px 0; }')
+    // Grid behält gap (kennt auch das alte Chromium)
+    expect(css).toMatch(/\.d \{[^}]*gap: 8px/)
+  })
+})
