@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.15.0 – 2026-10-23
+
+- **Kommende Folgen auf der Serienseite** wie im Web (Plugin Local Recommendations ab 12.52, mit Sonarr): unter den Eckdaten ein grüner Hinweis „Neu: S02E05“, wenn heute eine Folge erschienen ist, und ein blauer mit der nächsten Folge, z. B. „Staffelstart morgen · 19:00 Uhr · Paramount+ · S03E01 Der Anfang · +2 weitere bis 07.11.“.
+- Heute erschienene Folgen tragen in der Folgenliste „NEU“ und einen grünen Rand.
+
 ## 1.14.1 – 2026-10-23
 
 - **Jahreszeit-Zeile zuverlässiger** (z. B. „Halloween“): Sie wird jetzt auch abgefragt, wenn der Server den Schalter nicht eigens meldet – ob gerade eine Saison läuft, sagt der Endpunkt selbst. Fällt die Abfrage der Server-Einstellungen beim Start einmal aus, versucht die App es beim nächsten Laden erneut, statt bis zum Neustart ohne Filmreihen, Momente, Demnächst und Jahreszeit-Zeile zu bleiben.

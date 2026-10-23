@@ -6,6 +6,7 @@ import { backdropUrl, primaryUrl, thumbUrl } from '../api/images'
 import { seriesImage } from '../api/sections'
 import { progress, title } from './format'
 import { Img } from '../ui/Img'
+import { t } from '../i18n'
 import { worldBackdrop, worldLogo } from '../api/worlds'
 import { useAuthorizedImage } from '../ui/authImage'
 import { clock, dayLabel, programProgress } from '../api/livetv'
@@ -172,10 +173,11 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
   const image = thumbUrl(api, item)
   if (kind === 'episodes') {
     return (
-      <div ref={ref} class={`qk-episode ${focused ? 'focused' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+      <div ref={ref} class={`qk-episode ${focused ? 'focused' : ''} ${item.NewToday ? 'new' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
         <div class="qk-card">
           <Img src={image} fallback={<span class="qk-card-title">{item.Name}</span>} />
           {percent !== null && <div class="qk-card-progress"><div style={{ width: `${percent}%` }} /></div>}
+          {item.NewToday && <span class="qk-badge qk-badge-new">{t.newBadge}</span>}
         </div>
         <div class="qk-card-caption">{item.IndexNumber != null ? `${item.IndexNumber}. ` : ''}{item.Name}</div>
       </div>

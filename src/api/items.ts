@@ -74,6 +74,8 @@ export interface Item {
   Upcoming?: boolean
   /** Nur in der App: kommende Folge aus „Demnächst“ (die Karte selbst ist die Serie). */
   UpcomingEpisode?: import('./sections').UpcomingEpisode
+  /** Nur in der App: Folge ist heute erschienen (Serienseite, Plugin ab 12.52). */
+  NewToday?: boolean
 }
 
 export interface Person {

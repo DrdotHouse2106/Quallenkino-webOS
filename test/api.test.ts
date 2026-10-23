@@ -181,3 +181,20 @@ describe('Demnächst: Folgen-Ansicht (Plugin ab 12.49)', () => {
     expect(item.Caption).toBe('Staffelstart morgen')
   })
 })
+
+describe('Serienseite: kommende und neue Folgen', () => {
+  it('verbindet Text und MoreText, markiert NewToday', async () => {
+    const { parseSeriesUpcoming } = await import('../src/api/sections')
+    const info = parseSeriesUpcoming({
+      Text: 'Staffelstart morgen · 19:00 Uhr · Paramount+ · S03E01 Der Anfang',
+      MoreText: '+2 weitere bis 07.11.',
+      NewText: 'Neu: S02E05',
+      NewToday: [{ ItemId: 'C2B157EA3DC84584A30BCB96492EDA16' }],
+    })
+    expect(info?.next).toBe('Staffelstart morgen · 19:00 Uhr · Paramount+ · S03E01 Der Anfang · +2 weitere bis 07.11.')
+    expect(info?.newText).toBe('Neu: S02E05')
+    expect(info?.newIds).toEqual(['c2b157ea3dc84584a30bcb96492eda16'])
+    expect(parseSeriesUpcoming(undefined)).toBeNull()
+    expect(parseSeriesUpcoming({ Text: '' })).toBeNull()
+  })
+})

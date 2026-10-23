@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.15.0** (Plugin ab 12.52): Serienseite mit Hinweis auf heute neue Folgen („Neu: S02E05“, in der Folgenliste markiert) und auf die nächste Folge mit Termin, Sender und Folgentitel – wie im Web.
+
 **1.14.1:** Jahreszeit-Zeile (z. B. „Halloween“) wie im Web zuverlässig an zweiter Stelle nach „Als Nächstes“.
 
 **Neu ab 1.14.0** (Plugin ab 12.49): „Demnächst“ wie im Web – Termin auf der Karte, Klick auf eine Folge zeigt Staffel/Folge, Tag, Uhrzeit, Sender, Beschreibung und „Zur Serie“.

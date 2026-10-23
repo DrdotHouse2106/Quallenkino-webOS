@@ -28,7 +28,7 @@ import { isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
 import { reportView } from '../api/behavior'
-import { seriesParts } from '../api/sections'
+import { seriesParts, seriesUpcoming, type SeriesUpcoming } from '../api/sections'
 
 /** Trailer startet auf der Detailseite nach kurzer Zeit im Hintergrund (wie Android). */
 const AUTO_TRAILER_MS = 2_000
@@ -54,6 +54,7 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
   const [likes, setLikes] = useState<boolean | null>(null)
   const [failed, setFailed] = useState(false)
+  const [upcoming, setUpcoming] = useState<SeriesUpcoming | null>(null)
 
   useEffect(() => {
     let active = true
@@ -73,6 +74,17 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
       active = false
     }
   }, [id])
+
+  // Serie: Hinweis auf kommende und heute neue Folgen (Sonarr über das Plugin ab 12.52)
+  useEffect(() => {
+    setUpcoming(null)
+    if (item?.Type !== 'Series') return
+    let active = true
+    seriesUpcoming(api, item.Id).then(info => active && setUpcoming(info))
+    return () => {
+      active = false
+    }
+  }, [item?.Id])
 
   // Serie: Staffeln, dann die Folgen der gewählten Staffel
   useEffect(() => {
@@ -138,6 +150,8 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
             <HeroInfo api={api} item={item} reason={reasons[reasonKey(item.Id)]}>
               {item.Taglines?.[0] && <div class="qk-tagline">{item.Taglines[0]}</div>}
             </HeroInfo>
+            {upcoming?.newText && <div class="qk-series-note new">{upcoming.newText}</div>}
+            {upcoming?.next && <div class="qk-series-note next">{upcoming.next}</div>}
             <ButtonRow>
               <ActionButton focusKey="d-play" icon="play" label={resumable ? t.resume : t.play} onPress={() => startPlayback(api, router, item)} />
               {resumable && <ActionButton focusKey="d-restart" icon="replay" label={t.fromStart} onPress={() => startPlayback(api, router, item, true)} />}
@@ -150,7 +164,7 @@ export function DetailsPage({ api, id, season: initialSeason, reasons, covered }
         <div class="qk-rows qk-page-rows">
           {seasons.length > 1 && <SeasonTabs seasons={seasons} current={season} onPick={setSeason} />}
           {episodes.length > 0 && (
-            <Row api={api} row={{ key: 'd-episodes', title: seasons.find(s => s.Id === season)?.Name ?? t.episodes, items: episodes, kind: 'episodes' }}
+            <Row api={api} row={{ key: 'd-episodes', title: seasons.find(s => s.Id === season)?.Name ?? t.episodes, items: markNew(episodes, upcoming), kind: 'episodes' }}
               onFocusItem={() => {}} onOpen={episode => startPlayback(api, router, episode)} />
           )}
           {cast.length > 0 && (
@@ -201,4 +215,10 @@ function remoteTrailerKey(item: Item): string | null {
     if (key) return key
   }
   return null
+}
+
+/** Heute erschienene Folgen in der Folgenliste markieren. */
+function markNew(episodes: Item[], upcoming: SeriesUpcoming | null): Item[] {
+  if (!upcoming?.newIds.length) return episodes
+  return episodes.map(e => (upcoming.newIds.includes(e.Id.replace(/-/g, '').toLowerCase()) ? { ...e, NewToday: true } : e))
 }

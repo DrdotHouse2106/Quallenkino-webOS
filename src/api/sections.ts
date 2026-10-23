@@ -312,3 +312,39 @@ export function episodeWhen(episode: UpcomingEpisode, toLocal: (iso: string) => 
   if (episode.network) parts.push(episode.network)
   return parts.join(' · ')
 }
+
+interface RawSeriesUpcoming {
+  Text?: string
+  MoreText?: string
+  NewText?: string
+  NewToday?: { ItemId?: string }[]
+}
+
+/** Hinweis auf kommende bzw. heute neue Folgen auf der Serienseite (Plugin ab 12.52). */
+export interface SeriesUpcoming {
+  /** „Neue Folge heute · 21:00 Uhr · Paramount+ · S02E05 Folgentitel · +2 weitere bis 07.11.“ */
+  next?: string
+  /** „Neu: S02E05“ */
+  newText?: string
+  /** Heute erschienene, schon vorhandene Folgen (Id ohne Bindestriche, klein). */
+  newIds: string[]
+}
+
+/** Antwort von GET /LocalRecs/Upcoming/Series/{id} (testbar); null bei 204 oder ohne Inhalt. */
+export function parseSeriesUpcoming(raw: RawSeriesUpcoming | null | undefined): SeriesUpcoming | null {
+  if (!raw) return null
+  const next = [raw.Text, raw.MoreText].filter(Boolean).join(' · ') || undefined
+  const newIds = (raw.NewToday ?? []).map(e => (e.ItemId ? key(e.ItemId) : '')).filter(Boolean)
+  const newText = raw.NewText || undefined
+  return next || newText || newIds.length ? { next, newText, newIds } : null
+}
+
+/** Serienseite: nächste Folge aus Sonarr und heute neue Folgen; null ohne Plugin, ohne Sonarr oder ohne Termin. */
+export async function seriesUpcoming(api: Api, seriesId: string): Promise<SeriesUpcoming | null> {
+  const raw = await request<RawSeriesUpcoming | undefined>(
+    api.url,
+    `/LocalRecs/Upcoming/Series/${key(seriesId)}?utcOffsetMinutes=${utcOffsetMinutes()}`,
+    { token: api.token },
+  ).catch(() => null)
+  return parseSeriesUpcoming(raw)
+}
