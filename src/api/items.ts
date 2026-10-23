@@ -72,6 +72,8 @@ export interface Item {
   BackdropUrl?: string
   /** Nur in der App: Film aus „Demnächst“ (noch nicht auf dem Server). */
   Upcoming?: boolean
+  /** Nur in der App: kommende Folge aus „Demnächst“ (die Karte selbst ist die Serie). */
+  UpcomingEpisode?: import('./sections').UpcomingEpisode
 }
 
 export interface Person {

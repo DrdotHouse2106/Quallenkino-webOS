@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.14.0 – 2026-10-23
+
+- **Demnächst wie im Web** (Plugin ab 12.49): Karten im Querformat mit Termin als Untertitel, Reihenfolge wie vom Server.
+- **Folgen-Ansicht:** Ein Klick auf eine neue Folge zeigt „S02E01 · Folgentitel“, Tag, Uhrzeit (in deiner Zeitzone) und Sender, die Beschreibung der Folge, den Hinweis auf weitere neue Folgen und den Knopf „Zur Serie“.
+- **Filme:** Titel, Jahr, Termin und Beschreibung.
+
 ## 1.13.0 – 2026-10-23
 
 - **Demnächst** (Plugin Local Recommendations ab 12.48, mit Sonarr/Radarr): neue Folgen und Filme, die bald kommen, mit Untertitel wie im Web (z. B. Termin, Staffel/Folge). Eine Folge öffnet die Serie; ein Film zeigt Titel, Jahr und Beschreibung (es wird nichts angefragt).

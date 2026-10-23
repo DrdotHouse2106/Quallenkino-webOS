@@ -168,3 +168,16 @@ describe('Demnächst (Plugin ab 12.48)', () => {
     expect(items[2].ImageUrl).toBeNull()
   })
 })
+
+describe('Demnächst: Folgen-Ansicht (Plugin ab 12.49)', () => {
+  it('Folge mit Code, Termin und Sender', async () => {
+    const { parseUpcoming, episodeLine, episodeWhen } = await import('../src/api/sections')
+    const [item] = parseUpcoming('http://srv', { Items: [{ Kind: 'Episode', ReleaseType: 'SeasonPremiere', Title: 'Serie', Subtitle: 'Staffelstart morgen',
+      Series: { Id: 'ser1', Name: 'Serie' } as never, SeasonNumber: 2, EpisodeNumber: 1, EpisodeTitle: 'Anfang', Date: '2026-10-24T19:00:00Z', Network: 'Paramount+', EpisodeOverview: 'Text', MoreEpisodes: 2 }] })
+    const episode = item.UpcomingEpisode!
+    expect(episodeLine(episode)).toBe('S02E01 · Anfang')
+    expect(episodeWhen(episode, () => new Date(2026, 9, 24, 21, 0))).toBe('Samstag, 24.10.2026 · 21:00 Uhr · Paramount+')
+    expect(episode.more).toBe(2)
+    expect(item.Caption).toBe('Staffelstart morgen')
+  })
+})

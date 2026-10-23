@@ -200,9 +200,17 @@ export async function rowSettings(api: Api): Promise<{ movies?: string; series?:
 
 interface RawUpcoming {
   Kind?: 'Episode' | 'Movie'
+  ReleaseType?: string
   Title?: string
   Subtitle?: string
   Date?: string
+  LocalDate?: string
+  Network?: string
+  EpisodeOverview?: string
+  SeasonNumber?: number
+  EpisodeNumber?: number
+  EpisodeTitle?: string
+  MoreEpisodes?: number
   Series?: Item
   Movie?: { RadarrId?: number; TmdbId?: number; ImdbId?: string; Year?: number; Overview?: string; OfficialRating?: string; PosterUrl?: string; BackdropUrl?: string }
 }
@@ -216,7 +224,22 @@ export function parseUpcoming(baseUrl: string, raw: { Items?: RawUpcoming[] } | 
   const items: Item[] = []
   for (const entry of raw?.Items ?? []) {
     if (entry.Kind === 'Episode' && entry.Series?.Id) {
-      items.push({ ...entry.Series, Caption: entry.Subtitle })
+      items.push({
+        ...entry.Series,
+        Caption: entry.Subtitle,
+        UpcomingEpisode: {
+          seriesId: entry.Series.Id,
+          seriesName: entry.Title ?? entry.Series.Name ?? '',
+          season: entry.SeasonNumber,
+          episode: entry.EpisodeNumber,
+          episodeTitle: entry.EpisodeTitle,
+          date: entry.Date,
+          network: entry.Network,
+          overview: entry.EpisodeOverview,
+          more: typeof entry.MoreEpisodes === 'number' ? entry.MoreEpisodes : undefined,
+          subtitle: entry.Subtitle,
+        },
+      })
     } else if (entry.Kind === 'Movie' && entry.Movie) {
       const movie = entry.Movie
       const backdrop = abs(movie.BackdropUrl)
@@ -243,4 +266,41 @@ export async function upcoming(api: Api): Promise<Item[]> {
   if (!config.Upcoming) return []
   const raw = await request<{ Items?: RawUpcoming[] }>(api.url, `/LocalRecs/Upcoming?utcOffsetMinutes=${utcOffsetMinutes()}`, { token: api.token }).catch(() => null)
   return parseUpcoming(api.url, raw)
+}
+
+/** Kommende Folge aus „Demnächst“ (Plugin ab 12.49). */
+export interface UpcomingEpisode {
+  seriesId: string
+  seriesName: string
+  season?: number
+  episode?: number
+  episodeTitle?: string
+  date?: string
+  network?: string
+  overview?: string
+  more?: number
+  subtitle?: string
+}
+
+const WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag']
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/** „S02E05 · Folgentitel“ (testbar). */
+export function episodeLine(episode: UpcomingEpisode): string {
+  const code = episode.season != null && episode.episode != null ? `S${pad(episode.season)}E${pad(episode.episode)}` : ''
+  return [code, episode.episodeTitle].filter(Boolean).join(' · ')
+}
+
+/** „Samstag, 24.10.2026 · 21:00 Uhr · Paramount+“ in der Ortszeit des Fernsehers (testbar). */
+export function episodeWhen(episode: UpcomingEpisode, toLocal: (iso: string) => Date = iso => new Date(iso)): string {
+  const parts: string[] = []
+  if (episode.date) {
+    const d = toLocal(episode.date)
+    if (!isNaN(d.getTime())) {
+      parts.push(`${WEEKDAYS[d.getDay()]}, ${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`)
+      parts.push(`${pad(d.getHours())}:${pad(d.getMinutes())} Uhr`)
+    }
+  }
+  if (episode.network) parts.push(episode.network)
+  return parts.join(' · ')
 }
