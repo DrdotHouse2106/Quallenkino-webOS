@@ -154,3 +154,17 @@ describe('Filmreihen-Karte', () => {
     expect(seriesCaption({ Id: '1', Name: 'R', Total: 3, Watched: 3, NextIndex: 0 })).toBe('Alle 3 Teile gesehen')
   })
 })
+
+describe('Demnächst (Plugin ab 12.48)', () => {
+  it('Folgen als Serien-Karte, Filme mit eigenen Bildern', async () => {
+    const { parseUpcoming } = await import('../src/api/sections')
+    const items = parseUpcoming('http://srv:8096/', { Items: [
+      { Kind: 'Episode', Title: 'Serie', Subtitle: 'Fr · S2 E3 „Titel“', Series: { Id: 'ser1', Name: 'Serie' } as never },
+      { Kind: 'Movie', Title: 'Film', Subtitle: 'Kinostart 12.11.', Movie: { TmdbId: 42, Year: 2026, Overview: 'Text', BackdropUrl: 'LocalRecs/Upcoming/Movies/7/Images/Backdrop' } },
+      { Kind: 'Movie', Title: 'Ohne Bild', Movie: { RadarrId: 8 } },
+    ] })
+    expect(items[0]).toMatchObject({ Id: 'ser1', Caption: 'Fr · S2 E3 „Titel“' })
+    expect(items[1]).toMatchObject({ Id: 'upcoming-42', Upcoming: true, ProductionYear: 2026, ImageUrl: 'http://srv:8096/LocalRecs/Upcoming/Movies/7/Images/Backdrop' })
+    expect(items[2].ImageUrl).toBeNull()
+  })
+})

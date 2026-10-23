@@ -68,6 +68,10 @@ export interface Item {
   Series?: import('./sections').SeriesInfo
   /** Nur in der App: Untertitel unter der Karte (z. B. Begründung eines Moments). */
   Caption?: string
+  /** Nur in der App: fertige Adresse des Hintergrundbilds (z. B. Film aus „Demnächst“). */
+  BackdropUrl?: string
+  /** Nur in der App: Film aus „Demnächst“ (noch nicht auf dem Server). */
+  Upcoming?: boolean
 }
 
 export interface Person {

@@ -17,7 +17,7 @@ import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
 import { serverBillboard } from '../api/billboard'
-import { moments, movieSeries, seasonal } from '../api/sections'
+import { moments, movieSeries, rowSettings, seasonal, upcoming } from '../api/sections'
 import type { RowData } from './Rows'
 import { daypartOrder, reorderRows } from '../api/behavior'
 
@@ -121,6 +121,7 @@ export function useHomeData(api: Api) {
   const [reasons, setReasons] = useState<Record<string, string>>({})
   const [seriesReasons, setSeriesReasons] = useState<Record<string, string>>({})
   const [momentKeys, setMomentKeys] = useState<string[]>([])
+  const [rowConfig, setRowConfig] = useState<{ movies?: string; series?: string; liveTv?: string; liveTvRow: boolean }>({ liveTvRow: true })
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
   const [billboardReasons, setBillboardReasons] = useState<Record<string, string>>({})
@@ -173,6 +174,11 @@ export function useHomeData(api: Api) {
       // (ohne Object.fromEntries – das kennt Chromium 69 auf Samsung 2020 nicht)
       setRows(current => list.reduce<Record<string, RowData>>((all, m) => ({ ...all, [`moment-${m.key}`]: { key: `moment-${m.key}`, title: m.title, kind: 'cards', items: m.items } }), { ...current }))
     }).catch(() => {})
+    upcoming(api).then(items => {
+      if (active && items.length) setRows(current => ({ ...current, upcoming: { key: 'upcoming', title: t.rowUpcoming, kind: 'cards', items } }))
+    }).catch(() => {})
+    // Zeilentitel und Live-TV-Schalter wie im Web (Plugin ab 12.48)
+    rowSettings(api).then(settings => active && setRowConfig(settings)).catch(() => {})
     seasonal(api).then(section => {
       if (!active || !section) return
       setRows(current => ({ ...current, seasonal: { key: 'seasonal', title: section.title, kind: 'cards', items: section.items } }))
@@ -193,8 +199,12 @@ export function useHomeData(api: Api) {
   }, [api.url, api.userId, api.token])
 
   // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
-  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'tv', 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
-  const orderedRows = order.map(key => (key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
+  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'upcoming', ...(rowConfig.liveTvRow ? ['tv'] : []), 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
+  const titled = (row: RowData | undefined): RowData | undefined => {
+    const title = row?.key === 'recs-movies' ? rowConfig.movies : row?.key === 'recs-series' ? rowConfig.series : row?.key === 'tv' ? rowConfig.liveTv : undefined
+    return row && title ? { ...row, title } : row
+  }
+  const orderedRows = order.map(key => titled(key === 'nextup' ? withoutResumed(rows.nextup, rows.resume) : rows[key])).filter((row): row is RowData => !!row && row.items.length > (row.kind === 'top10' ? 2 : 0))
   /** „Später“: Titel sofort aus dem Banner nehmen und die Auswahl neu laden. */
   const dropFromBillboard = (id: string) => {
     setBillboard(list => list.filter(i => i.Id !== id))

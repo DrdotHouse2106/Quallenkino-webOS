@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.13.0 – 2026-10-23
+
+- **Demnächst** (Plugin Local Recommendations ab 12.48, mit Sonarr/Radarr): neue Folgen und Filme, die bald kommen, mit Untertitel wie im Web (z. B. Termin, Staffel/Folge). Eine Folge öffnet die Serie; ein Film zeigt Titel, Jahr und Beschreibung (es wird nichts angefragt).
+- **Zeilentitel wie im Web:** Die Titel der Empfehlungszeilen („Empfohlene Filme/Serien“, „Heute im TV für dich“) und ob die Live-TV-Zeile erscheint, stellt jetzt der Server ein.
+
 ## 1.12.0 – 2026-10-22
 
 Filmreihen und Momente wie in Jellyfin Web (LG und Samsung):

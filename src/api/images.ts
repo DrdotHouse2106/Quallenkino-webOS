@@ -6,6 +6,7 @@ function imageUrl(api: Api, itemId: string, type: string, tag: string, size: str
 
 /** Großes Hintergrundbild: eigenes, sonst das der Serie. */
 export function backdropUrl(api: Api, item: Item, width = 1280): string | null {
+  if (item.BackdropUrl) return item.BackdropUrl
   if (item.BackdropImageTags?.length) return imageUrl(api, item.Id, 'Backdrop', item.BackdropImageTags[0], `maxWidth=${width}`)
   if (item.ParentBackdropItemId && item.ParentBackdropImageTags?.length) {
     return imageUrl(api, item.ParentBackdropItemId, 'Backdrop', item.ParentBackdropImageTags[0], `maxWidth=${width}`)

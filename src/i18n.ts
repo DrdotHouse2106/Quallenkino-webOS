@@ -108,6 +108,7 @@ export const t = {
   seerrDirector: 'Regie',
   inLibrary: 'In deiner Bibliothek',
   rowMovieSeries: 'Filmreihen für dich',
+  rowUpcoming: 'Demnächst',
   seriesContinue: (n: number) => `Weiter mit Teil ${n}`,
   seriesFromStart: 'Von vorn (Teil 1)',
   seriesParts: (n: number) => `Alle ${n} Teile`,

@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.13.0 (Local Recommendations 12.48+): "Upcoming" row (new episodes from Sonarr, movies from Radarr); recommendation row titles and the live TV row switch now come from the server, matching Jellyfin Web.
+
 New in 1.12.0: web-style movie series cards (series image, progress, "x of y watched · continue with part n") opening a series page with all parts and a "Continue with part n" button; moments cards show their reason as a caption.
 
 New in 1.11.0 (Local Recommendations 12.46+): time-based "moments" rows from the server (on TV today – here without ads, new this week, before the cinema release, years ago today …).

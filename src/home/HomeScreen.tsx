@@ -156,7 +156,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
 
   // Fehlende Beschreibung (manche Reihen liefern keine) beim Fokus nachladen
   useEffect(() => {
-    if (!shown || shown.World || shown.Overview || overviews[shown.Id] !== undefined) return
+    if (!shown || shown.World || shown.Upcoming || shown.Overview || overviews[shown.Id] !== undefined) return
     let active = true
     const timer = setTimeout(() => {
       loadItem(api, shown.Id)

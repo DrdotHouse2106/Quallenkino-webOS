@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.13.0** (Plugin ab 12.48): Zeile „Demnächst“ mit neuen Folgen (Sonarr) und Filmen (Radarr) – Folgen öffnen die Serie, Filme zeigen Titel, Jahr und Beschreibung. Die Titel der Empfehlungszeilen und der Schalter für „Heute im TV für dich“ kommen jetzt vom Server, damit die App dieselben Zeilen zeigt wie Jellyfin Web.
+
 **Neu ab 1.12.0:** Filmreihen wie im Web – eigene Karte mit Bild und Name der Reihe, Fortschrittsbalken und „x von y gesehen · Weiter mit Teil n“; ein Klick öffnet die Reihen-Seite mit allen Teilen (gesehene mit Haken) und dem Knopf „Weiter mit Teil n“. Momente-Karten zeigen ihre Begründung als Untertitel.
 
 **Neu ab 1.11.0** (Plugin ab 12.46): „Momente“ – zeitabhängige Zeilen vom Server wie „Läuft heute im TV – hier ohne Werbung“, „Neu diese Woche“, „Vor dem Kinostart: Hol die Reihe nach“ oder „Heute vor X Jahren“; Auswahl und Reihenfolge bestimmt der Server, die Begründung steht im Infobereich.

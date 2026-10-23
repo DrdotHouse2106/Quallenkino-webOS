@@ -8,6 +8,11 @@ import { utcOffsetMinutes } from './behavior'
  */
 
 interface SectionsConfig {
+  Upcoming?: boolean
+  MoviesTitle?: string
+  SeriesTitle?: string
+  LiveTvTitle?: string
+  LiveTvRow?: boolean
   Moments?: boolean
   MovieSeries?: boolean
   MovieSeriesTitle?: string
@@ -185,4 +190,57 @@ export async function moments(api: Api): Promise<Moment[]> {
   const byId = new Map(full.map(i => [i.Id, i]))
   // Begründung als Untertitel der Karte (wie im Web)
   return rows.map(row => ({ ...row, items: row.items.map(i => ({ ...(byId.get(i.Id) ?? i), Caption: row.reasons[key(i.Id)] })) }))
+}
+
+/** Titel und Schalter der Empfehlungszeilen wie im Web (Plugin ab 12.48); fehlende Werte = App-Vorgabe. */
+export async function rowSettings(api: Api): Promise<{ movies?: string; series?: string; liveTv?: string; liveTvRow: boolean }> {
+  const config = await sectionsConfig(api)
+  return { movies: config.MoviesTitle || undefined, series: config.SeriesTitle || undefined, liveTv: config.LiveTvTitle || undefined, liveTvRow: config.LiveTvRow !== false }
+}
+
+interface RawUpcoming {
+  Kind?: 'Episode' | 'Movie'
+  Title?: string
+  Subtitle?: string
+  Date?: string
+  Series?: Item
+  Movie?: { RadarrId?: number; TmdbId?: number; ImdbId?: string; Year?: number; Overview?: string; OfficialRating?: string; PosterUrl?: string; BackdropUrl?: string }
+}
+
+/**
+ * Antwort von GET /LocalRecs/Upcoming als Karten (testbar): Folgen als Karte ihrer Serie (Klick öffnet die
+ * Serie), Filme aus Radarr mit eigenen Bildern (Klick zeigt Titel, Jahr und Beschreibung).
+ */
+export function parseUpcoming(baseUrl: string, raw: { Items?: RawUpcoming[] } | null): Item[] {
+  const abs = (path?: string) => (path ? `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}` : undefined)
+  const items: Item[] = []
+  for (const entry of raw?.Items ?? []) {
+    if (entry.Kind === 'Episode' && entry.Series?.Id) {
+      items.push({ ...entry.Series, Caption: entry.Subtitle })
+    } else if (entry.Kind === 'Movie' && entry.Movie) {
+      const movie = entry.Movie
+      const backdrop = abs(movie.BackdropUrl)
+      items.push({
+        Id: `upcoming-${movie.TmdbId ?? movie.RadarrId ?? entry.Title}`,
+        Name: entry.Title ?? '',
+        Type: 'Movie',
+        ProductionYear: movie.Year,
+        Overview: movie.Overview,
+        OfficialRating: movie.OfficialRating,
+        ImageUrl: backdrop ?? abs(movie.PosterUrl) ?? null,
+        BackdropUrl: backdrop,
+        Caption: entry.Subtitle,
+        Upcoming: true,
+      })
+    }
+  }
+  return items
+}
+
+/** Zeile „Demnächst“ (Sonarr/Radarr über das Plugin ab 12.48); leer ohne Plugin oder ohne Einträge. */
+export async function upcoming(api: Api): Promise<Item[]> {
+  const config = await sectionsConfig(api)
+  if (!config.Upcoming) return []
+  const raw = await request<{ Items?: RawUpcoming[] }>(api.url, `/LocalRecs/Upcoming?utcOffsetMinutes=${utcOffsetMinutes()}`, { token: api.token }).catch(() => null)
+  return parseUpcoming(api.url, raw)
 }

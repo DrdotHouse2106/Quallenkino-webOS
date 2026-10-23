@@ -14,6 +14,7 @@ export type Page =
   | { name: 'program'; id: string }
   | { name: 'world'; id: string }
   | { name: 'movieSeries'; id: string }
+  | { name: 'upcoming'; item: import('../api/items').Item }
   | { name: 'discover' }
   | { name: 'request'; type: 'movie' | 'tv'; id: number }
   | { name: 'seerrPerson'; id: number }
