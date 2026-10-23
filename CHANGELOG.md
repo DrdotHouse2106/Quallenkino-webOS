@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.14.1 – 2026-10-23
+
+- **Jahreszeit-Zeile zuverlässiger** (z. B. „Halloween“): Sie wird jetzt auch abgefragt, wenn der Server den Schalter nicht eigens meldet – ob gerade eine Saison läuft, sagt der Endpunkt selbst. Fällt die Abfrage der Server-Einstellungen beim Start einmal aus, versucht die App es beim nächsten Laden erneut, statt bis zum Neustart ohne Filmreihen, Momente, Demnächst und Jahreszeit-Zeile zu bleiben.
+
 ## 1.14.0 – 2026-10-23
 
 - **Demnächst wie im Web** (Plugin ab 12.49): Karten im Querformat mit Termin als Untertitel, Reihenfolge wie vom Server.

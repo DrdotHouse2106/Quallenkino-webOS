@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+1.14.1: the seasonal row (e.g. "Halloween") now shows reliably, like in Jellyfin Web.
+
 New in 1.14.0 (Local Recommendations 12.49+): web-style "Upcoming" – date on the card; an episode opens a view with season/episode, day, time, network, overview and "Go to series".
 
 New in 1.13.0 (Local Recommendations 12.48+): "Upcoming" row (new episodes from Sonarr, movies from Radarr); recommendation row titles and the live TV row switch now come from the server, matching Jellyfin Web.

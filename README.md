@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**1.14.1:** Jahreszeit-Zeile (z. B. „Halloween“) wie im Web zuverlässig an zweiter Stelle nach „Als Nächstes“.
+
 **Neu ab 1.14.0** (Plugin ab 12.49): „Demnächst“ wie im Web – Termin auf der Karte, Klick auf eine Folge zeigt Staffel/Folge, Tag, Uhrzeit, Sender, Beschreibung und „Zur Serie“.
 
 **Neu ab 1.13.0** (Plugin ab 12.48): Zeile „Demnächst“ mit neuen Folgen (Sonarr) und Filmen (Radarr) – Folgen öffnen die Serie, Filme zeigen Titel, Jahr und Beschreibung. Die Titel der Empfehlungszeilen und der Schalter für „Heute im TV für dich“ kommen jetzt vom Server, damit die App dieselben Zeilen zeigt wie Jellyfin Web.

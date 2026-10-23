@@ -92,7 +92,14 @@ const configs = new Map<string, Promise<SectionsConfig>>()
 function sectionsConfig(api: Api): Promise<SectionsConfig> {
   let cached = configs.get(api.url)
   if (!cached) {
-    cached = request<SectionsConfig>(api.url, '/LocalRecs/Web/Config', { token: api.token }).then(c => c ?? {}).catch(() => ({}))
+    // Fehlschläge nicht merken – sonst blieben nach einem Aussetzer beim Start alle Zeilen bis zum Neustart aus
+    cached = request<SectionsConfig>(api.url, '/LocalRecs/Web/Config', { token: api.token })
+      .then(c => c ?? {})
+      .catch((error: { status?: number }) => {
+        // 404: Plugin fehlt oder ist zu alt – das ist eine Antwort und darf bleiben
+        if (error?.status !== 404) configs.delete(api.url)
+        return {}
+      })
     configs.set(api.url, cached)
   }
   return cached
@@ -129,7 +136,8 @@ export async function movieSeries(api: Api, fallbackTitle: string): Promise<Sect
 /** Saison-Zeile (z. B. „Weihnachtsfilme“) – nur wenn der Server sie gerade aktiv meldet. */
 export async function seasonal(api: Api): Promise<Section | null> {
   const config = await sectionsConfig(api)
-  if (!config.Seasonal) return null
+  // Fehlt der Schalter, trotzdem fragen: der Endpunkt meldet selbst, ob gerade eine Saison aktiv ist
+  if (config.Seasonal === false) return null
   const raw = await request<{ Active?: boolean; Title?: string; Items?: Item[] }>(
     api.url,
     `/LocalRecs/Seasonal?utcOffsetMinutes=${utcOffsetMinutes()}`,
