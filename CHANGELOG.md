@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.15.1 – 2026-10-24
+
+- **Sendezeiten richtig umgerechnet** (Plugin ab 12.52.2): Die App schickt die Zeitzone des Fernsehers mit; die Uhrzeit kommt fertig vom Server (z. B. „15:30 Uhr MEZ“). Termine ohne Zonenangabe gelten als UTC.
+- **„Danach: S03E06 am So. 01.11.“** statt nur „Dazu 1 weitere neue Folge“ in der Folgen-Ansicht von „Demnächst“.
+
 ## 1.15.0 – 2026-10-23
 
 - **Kommende Folgen auf der Serienseite** wie im Web (Plugin Local Recommendations ab 12.52, mit Sonarr): unter den Eckdaten ein grüner Hinweis „Neu: S02E05“, wenn heute eine Folge erschienen ist, und ein blauer mit der nächsten Folge, z. B. „Staffelstart morgen · 19:00 Uhr · Paramount+ · S03E01 Der Anfang · +2 weitere bis 07.11.“.

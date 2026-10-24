@@ -16,6 +16,17 @@ export interface BehaviorMe {
 /** Abweichung der Ortszeit von UTC in Minuten (z. B. 120 im Sommer). */
 export const utcOffsetMinutes = () => -new Date().getTimezoneOffset()
 
+/** Zeitzone des Fernsehers für Termine (Plugin ab 12.52.2), sonst rechnet das Plugin mit festem Versatz. */
+export function timeZoneParameter(): string {
+  let zone = ''
+  try {
+    zone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+  } catch {
+    zone = ''
+  }
+  return zone ? `&timeZone=${encodeURIComponent(zone)}` : ''
+}
+
 const availability = new Map<string, Promise<boolean>>()
 
 export function behaviorAvailable(api: Api): Promise<boolean> {

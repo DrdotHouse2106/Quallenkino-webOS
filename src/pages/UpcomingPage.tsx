@@ -31,7 +31,8 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
             {episodeLine(episode) && <div class="qk-hero-subtitle">{episodeLine(episode)}</div>}
             {episodeWhen(episode) && <div class="qk-hero-facts">{episodeWhen(episode)}</div>}
             {episode.overview && <div class="qk-hero-overview long">{episode.overview}</div>}
-            {episode.more ? <div class="qk-hero-facts">{t.upcomingMore(episode.more)}</div> : null}
+            {/* „Danach: S03E06 am So. 01.11.“ vom Server, sonst nur die Anzahl */}
+            {episode.nextAfter ? <div class="qk-hero-facts">{episode.nextAfter}</div> : episode.more ? <div class="qk-hero-facts">{t.upcomingMore(episode.more)}</div> : null}
             <div class="qk-series-actions">
               <ActionButton focusKey="upcoming-series" icon="info" label={t.toSeries} onPress={() => router.push({ name: 'details', id: episode.seriesId })} />
             </div>

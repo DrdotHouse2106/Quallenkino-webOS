@@ -198,3 +198,18 @@ describe('Serienseite: kommende und neue Folgen', () => {
     expect(parseSeriesUpcoming({ Text: '' })).toBeNull()
   })
 })
+
+describe('Demnächst ab 12.52.2', () => {
+  it('nimmt LocalTime und NextAfter vom Server', async () => {
+    const { parseUpcoming, episodeWhen } = await import('../src/api/sections')
+    const items = parseUpcoming('http://srv', {
+      Items: [{
+        Kind: 'Episode', Title: 'Serie', Date: '2026-10-24T13:30:00Z', LocalTime: '15:30 Uhr MESZ', Network: 'TBS (JP)',
+        MoreEpisodes: 1, NextAfter: { Text: 'Danach: S03E06 am So. 01.11.' }, Series: { Id: 'c2b157ea3dc84584a30bcb96492eda16', Name: 'Serie', Type: 'Series' },
+      }],
+    } as never)
+    const episode = items[0].UpcomingEpisode!
+    expect(episode.nextAfter).toBe('Danach: S03E06 am So. 01.11.')
+    expect(episodeWhen(episode)).toContain('15:30 Uhr MESZ · TBS (JP)')
+  })
+})

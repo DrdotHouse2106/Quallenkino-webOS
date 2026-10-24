@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+1.15.1: correct air times in the device time zone and "Next: S03E06 on Sun 01.11." (Local Recommendations 12.52.2+).
+
 New in 1.15.0 (Local Recommendations 12.52+): series page shows episodes released today ("New: S02E05", marked in the episode list) and the next episode with date, network and title, like Jellyfin Web.
 
 1.14.1: the seasonal row (e.g. "Halloween") now shows reliably, like in Jellyfin Web.

@@ -1,6 +1,6 @@
 import { request } from './http'
 import { byIds, type Api, type Item } from './items'
-import { utcOffsetMinutes } from './behavior'
+import { timeZoneParameter, utcOffsetMinutes } from './behavior'
 
 /**
  * Weitere Abschnitte des Plugins Local Recommendations (ab 12.45):
@@ -219,6 +219,8 @@ interface RawUpcoming {
   EpisodeNumber?: number
   EpisodeTitle?: string
   MoreEpisodes?: number
+  LocalTime?: string
+  NextAfter?: { Text?: string }
   Series?: Item
   Movie?: { RadarrId?: number; TmdbId?: number; ImdbId?: string; Year?: number; Overview?: string; OfficialRating?: string; PosterUrl?: string; BackdropUrl?: string }
 }
@@ -245,6 +247,8 @@ export function parseUpcoming(baseUrl: string, raw: { Items?: RawUpcoming[] } | 
           network: entry.Network,
           overview: entry.EpisodeOverview,
           more: typeof entry.MoreEpisodes === 'number' ? entry.MoreEpisodes : undefined,
+          localTime: entry.LocalTime || undefined,
+          nextAfter: entry.NextAfter?.Text || undefined,
           subtitle: entry.Subtitle,
         },
       })
@@ -272,7 +276,7 @@ export function parseUpcoming(baseUrl: string, raw: { Items?: RawUpcoming[] } | 
 export async function upcoming(api: Api): Promise<Item[]> {
   const config = await sectionsConfig(api)
   if (!config.Upcoming) return []
-  const raw = await request<{ Items?: RawUpcoming[] }>(api.url, `/LocalRecs/Upcoming?utcOffsetMinutes=${utcOffsetMinutes()}`, { token: api.token }).catch(() => null)
+  const raw = await request<{ Items?: RawUpcoming[] }>(api.url, `/LocalRecs/Upcoming?utcOffsetMinutes=${utcOffsetMinutes()}${timeZoneParameter()}`, { token: api.token }).catch(() => null)
   return parseUpcoming(api.url, raw)
 }
 
@@ -287,6 +291,10 @@ export interface UpcomingEpisode {
   network?: string
   overview?: string
   more?: number
+  /** Uhrzeit vom Server in der Zone des Fernsehers (ab 12.52.2), z. B. „15:30 Uhr MEZ“. */
+  localTime?: string
+  /** „Danach: S03E06 am So. 01.11.“ (ab 12.52.2). */
+  nextAfter?: string
   subtitle?: string
 }
 
@@ -303,11 +311,16 @@ export function episodeLine(episode: UpcomingEpisode): string {
 export function episodeWhen(episode: UpcomingEpisode, toLocal: (iso: string) => Date = iso => new Date(iso)): string {
   const parts: string[] = []
   if (episode.date) {
-    const d = toLocal(episode.date)
+    // Termin in UTC; ohne Zonenangabe ebenfalls UTC (sonst läse der Browser ihn als Ortszeit)
+    const iso = /(Z|[+-]\d\d:?\d\d)$/.test(episode.date) ? episode.date : `${episode.date}Z`
+    const d = toLocal(iso)
     if (!isNaN(d.getTime())) {
       parts.push(`${WEEKDAYS[d.getDay()]}, ${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`)
-      parts.push(`${pad(d.getHours())}:${pad(d.getMinutes())} Uhr`)
+      // Uhrzeit bevorzugt vom Server (in der Zone des Fernsehers berechnet)
+      parts.push(episode.localTime ? (episode.localTime.includes('Uhr') ? episode.localTime : `${episode.localTime} Uhr`) : `${pad(d.getHours())}:${pad(d.getMinutes())} Uhr`)
     }
+  } else if (episode.localTime) {
+    parts.push(episode.localTime)
   }
   if (episode.network) parts.push(episode.network)
   return parts.join(' · ')
@@ -343,7 +356,7 @@ export function parseSeriesUpcoming(raw: RawSeriesUpcoming | null | undefined): 
 export async function seriesUpcoming(api: Api, seriesId: string): Promise<SeriesUpcoming | null> {
   const raw = await request<RawSeriesUpcoming | undefined>(
     api.url,
-    `/LocalRecs/Upcoming/Series/${key(seriesId)}?utcOffsetMinutes=${utcOffsetMinutes()}`,
+    `/LocalRecs/Upcoming/Series/${key(seriesId)}?utcOffsetMinutes=${utcOffsetMinutes()}${timeZoneParameter()}`,
     { token: api.token },
   ).catch(() => null)
   return parseSeriesUpcoming(raw)
