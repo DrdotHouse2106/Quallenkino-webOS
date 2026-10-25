@@ -137,6 +137,7 @@ export const t = {
   subtitlesSmartHint: 'Deutscher Ton: nur erzwungene Untertitel. Fremder Ton: deutsche Untertitel.',
   subtitlesAlways: 'Immer deutsche',
   subtitlesOff: 'Aus',
+  settingsRowTrailers: 'Trailer-Vorschau in Reihen',
   settingsHdr: 'HDR',
   hdrAuto: 'Automatisch',
   hdrConvert: 'Immer umwandeln',

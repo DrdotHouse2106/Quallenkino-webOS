@@ -242,13 +242,23 @@ export const reasonKey = (id: string) => id.replace(/-/g, '').toLowerCase()
 
 /** Adresse des ersten lokalen Trailers (vom Server, nicht YouTube) – oder null. */
 export async function localTrailerUrl(api: Api, target: Item): Promise<string | null> {
-  if (!target.LocalTrailerCount) return null
+  // Ohne Angabe (manche Reihen liefern das Feld nicht) trotzdem nachsehen
+  if (target.LocalTrailerCount === 0) return null
   try {
     const trailers = await get<Item[]>(api, `/Users/${api.userId}/Items/${target.Id}/LocalTrailers`)
-    const trailer = trailers?.[0]
+    const trailer = pickTrailer(trailers ?? [])
     if (!trailer) return null
     return `${api.url.replace(/\/+$/, '')}/Videos/${trailer.Id}/stream?static=true&ApiKey=${encodeURIComponent(api.token)}`
   } catch {
     return null
   }
+}
+
+/** Trailer auswählen wie Android (testbar): nichts unter 15 s, „Trailer“ im Namen vor „Teaser“, sonst der längste. */
+export function pickTrailer(videos: Item[]): Item | null {
+  const MIN_TICKS = 15 * 10_000_000
+  const named = (v: Item) => /trailer/i.test(v.Name ?? '') && !/teaser/i.test(v.Name ?? '')
+  const usable = videos.filter(v => v.RunTimeTicks == null || v.RunTimeTicks >= MIN_TICKS)
+  usable.sort((a, b) => Number(named(b)) - Number(named(a)) || (b.RunTimeTicks ?? 0) - (a.RunTimeTicks ?? 0))
+  return usable[0] ?? null
 }

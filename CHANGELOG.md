@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.18.0 – 2026-10-25
+
+- **Trailer-Vorschau auch in den Reihen:** Bleibt die Auswahl etwa 3 Sekunden auf einem Film oder einer Serie stehen, läuft oben der Trailer – wie beim Banner und im Web. Jeder Fokuswechsel stoppt ihn sofort. Gleiche Auswahl wie bei Android: nur echte Trailer, nichts unter 15 Sekunden, „Trailer“ vor „Teaser“ (gilt jetzt auch für Banner und Detailseite).
+- Ohne Trailer bleibt das Bild; einmal je Titel steht im Client-Log des Servers, in welcher Reihe und warum.
+- Abschaltbar: Einstellungen → „Trailer-Vorschau in Reihen“ (Standard an).
+
 ## 1.17.0 – 2026-10-25
 
 - **Entdecken-Reihen wie im Web** (Plugin ab 12.54): „Demnächst im Kino“, „Neu dieses Jahr – Filme“ und „Neu dieses Jahr – Serien“ nach „Demnächst“, mit Termin unter der Karte. Titel in der Bibliothek tragen „In der Bibliothek“ und öffnen ihre Detailseite; die anderen zeigen Termin, Genres · FSK · Laufzeit, „Im Abo bei …“, Beschreibung und „Trailer ansehen“. Es wird nie automatisch etwas angefragt.

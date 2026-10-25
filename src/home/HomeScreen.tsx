@@ -2,6 +2,7 @@ import { FocusContext, getCurrentFocusKey, setFocus, useFocusable } from '@norig
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { backdropUrl } from '../api/images'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
+import { clientLog } from '../api/behavior'
 import { userImageUrl, type Session } from '../api/users'
 import { t } from '../i18n'
 import { onBack } from '../nav/keys'
@@ -31,6 +32,8 @@ const HERO_DEBOUNCE_MS = 300
 /** Wechsel der Banner-Vorschläge und Wartezeit bis zur Trailer-Vorschau (wie Android). */
 const ROTATION_MS = 9_000
 const TRAILER_DELAY_MS = 3_000
+/** Titel, zu denen „kein Trailer“ schon gemeldet ist (einmal je Sitzung). */
+const reportedMissing = new Set<string>()
 /** Beim Wechsel zwischen den Knöpfen ist der Fokus kurz „weg“ – so lange nichts neu starten. */
 const FOCUS_DEBOUNCE_MS = 500
 
@@ -53,6 +56,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
 
   const [index, setIndex] = useState(0)
   const [rowItem, setRowItem] = useState<Item | null>(null)
+  const [rowTitle, setRowTitle] = useState<string | null>(null)
   const [billboardFocused, setBillboardFocused] = useState(false)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
   const [trailerPlaying, setTrailerPlaying] = useState(false)
@@ -132,7 +136,9 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
   // Trailer-Vorschau: nur solange das Banner ausgewählt ist, nach kurzer Zeit auf demselben Titel
   // – oder solange eine Welt ausgewählt ist (Trailer eines Titels der Welt)
   const world = !billboardFocused ? rowItem?.World ?? null : null
-  const trailerSource: Item | null = stableFocus ? billboardItem : world?.TrailerItemId ? { Id: world.TrailerItemId, LocalTrailerCount: 1 } : null
+  // – oder (abschaltbar) solange eine Film-/Serienkarte in einer Reihe ausgewählt ist
+  const rowSource = !billboardFocused && rowItem && !rowItem.World && !rowItem.Upcoming && !rowItem.Discover && (rowItem.Type === 'Movie' || rowItem.Type === 'Series') && loadSettings().rowTrailers ? rowItem : null
+  const trailerSource: Item | null = stableFocus ? billboardItem : world?.TrailerItemId ? { Id: world.TrailerItemId, LocalTrailerCount: 1 } : rowSource
   useEffect(() => {
     setTrailerUrl(null)
     if (!trailerSource || covered || !loadSettings().trailers) return
@@ -140,6 +146,11 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
     const timer = setTimeout(async () => {
       const url = await localTrailerUrl(api, trailerSource)
       if (active) setTrailerUrl(url)
+      // Ohne Trailer bleibt das Bild – einmal je Titel ins Client-Log
+      if (active && !url && trailerSource === rowSource && !reportedMissing.has(trailerSource.Id)) {
+        reportedMissing.add(trailerSource.Id)
+        void clientLog(api, `Trailer-Vorschau: kein Trailer – Reihe „${rowTitle ?? '?'}“, „${trailerSource.Name ?? ''}“ (${trailerSource.Id}): ${trailerSource.LocalTrailerCount === 0 ? 'kein lokaler Trailer' : 'kein Trailer ab 15 s oder nicht abrufbar'}`)
+      }
     }, TRAILER_DELAY_MS)
     return () => {
       active = false
@@ -267,7 +278,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
         </div>
         <div class="qk-rows">
           {rows.map(row => (
-            <Row key={row.key} api={api} row={row} onFocusItem={setRowItem} onOpen={opened => openItem(router, opened)} />
+            <Row key={row.key} api={api} row={row} onFocusItem={focused => { setRowItem(focused); setRowTitle(row.title) }} onOpen={opened => openItem(router, opened)} />
           ))}
         </div>
       </div>

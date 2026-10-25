@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.18.0: trailer preview also when the selection rests on a card in a row (can be switched off).
+
 New in 1.17.0 (Local Recommendations 12.54+): discover rows "In cinemas soon" and "New this year – movies/series", like Jellyfin Web.
 
 New in 1.16.0: HDR is only played directly if the TV can show it (otherwise the server tone-maps to SDR); setting "HDR": Automatic, Always convert, Always direct.

@@ -262,3 +262,13 @@ describe('Entdecken (Plugin ab 12.54)', () => {
     expect(parentalRating('PG-13')).toBe('PG-13')
   })
 })
+
+describe('Trailer-Auswahl wie Android', () => {
+  it('nichts unter 15 s, Trailer vor Teaser, sonst der längste', async () => {
+    const { pickTrailer } = await import('../src/api/items')
+    const s = (n: number) => n * 10_000_000
+    expect(pickTrailer([{ Id: 'a', Name: 'Clip', RunTimeTicks: s(6) }])).toBeNull()
+    expect(pickTrailer([{ Id: 't', Name: 'Teaser', RunTimeTicks: s(150) }, { Id: 'r', Name: 'Trailer', RunTimeTicks: s(140) }])?.Id).toBe('r')
+    expect(pickTrailer([{ Id: 'k', Name: 'Spot', RunTimeTicks: s(60) }, { Id: 'l', Name: 'Spot 2', RunTimeTicks: s(120) }])?.Id).toBe('l')
+  })
+})

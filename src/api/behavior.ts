@@ -1,4 +1,7 @@
 import { request } from './http'
+import { authorizationHeader, deviceId } from './auth'
+import { APP_VERSION } from '../brand'
+import { PLATFORM } from '../platform/platform'
 import type { Api } from './items'
 
 /**
@@ -93,4 +96,17 @@ export function reorderRows<T>(rows: T[], kindOf: (row: T) => string | null, ord
   const result = [...rows]
   slots.forEach((slot, i) => (result[slot] = sorted[i]))
   return result
+}
+
+/** Kurze Fehlermeldung ins Client-Log des Servers (Dashboard → Protokolle), wie bei Android. */
+export async function clientLog(api: Api, text: string): Promise<void> {
+  try {
+    await fetch(`${api.url.replace(/\/+$/, '')}/ClientLog/Document`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain', Authorization: authorizationHeader(deviceId(), api.token) },
+      body: `Quallenkino ${APP_VERSION} (${PLATFORM})\n${text}\n`,
+    })
+  } catch {
+    // ohne Server-Log geht es auch
+  }
 }

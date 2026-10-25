@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.18.0:** Trailer-Vorschau auch beim Stehenbleiben auf einer Karte in den Reihen (abschaltbar).
+
 **Neu ab 1.17.0** (Plugin ab 12.54): Entdecken-Reihen „Demnächst im Kino“ und „Neu dieses Jahr – Filme/Serien“ wie im Web.
 
 **Neu ab 1.16.0:** HDR nur direkt, wenn der Fernseher es kann (sonst Tonemapping auf dem Server); Einstellung „HDR“: Automatisch, Immer umwandeln, Immer direkt.

@@ -11,6 +11,8 @@ export interface Settings {
   audio: AudioMode
   /** Trailer-Vorschau auf Startseite und Detailseite. */
   trailers: boolean
+  /** Vorschau auch beim Stehenbleiben auf einer Karte in den Reihen (nicht nur im Banner). */
+  rowTrailers: boolean
   /** Bildschirmschoner nach so vielen Minuten ohne Tastendruck; 0 = aus. */
   screensaver: number
   /** Teaser bzw. Trailer im Bildschirmschoner (wie Android, ab Werk aus). */
@@ -24,7 +26,7 @@ export interface Settings {
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0, updateCheck: true, hdr: 'auto' }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, rowTrailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0, updateCheck: true, hdr: 'auto' }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {

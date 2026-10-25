@@ -36,6 +36,7 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
   { key: 'audio', title: t.settingsAudio, options: [{ value: 'own', label: t.audioOwn }, { value: 'original', label: t.audioOriginal }] },
   { key: 'hdr', title: t.settingsHdr, options: [{ value: 'auto', label: t.hdrAuto }, { value: 'convert', label: t.hdrConvert }, { value: 'direct', label: t.hdrDirect }] },
   { key: 'trailers', title: t.settingsTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
+  { key: 'rowTrailers', title: t.settingsRowTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
   { key: 'screensaver', title: t.settingsScreensaver, options: [{ value: 2, label: t.minutes(2) }, { value: 5, label: t.minutes(5) }, { value: 10, label: t.minutes(10) }, { value: 0, label: t.trailersOff }] },
   { key: 'screensaverTrailers', title: t.settingsScreensaverTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
   { key: 'screensaverVolume', title: t.settingsScreensaverVolume, options: [{ value: 0, label: t.volumeMute }, { value: 0.3, label: t.volumeQuiet }, { value: 0.75, label: t.volumeNormal }] },
