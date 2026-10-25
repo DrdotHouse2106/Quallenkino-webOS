@@ -1,4 +1,5 @@
 import { PLATFORM, type Platform } from '../platform/platform'
+import { HDR_ALL, unsupportedRangeTypes, type HdrSupport } from './hdr'
 
 /**
  * Abspiel-Fähigkeiten eines LG-Fernsehers mit webOS (ab webOS 6, Ziel webOS 23) bzw. eines Samsung-Fernsehers
@@ -44,8 +45,19 @@ export function canPlayAudio(codec?: string): boolean {
   return !!codec && AUDIO.split(',').includes(codec.toLowerCase())
 }
 
-export function deviceProfile(maxBitrate = MAX_BITRATE, platform: Platform = PLATFORM) {
+export function deviceProfile(maxBitrate = MAX_BITRATE, platform: Platform = PLATFORM, hdr: HdrSupport = HDR_ALL) {
   const VIDEO = platform === 'tizen' ? tizenVideoCodecs() : VIDEO_WEBOS
+  // HDR-Arten, die der Fernseher nicht zeigen kann: der Server wandelt sie mit Tonemapping nach SDR um.
+  // „NotEquals“ greift nur über ApplyConditions, wenn das Video eine dieser Arten hat (wie in Jellyfin Android TV).
+  const rangeTypes = unsupportedRangeTypes(hdr)
+  const hdrProfiles = rangeTypes.length
+    ? ['hevc', 'av1', 'vp9'].map(codec => ({
+        Type: 'Video',
+        Codec: codec,
+        Conditions: [{ Condition: 'NotEquals', Property: 'VideoRangeType', Value: rangeTypes.join('|'), IsRequired: false }],
+        ApplyConditions: [{ Condition: 'EqualsAny', Property: 'VideoRangeType', Value: rangeTypes.join('|'), IsRequired: false }],
+      }))
+    : []
   return {
     Name: platform === 'tizen' ? 'Quallenkino Tizen' : 'Quallenkino webOS',
     MaxStreamingBitrate: maxBitrate,
@@ -76,6 +88,7 @@ export function deviceProfile(maxBitrate = MAX_BITRATE, platform: Platform = PLA
     ContainerProfiles: [],
     CodecProfiles: [
       { Type: 'Video', Codec: 'h264', Conditions: [{ Condition: 'LessThanEqual', Property: 'VideoLevel', Value: '52', IsRequired: false }] },
+      ...hdrProfiles,
     ],
     SubtitleProfiles: [
       { Format: 'vtt', Method: 'External' },

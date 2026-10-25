@@ -1,3 +1,5 @@
+import { hdrSupport } from './hdr'
+import { loadSettings } from '../settings'
 import { deviceId } from '../api/auth'
 import { request } from '../api/http'
 import type { Api, Item } from '../api/items'
@@ -58,7 +60,8 @@ export function playbackInfo(api: Api, itemId: string, options: { audio?: number
     token: api.token,
     timeoutMs: 20_000,
     body: {
-      DeviceProfile: deviceProfile(),
+      // HDR nur direkt, wenn der Fernseher es zeigen kann (sonst Tonemapping auf dem Server)
+      DeviceProfile: deviceProfile(undefined, undefined, hdrSupport(loadSettings().hdr)),
       UserId: api.userId,
       MaxStreamingBitrate: deviceProfile().MaxStreamingBitrate,
       StartTimeTicks: options.startTicks ?? 0,

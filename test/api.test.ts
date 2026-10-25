@@ -213,3 +213,25 @@ describe('Demnächst ab 12.52.2', () => {
     expect(episodeWhen(episode)).toContain('15:30 Uhr MESZ · TBS (JP)')
   })
 })
+
+describe('HDR nur, wenn der Fernseher es kann', () => {
+  it('ohne HDR werden alle HDR-Arten umgewandelt, mit HDR10 ohne DV nur Dolby Vision ohne Grundlage', async () => {
+    const { hdrFromProbe, unsupportedRangeTypes, HDR_NONE } = await import('../src/player/hdr')
+    expect(hdrFromProbe({ highDynamicRange: false, tizenHdr: null, dolbyVisionDecoder: true })).toEqual(HDR_NONE)
+    expect(hdrFromProbe({ highDynamicRange: null, tizenHdr: null, dolbyVisionDecoder: false })).toEqual({ hdr10: true, hlg: true, dolbyVision: false })
+    expect(unsupportedRangeTypes(HDR_NONE)).toContain('HDR10')
+    expect(unsupportedRangeTypes(HDR_NONE)).toContain('DOVIWithHDR10')
+    const hdr10Only = unsupportedRangeTypes({ hdr10: true, hlg: true, dolbyVision: false })
+    expect(hdr10Only).toContain('DOVI')
+    expect(hdr10Only).not.toContain('DOVIWithHDR10')
+    expect(hdr10Only).not.toContain('HDR10')
+  })
+
+  it('Geräteprofil enthält den HDR-Ausschluss nur bei Bedarf', async () => {
+    const { deviceProfile } = await import('../src/player/profile')
+    const { HDR_NONE } = await import('../src/player/hdr')
+    expect(deviceProfile(undefined, 'webos').CodecProfiles.some(p => p.Codec === 'hevc')).toBe(false)
+    const hevc = deviceProfile(undefined, 'webos', HDR_NONE).CodecProfiles.find(p => p.Codec === 'hevc') as { ApplyConditions?: { Value: string }[] }
+    expect(hevc.ApplyConditions?.[0].Value).toContain('HDR10')
+  })
+})

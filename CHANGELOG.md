@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.16.0 – 2026-10-25
+
+- **HDR nur, wenn der Fernseher es kann:** Die App fragt beim Start jeder Wiedergabe, ob der Bildschirm HDR zeigt (Browser-Abfrage „dynamic-range“, bei Samsung die AVInfo-Schnittstelle, sofern verfügbar) und ob der Decoder Dolby Vision kann. Was nicht geht, wandelt der Server mit Tonemapping nach SDR um. Gibt das Gerät keine Auskunft, gilt HDR10/HLG wie bisher als vorhanden.
+- **Einstellung „HDR“:** Automatisch (Standard), Immer umwandeln, Immer direkt.
+
 ## 1.15.1 – 2026-10-24
 
 - **Sendezeiten richtig umgerechnet** (Plugin ab 12.52.2): Die App schickt die Zeitzone des Fernsehers mit; die Uhrzeit kommt fertig vom Server (z. B. „15:30 Uhr MEZ“). Termine ohne Zonenangabe gelten als UTC.
