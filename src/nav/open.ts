@@ -5,7 +5,9 @@ import type { Router } from './router'
 export function openItem(router: Router, item: Item) {
   if (item.World) router.push({ name: 'world', id: item.World.Id })
   else if (item.Series) router.push({ name: 'movieSeries', id: item.Series.Id })
-  else if (item.Upcoming || item.UpcomingEpisode) router.push({ name: 'upcoming', item })
+  // Entdecken: in der Bibliothek → eigene Detailseite, sonst Termin, Abo-Anbieter und Trailer (nie anfragen)
+  else if (item.Discover?.inLibrary && item.Discover.jellyfinId) router.push({ name: 'details', id: item.Discover.jellyfinId })
+  else if (item.Upcoming || item.UpcomingEpisode || item.Discover) router.push({ name: 'upcoming', item })
   else if (item.Seerr?.type === 'person') router.push({ name: 'seerrPerson', id: item.Seerr.id })
   else if (item.Seerr?.jellyfinId) router.push({ name: 'details', id: item.Seerr.jellyfinId })
   else if (item.Seerr) router.push({ name: 'request', type: item.Seerr.type, id: item.Seerr.id })

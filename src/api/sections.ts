@@ -9,6 +9,7 @@ import { timeZoneParameter, utcOffsetMinutes } from './behavior'
 
 interface SectionsConfig {
   Upcoming?: boolean
+  Discover?: boolean
   MoviesTitle?: string
   SeriesTitle?: string
   LiveTvTitle?: string
@@ -360,4 +361,81 @@ export async function seriesUpcoming(api: Api, seriesId: string): Promise<Series
     { token: api.token },
   ).catch(() => null)
   return parseSeriesUpcoming(raw)
+}
+
+/** Entdecken-Eintrag (TMDb, Plugin ab 12.54): Kinostart bzw. Neuheit, ggf. schon in der Bibliothek. */
+export interface DiscoverInfo {
+  tmdbId: number
+  mediaType: 'movie' | 'tv'
+  releaseText?: string
+  providers: string[]
+  trailerKey?: string
+  inLibrary: boolean
+  jellyfinId?: string
+}
+
+interface RawDiscoverItem {
+  TmdbId?: number
+  MediaType?: 'movie' | 'tv'
+  Title?: string
+  Year?: number
+  Overview?: string
+  PosterUrl?: string
+  BackdropUrl?: string
+  ReleaseText?: string
+  Genres?: string[]
+  OfficialRating?: string
+  RuntimeMinutes?: number
+  Providers?: string[]
+  TrailerKey?: string
+  InLibrary?: boolean
+  JellyfinId?: string
+}
+
+/** Antwort von GET /LocalRecs/Discover als Reihen (testbar); Bilder von TMDb oder relativ zum Server. */
+export function parseDiscover(baseUrl: string, raw: { Rows?: { Key?: string; Title?: string; Items?: RawDiscoverItem[] }[] } | null): Section[] {
+  const abs = (path?: string) => (!path ? undefined : /^https?:/.test(path) ? path : `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`)
+  const sections: Section[] = []
+  for (const row of raw?.Rows ?? []) {
+    if (!row.Title) continue
+    const items: Item[] = []
+    for (const entry of row.Items ?? []) {
+      if (!entry.Title || entry.TmdbId == null) continue
+      const backdrop = abs(entry.BackdropUrl)
+      const info: DiscoverInfo = {
+        tmdbId: entry.TmdbId,
+        mediaType: entry.MediaType === 'tv' ? 'tv' : 'movie',
+        releaseText: entry.ReleaseText,
+        providers: entry.Providers ?? [],
+        trailerKey: entry.TrailerKey,
+        inLibrary: !!entry.InLibrary,
+        jellyfinId: entry.JellyfinId,
+      }
+      items.push({
+        Id: `discover-${info.mediaType}-${info.tmdbId}`,
+        Name: entry.Title,
+        Type: info.mediaType === 'tv' ? 'Series' : 'Movie',
+        ProductionYear: entry.Year,
+        Overview: entry.Overview,
+        OfficialRating: entry.OfficialRating,
+        Genres: entry.Genres,
+        RunTimeTicks: entry.RuntimeMinutes ? entry.RuntimeMinutes * 600_000_000 : undefined,
+        ImageUrl: backdrop ?? abs(entry.PosterUrl) ?? null,
+        BackdropUrl: backdrop,
+        // Termin unter der Karte, Titel aus der Bibliothek mit Hinweis
+        Caption: [entry.ReleaseText, info.inLibrary ? 'In der Bibliothek' : ''].filter(Boolean).join(' · ') || undefined,
+        Discover: info,
+      })
+    }
+    if (items.length) sections.push({ title: row.Title, items, reasons: {} })
+  }
+  return sections
+}
+
+/** Entdecken-Reihen („Demnächst im Kino“, „Neu dieses Jahr – Filme/Serien“); leer ohne Plugin oder Schalter. */
+export async function discover(api: Api): Promise<Section[]> {
+  const config = await sectionsConfig(api)
+  if (!config.Discover) return []
+  const raw = await request<{ Rows?: { Key?: string; Title?: string; Items?: RawDiscoverItem[] }[] }>(api.url, '/LocalRecs/Discover', { token: api.token }).catch(() => null)
+  return parseDiscover(api.url, raw)
 }

@@ -235,3 +235,30 @@ describe('HDR nur, wenn der Fernseher es kann', () => {
     expect(hevc.ApplyConditions?.[0].Value).toContain('HDR10')
   })
 })
+
+describe('Entdecken (Plugin ab 12.54)', () => {
+  it('Reihen mit Termin, Bibliothek und Abo-Anbietern', async () => {
+    const { parseDiscover } = await import('../src/api/sections')
+    const sections = parseDiscover('http://srv', {
+      Rows: [
+        { Key: 'cinema', Title: 'Demnächst im Kino', Items: [
+          { TmdbId: 1, MediaType: 'movie', Title: 'Film', BackdropUrl: 'https://image.tmdb.org/a.jpg', ReleaseText: 'Kinostart am Do. 05.11.', TrailerKey: 'abc' },
+          { TmdbId: 2, MediaType: 'tv', Title: 'Serie', Providers: ['Netflix'], InLibrary: true, JellyfinId: 'c2b157ea3dc84584a30bcb96492eda16' },
+        ] },
+        { Key: 'leer', Title: 'Leer', Items: [] },
+      ],
+    })
+    expect(sections.length).toBe(1)
+    expect(sections[0].items[0].ImageUrl).toBe('https://image.tmdb.org/a.jpg')
+    expect(sections[0].items[0].Caption).toBe('Kinostart am Do. 05.11.')
+    expect(sections[0].items[1].Caption).toBe('In der Bibliothek')
+    expect(sections[0].items[1].Type).toBe('Series')
+  })
+
+  it('FSK einheitlich', async () => {
+    const { parentalRating } = await import('../src/home/format')
+    expect(parentalRating('12')).toBe('FSK 12')
+    expect(parentalRating('FSK-16')).toBe('FSK 16')
+    expect(parentalRating('PG-13')).toBe('PG-13')
+  })
+})

@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.17.0** (Plugin ab 12.54): Entdecken-Reihen „Demnächst im Kino“ und „Neu dieses Jahr – Filme/Serien“ wie im Web.
+
 **Neu ab 1.16.0:** HDR nur direkt, wenn der Fernseher es kann (sonst Tonemapping auf dem Server); Einstellung „HDR“: Automatisch, Immer umwandeln, Immer direkt.
 
 **1.15.1:** Sendezeiten in der Zeitzone des Fernsehers und „Danach: S03E06 am So. 01.11.“ (Plugin ab 12.52.2).

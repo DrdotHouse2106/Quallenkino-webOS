@@ -17,7 +17,7 @@ import { worldCard, worlds } from '../api/worlds'
 import { t } from '../i18n'
 import { interleave } from './format'
 import { serverBillboard } from '../api/billboard'
-import { moments, movieSeries, rowSettings, seasonal, upcoming } from '../api/sections'
+import { discover, moments, movieSeries, rowSettings, seasonal, upcoming } from '../api/sections'
 import type { RowData } from './Rows'
 import { daypartOrder, reorderRows } from '../api/behavior'
 
@@ -121,6 +121,7 @@ export function useHomeData(api: Api) {
   const [reasons, setReasons] = useState<Record<string, string>>({})
   const [seriesReasons, setSeriesReasons] = useState<Record<string, string>>({})
   const [momentKeys, setMomentKeys] = useState<string[]>([])
+  const [discoverKeys, setDiscoverKeys] = useState<string[]>([])
   const [rowConfig, setRowConfig] = useState<{ movies?: string; series?: string; liveTv?: string; liveTvRow: boolean }>({ liveTvRow: true })
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
@@ -177,6 +178,12 @@ export function useHomeData(api: Api) {
     upcoming(api).then(items => {
       if (active && items.length) setRows(current => ({ ...current, upcoming: { key: 'upcoming', title: t.rowUpcoming, kind: 'cards', items } }))
     }).catch(() => {})
+    // Entdecken-Reihen (Kinostarts, Neu dieses Jahr; Plugin ab 12.54) nach „Demnächst“
+    discover(api).then(list => {
+      if (!active || !list.length) return
+      setDiscoverKeys(list.map((_, index) => `discover-${index}`))
+      setRows(current => list.reduce<Record<string, RowData>>((all, section, index) => ({ ...all, [`discover-${index}`]: { key: `discover-${index}`, title: section.title, kind: 'cards', items: section.items } }), { ...current }))
+    }).catch(() => {})
     // Zeilentitel und Live-TV-Schalter wie im Web (Plugin ab 12.48)
     rowSettings(api).then(settings => active && setRowConfig(settings)).catch(() => {})
     seasonal(api).then(section => {
@@ -199,7 +206,7 @@ export function useHomeData(api: Api) {
   }, [api.url, api.userId, api.token])
 
   // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
-  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'upcoming', ...(rowConfig.liveTvRow ? ['tv'] : []), 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
+  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'upcoming', ...discoverKeys, ...(rowConfig.liveTvRow ? ['tv'] : []), 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
   const titled = (row: RowData | undefined): RowData | undefined => {
     const title = row?.key === 'recs-movies' ? rowConfig.movies : row?.key === 'recs-series' ? rowConfig.series : row?.key === 'tv' ? rowConfig.liveTv : undefined
     return row && title ? { ...row, title } : row

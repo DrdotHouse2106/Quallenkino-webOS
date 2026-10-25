@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.17.0 (Local Recommendations 12.54+): discover rows "In cinemas soon" and "New this year – movies/series", like Jellyfin Web.
+
 New in 1.16.0: HDR is only played directly if the TV can show it (otherwise the server tone-maps to SDR); setting "HDR": Automatic, Always convert, Always direct.
 
 1.15.1: correct air times in the device time zone and "Next: S03E06 on Sun 01.11." (Local Recommendations 12.52.2+).

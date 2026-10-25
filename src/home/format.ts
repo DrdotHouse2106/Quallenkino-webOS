@@ -21,7 +21,7 @@ export function facts(item: Item): string[] {
   // Sendung im Fernsehen: zuerst wann und wo
   if (item.Type === 'Program' || item.StartDate && item.ChannelName) list.push(airing(item))
   if (item.ProductionYear) list.push(String(item.ProductionYear))
-  if (item.OfficialRating?.trim()) list.push(item.OfficialRating.trim())
+  if (item.OfficialRating?.trim()) list.push(parentalRating(item.OfficialRating))
   if (item.RunTimeTicks && item.RunTimeTicks > 0 && item.Type !== 'Series') {
     const minutes = Math.round(item.RunTimeTicks / 600_000_000)
     list.push(minutes >= 60 ? `${Math.floor(minutes / 60)} Std. ${minutes % 60} Min.` : `${minutes} Min.`)
@@ -59,4 +59,11 @@ export function interleave(items: Item[]): Item[] {
 export function progress(item: Item): number | null {
   const percent = item.UserData?.PlayedPercentage
   return percent && percent > 0 && percent < 100 ? percent : null
+}
+
+/** Altersfreigabe einheitlich: „FSK 12“ statt „12“ bzw. „FSK-16“; andere Systeme (PG-13 …) unverändert (testbar). */
+export function parentalRating(rating: string): string {
+  const value = rating.trim()
+  const match = /^(?:DE[-/ ]?|FSK[- ]?)?(\d{1,2})$/i.exec(value)
+  return match ? `FSK ${match[1]}` : value
 }

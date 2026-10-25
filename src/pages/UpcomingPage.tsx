@@ -19,6 +19,7 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
   const episode = item.UpcomingEpisode
   useEffect(() => {
     if (episode) focusSoon('upcoming-series')
+    else if (item.Discover?.trailerKey) focusSoon('discover-trailer')
   }, [item])
   return (
     <Page focusKey="upcoming" class="qk-details">
@@ -37,6 +38,15 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
               <ActionButton focusKey="upcoming-series" icon="info" label={t.toSeries} onPress={() => router.push({ name: 'details', id: episode.seriesId })} />
             </div>
           </div>
+        ) : item.Discover ? (
+          <HeroInfo api={api} item={item} reason={item.Discover.releaseText} overview={item.Overview}>
+            {item.Discover.providers.length > 0 && <div class="qk-hero-subtitle">{t.discoverProviders(item.Discover.providers.join(', '))}</div>}
+            {item.Discover.trailerKey && (
+              <div class="qk-series-actions">
+                <ActionButton focusKey="discover-trailer" icon="trailer" label={t.discoverTrailer} onPress={() => router.push({ name: 'youtube', key: item.Discover!.trailerKey! })} />
+              </div>
+            )}
+          </HeroInfo>
         ) : (
           <HeroInfo api={api} item={item} reason={item.Caption} overview={item.Overview} />
         )}

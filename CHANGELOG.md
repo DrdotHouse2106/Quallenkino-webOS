@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.17.0 – 2026-10-25
+
+- **Entdecken-Reihen wie im Web** (Plugin ab 12.54): „Demnächst im Kino“, „Neu dieses Jahr – Filme“ und „Neu dieses Jahr – Serien“ nach „Demnächst“, mit Termin unter der Karte. Titel in der Bibliothek tragen „In der Bibliothek“ und öffnen ihre Detailseite; die anderen zeigen Termin, Genres · FSK · Laufzeit, „Im Abo bei …“, Beschreibung und „Trailer ansehen“. Es wird nie automatisch etwas angefragt.
+- Altersfreigabe einheitlich als „FSK 12“ (statt „12“ bzw. „FSK-16“).
+
 ## 1.16.0 – 2026-10-25
 
 - **HDR nur, wenn der Fernseher es kann:** Die App fragt beim Start jeder Wiedergabe, ob der Bildschirm HDR zeigt (Browser-Abfrage „dynamic-range“, bei Samsung die AVInfo-Schnittstelle, sofern verfügbar) und ob der Decoder Dolby Vision kann. Was nicht geht, wandelt der Server mit Tonemapping nach SDR um. Gibt das Gerät keine Auskunft, gilt HDR10/HLG wie bisher als vorhanden.
