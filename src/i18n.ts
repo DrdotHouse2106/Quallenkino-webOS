@@ -125,6 +125,8 @@ export const t = {
   seerrCreator: 'Idee',
   worldCount: (count: number) => `${count} Titel`,
   worldEmpty: 'Hier gibt es noch nichts.',
+  worldOrderYear: 'Erscheinungsjahr',
+  worldOrderChrono: 'Chronologisch (Handlungszeit)',
   rowOnNow: 'Läuft gerade',
   watchChannel: 'Einschalten',
   favoriteChannel: 'Lieblingssender',

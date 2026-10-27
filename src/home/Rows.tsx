@@ -65,8 +65,8 @@ function RowView({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
         <div class="qk-row-track">
           {row.items.map((item, index) => (
             <Card
-              key={item.Id}
-              focusKey={`card-${row.key}-${item.Id}`}
+              key={item.CardKey ?? item.Id}
+              focusKey={`card-${row.key}-${item.CardKey ?? item.Id}`}
               api={api}
               item={item}
               kind={row.kind}
@@ -156,7 +156,7 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }:
           {item.Badge && <span class="qk-badge" style={{ background: item.Badge.color }}>{item.Badge.label}</span>}
         </div>
         <div class="qk-card-caption">{title(item)}</div>
-        {item.ProductionYear && item.ImageUrl !== undefined ? <div class="qk-card-caption muted">{item.ProductionYear}</div> : null}
+        {item.Caption ? <div class="qk-card-caption muted">{item.Caption}</div> : item.ProductionYear && item.ImageUrl !== undefined ? <div class="qk-card-caption muted">{item.ProductionYear}</div> : null}
       </div>
     )
   }

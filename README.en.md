@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.19.0 (Local Recommendations 12.55+): worlds such as Star Trek can be shown chronologically by story time.
+
 New in 1.18.0: trailer preview also when the selection rests on a card in a row (can be switched off).
 
 New in 1.17.0 (Local Recommendations 12.54+): discover rows "In cinemas soon" and "New this year – movies/series", like Jellyfin Web.

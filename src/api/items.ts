@@ -76,6 +76,8 @@ export interface Item {
   UpcomingEpisode?: import('./sections').UpcomingEpisode
   /** Nur in der App: Folge ist heute erschienen (Serienseite, Plugin ab 12.52). */
   NewToday?: boolean
+  /** Nur in der App: eigener Schlüssel der Karte, wenn derselbe Titel mehrfach in einer Reihe steht. */
+  CardKey?: string
   /** Nur in der App: Entdecken-Karte (Kinostart bzw. Neuheit von TMDb, Plugin ab 12.54). */
   Discover?: import('./sections').DiscoverInfo
 }

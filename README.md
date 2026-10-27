@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.19.0** (Plugin ab 12.55): Welten wie Star Trek auch „Chronologisch (Handlungszeit)“ – mit Abschnitten und Zeitangabe unter jeder Karte.
+
 **Neu ab 1.18.0:** Trailer-Vorschau auch beim Stehenbleiben auf einer Karte in den Reihen (abschaltbar).
 
 **Neu ab 1.17.0** (Plugin ab 12.54): Entdecken-Reihen „Demnächst im Kino“ und „Neu dieses Jahr – Filme/Serien“ wie im Web.

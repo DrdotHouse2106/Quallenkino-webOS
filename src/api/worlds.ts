@@ -10,6 +10,16 @@ export interface World {
   TrailerItemId?: string
   /** Teile von Sammlungsnamen (klein geschrieben), die zur Welt gehören. */
   Collections?: string[]
+  /** Reihenfolge nach Handlungszeit (Plugin ab 12.55), sonst null. */
+  Chronology?: ChronologyEntry[] | null
+}
+
+/** Eintrag der Chronologie: Abschnitts-Überschrift oder Titel mit Zeitangabe (bei Serien ggf. nur Staffeln). */
+export interface ChronologyEntry {
+  Section?: string
+  ItemId?: string
+  Label?: string | null
+  Seasons?: number[] | null
 }
 
 /** Welten mit weniger Titeln werden nicht gezeigt (wie Android). */
@@ -98,4 +108,50 @@ async function collectionSections(api: Api, world: World): Promise<WorldSection[
 /** „Iron Man Filmreihe“ → „Iron Man“. */
 export function collectionTitle(name: string): string {
   return name.replace(/\s*[-–]?\s*\b(Filmreihe|Collection|Sammlung|Reihe)\b\s*/gi, ' ').trim() || name
+}
+
+/** „Staffel 1–2“, „Staffel 3“, „Staffel 1, 3“ (testbar). */
+export function seasonsText(seasons?: number[] | null): string {
+  if (!seasons?.length) return ''
+  const sorted = [...seasons].sort((a, b) => a - b)
+  const consecutive = sorted.every((n, i) => i === 0 || n === sorted[i - 1] + 1)
+  if (sorted.length === 1) return `Staffel ${sorted[0]}`
+  return consecutive ? `Staffel ${sorted[0]}–${sorted[sorted.length - 1]}` : `Staffel ${sorted.join(', ')}`
+}
+
+/** Text unter der Karte: „2256–2258 · Staffel 1–2“ (testbar); ohne Zeitangabe nur die Staffeln. */
+export function chronologyCaption(entry: ChronologyEntry): string {
+  return [entry.Label ?? '', seasonsText(entry.Seasons)].filter(Boolean).join(' · ')
+}
+
+/** Chronologie in Abschnitte teilen (testbar): jede „Section“ beginnt eine neue Reihe. */
+export function chronologyGroups(entries: ChronologyEntry[]): { title: string; entries: ChronologyEntry[] }[] {
+  const groups: { title: string; entries: ChronologyEntry[] }[] = []
+  for (const entry of entries) {
+    if (entry.Section) groups.push({ title: entry.Section, entries: [] })
+    else if (entry.ItemId) {
+      if (!groups.length) groups.push({ title: 'Chronologisch', entries: [] })
+      groups[groups.length - 1].entries.push(entry)
+    }
+  }
+  return groups.filter(group => group.entries.length > 0)
+}
+
+/** Welt-Seite „Chronologisch (Handlungszeit)“: Abschnitte und Karten in Handlungsreihenfolge mit Zeitangabe. */
+export async function chronologySections(api: Api, world: World): Promise<WorldSection[]> {
+  const groups = chronologyGroups(world.Chronology ?? [])
+  const ids = [...new Set(groups.flatMap(g => g.entries.map(e => e.ItemId!)))]
+  const loaded = await byIds(api, ids).catch(() => [] as Item[])
+  const norm = (id: string) => id.replace(/-/g, '').toLowerCase()
+  const byId = new Map(loaded.map(item => [norm(item.Id), item]))
+  return groups.map((group, index) => ({
+    key: `chrono-${index}`,
+    title: group.title,
+    items: group.entries
+      .map((entry, n): Item | null => {
+        const item = byId.get(norm(entry.ItemId!))
+        return item ? { ...item, Caption: chronologyCaption(entry) || undefined, CardKey: `${item.Id}-${index}-${n}` } : null
+      })
+      .filter((item): item is Item => !!item),
+  })).filter(section => section.items.length > 0)
 }

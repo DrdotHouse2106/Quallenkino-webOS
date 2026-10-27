@@ -272,3 +272,22 @@ describe('Trailer-Auswahl wie Android', () => {
     expect(pickTrailer([{ Id: 'k', Name: 'Spot', RunTimeTicks: s(60) }, { Id: 'l', Name: 'Spot 2', RunTimeTicks: s(120) }])?.Id).toBe('l')
   })
 })
+
+describe('Welten chronologisch (Plugin ab 12.55)', () => {
+  it('teilt in Abschnitte und schreibt Zeit und Staffeln unter die Karte', async () => {
+    const { chronologyGroups, chronologyCaption, seasonsText } = await import('../src/api/worlds')
+    const groups = chronologyGroups([
+      { Section: 'Hauptzeitlinie' },
+      { ItemId: 'a', Label: '2151' },
+      { ItemId: 'b', Label: '2256–2258', Seasons: [1, 2] },
+      { Section: 'Leer' },
+      { Section: 'Ohne Handlungszeit' },
+      { ItemId: 'c', Label: null },
+    ])
+    expect(groups.map(g => g.title)).toEqual(['Hauptzeitlinie', 'Ohne Handlungszeit'])
+    expect(chronologyCaption(groups[0].entries[1])).toBe('2256–2258 · Staffel 1–2')
+    expect(chronologyCaption(groups[1].entries[0])).toBe('')
+    expect(seasonsText([3, 4, 5])).toBe('Staffel 3–5')
+    expect(seasonsText([1, 3])).toBe('Staffel 1, 3')
+  })
+})

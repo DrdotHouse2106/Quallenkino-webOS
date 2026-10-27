@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.19.0 – 2026-10-27
+
+- **Welten chronologisch** (Plugin ab 12.55): Hat eine Welt eine Reihenfolge nach Handlungszeit (z. B. Star Trek), erscheinen oben die Knöpfe „Erscheinungsjahr“ und „Chronologisch (Handlungszeit)“. Chronologisch stehen die Titel in Abschnitten, unter jeder Karte die Handlungszeit und bei Serien die Staffeln, z. B. „2256–2258 · Staffel 1–2“. Standard bleibt das Erscheinungsjahr.
+
 ## 1.18.0 – 2026-10-25
 
 - **Trailer-Vorschau auch in den Reihen:** Bleibt die Auswahl etwa 3 Sekunden auf einem Film oder einer Serie stehen, läuft oben der Trailer – wie beim Banner und im Web. Jeder Fokuswechsel stoppt ihn sofort. Gleiche Auswahl wie bei Android: nur echte Trailer, nichts unter 15 Sekunden, „Trailer“ vor „Teaser“ (gilt jetzt auch für Banner und Detailseite).
