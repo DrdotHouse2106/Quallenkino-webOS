@@ -27,7 +27,7 @@ const tizenFlexGap = {
   name: 'qk-tizen-flex-gap',
   enforce: 'pre' as const,
   transform(code: string, id: string) {
-    return tizen && id.endsWith('.css') ? flexGapFallback(code) : null
+    return id.endsWith('.css') ? flexGapFallback(code) : null
   },
 }
 

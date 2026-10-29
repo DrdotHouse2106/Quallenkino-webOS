@@ -37,7 +37,11 @@ export function behaviorAvailable(api: Api): Promise<boolean> {
   if (!cached) {
     cached = request<{ BehaviorSignals?: boolean }>(api.url, '/LocalRecs/Web/Config', { token: api.token })
       .then(config => config?.BehaviorSignals === true)
-      .catch(() => false)
+      // Nur eine echte Antwort merken (auch 404 = Plugin fehlt); nach einem Aussetzer beim nächsten Mal neu fragen
+      .catch((error: { status?: number }) => {
+        if (error?.status !== 404) availability.delete(api.url)
+        return false
+      })
     availability.set(api.url, cached)
   }
   return cached

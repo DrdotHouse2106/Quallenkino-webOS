@@ -35,13 +35,17 @@ export async function signIn(baseUrl: string, username: string, password: string
   }))
 }
 
-/** Ist die gespeicherte Anmeldung noch gültig? */
+/**
+ * Ist die gespeicherte Anmeldung noch gültig? Verworfen wird sie nur, wenn der Server sie ablehnt (401/403) –
+ * nicht bei Zeitüberschreitung oder Neustart des Servers (z. B. nach einem Plugin-Update).
+ */
 export async function checkSession(baseUrl: string, session: Session): Promise<boolean> {
   try {
     await request(baseUrl, '/Users/Me', { token: session.token })
     return true
-  } catch {
-    return false
+  } catch (error) {
+    const status = (error as { status?: number }).status
+    return !(status === 401 || status === 403)
   }
 }
 

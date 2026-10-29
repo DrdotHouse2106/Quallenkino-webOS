@@ -25,7 +25,11 @@ export function avatarsAvailable(url: string, token: string): Promise<boolean> {
   if (!cached) {
     cached = request<{ Avatars?: boolean }>(url, '/LocalRecs/Web/Config', { token })
       .then(config => config?.Avatars === true)
-      .catch(() => false)
+      // Nur eine echte Antwort merken (auch 404 = Plugin fehlt); nach einem Aussetzer beim nächsten Mal neu fragen
+      .catch((error: { status?: number }) => {
+        if (error?.status !== 404) availability.delete(url)
+        return false
+      })
     availability.set(url, cached)
   }
   return cached

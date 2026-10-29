@@ -63,6 +63,9 @@ export function hdrSupport(mode: HdrMode): HdrSupport {
   return hdrFromProbe(probe())
 }
 
+/** Alle Jellyfin-VideoRangeTypes (10.10/10.11). */
+export const ALL_RANGE_TYPES = ['SDR', 'HDR10', 'HDR10Plus', 'HLG', 'DOVI', 'DOVIWithHDR10', 'DOVIWithHDR10Plus', 'DOVIWithHLG', 'DOVIWithSDR', 'DOVIWithEL', 'DOVIWithELHDR10Plus', 'DOVIInvalid', 'Unknown']
+
 /** Nicht direkt abspielbare HDR-Arten (Jellyfin VideoRangeType) für das Geräteprofil. */
 export function unsupportedRangeTypes(hdr: HdrSupport): string[] {
   const list: string[] = []

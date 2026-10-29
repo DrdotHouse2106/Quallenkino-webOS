@@ -39,20 +39,22 @@ const availability = new Map<string, Promise<boolean>>()
 /** Ist Jellyseerr über das Plugin erreichbar und der Benutzer dort bekannt? (Einmal je Sitzung.) */
 export function available(api: Api): Promise<boolean> {
   const key = `${api.url}|${api.userId}`
-  if (!availability.has(key)) availability.set(key, checkAvailable(api))
+  if (!availability.has(key)) {
+    availability.set(key, checkAvailable(api).catch((error: { status?: number }) => {
+      // Aussetzer (Zeitüberschreitung, Server-Neustart) nicht merken – nur „gibt es nicht“ (404)
+      if (error?.status !== 404) availability.delete(key)
+      return false
+    }))
+  }
   return availability.get(key)!
 }
 
 async function checkAvailable(api: Api): Promise<boolean> {
-  try {
-    const [status, user] = await Promise.all([
-      call<{ active?: boolean }>(api, '/status'),
-      call<{ active?: boolean; userFound?: boolean }>(api, '/user-status'),
-    ])
-    return !!status?.active && !!user?.active && !!user?.userFound
-  } catch {
-    return false
-  }
+  const [status, user] = await Promise.all([
+    call<{ active?: boolean }>(api, '/status'),
+    call<{ active?: boolean; userFound?: boolean }>(api, '/user-status'),
+  ])
+  return !!status?.active && !!user?.active && !!user?.userFound
 }
 
 export function statusOf(code?: number): Status {

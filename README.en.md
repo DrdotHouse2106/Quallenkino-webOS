@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+1.19.1: fixes – sign-in kept on server restart, transcoding fallback on playback errors, spacing on webOS 6, HDR profile like Jellyfin Web, player reporting.
+
 New in 1.19.0 (Local Recommendations 12.55+): worlds such as Star Trek can be shown chronologically by story time.
 
 New in 1.18.0: trailer preview also when the selection rests on a card in a row (can be switched off).

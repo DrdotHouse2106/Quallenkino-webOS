@@ -140,6 +140,10 @@ export const reportStart = (api: Api, body: Report) => report(api, '/Sessions/Pl
 export const reportProgress = (api: Api, body: Report) => report(api, '/Sessions/Playing/Progress', body)
 export const reportStop = (api: Api, body: Report) => report(api, '/Sessions/Playing/Stopped', body)
 
+/** Live-Stream freigeben (Tuner), auch wenn die Wiedergabe nie angelaufen ist. */
+export const closeLiveStream = (api: Api, liveStreamId: string) =>
+  request(api.url, `/LiveStreams/Close?liveStreamId=${encodeURIComponent(liveStreamId)}`, { method: 'POST', token: api.token }).catch(() => undefined)
+
 // Intro und Abspann (Media Segments, z. B. vom Plugin Intro Skipper)
 export interface Segment {
   Type: 'Intro' | 'Outro' | 'Recap' | 'Preview' | 'Commercial' | string

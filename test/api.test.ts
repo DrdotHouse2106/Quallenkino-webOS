@@ -231,8 +231,8 @@ describe('HDR nur, wenn der Fernseher es kann', () => {
     const { deviceProfile } = await import('../src/player/profile')
     const { HDR_NONE } = await import('../src/player/hdr')
     expect(deviceProfile(undefined, 'webos').CodecProfiles.some(p => p.Codec === 'hevc')).toBe(false)
-    const hevc = deviceProfile(undefined, 'webos', HDR_NONE).CodecProfiles.find(p => p.Codec === 'hevc') as { ApplyConditions?: { Value: string }[] }
-    expect(hevc.ApplyConditions?.[0].Value).toContain('HDR10')
+    const hevc = deviceProfile(undefined, 'webos', HDR_NONE).CodecProfiles.find(p => p.Codec === 'hevc')
+    expect((hevc as { Conditions: { Value: string }[] }).Conditions[0].Value.split("|")).not.toContain("HDR10")
   })
 })
 

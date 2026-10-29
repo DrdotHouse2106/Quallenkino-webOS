@@ -14,6 +14,7 @@ import {
   reportProgress,
   reportStart,
   reportStop,
+  closeLiveStream,
   segments as loadSegments,
   streamFor,
   subtitleUrl,
@@ -95,6 +96,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   const activeUrl = useRef<string | null>(null)
   const audioFallback = useRef<string | null>(null)
   const started = useRef(false)
+  /** Letzte bekannte Position – beim Spurwechsel ist das neue Video schon da (bei 0), gemeldet wird die alte Stelle. */
+  const lastTime = useRef(0)
+  /** Bei einem Abspielfehler einmal mit Umrechnung neu versuchen. */
+  const errorFallback = useRef(false)
   /** Nach „gestoppt“ keine Meldungen mehr (beim Schließen feuert das Video noch „pause“). */
   const stopped = useRef(false)
   const osdTimer = useRef<ReturnType<typeof setTimeout>>()
@@ -242,7 +247,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     showOsd()
   }
 
-  const position = () => video.current?.currentTime ?? 0
+  const position = () => lastTime.current || video.current?.currentTime || 0
   const reportBody = (isPaused = false) => stream && {
     ItemId: id,
     MediaSourceId: stream.source.Id,
@@ -267,10 +272,23 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   }, [stream, audio, subtitle])
   useEffect(() => {
     stopped.current = false
+    const element = video.current
     return () => {
       const body = reportBody()
       if (body && started.current) reportStop(api, body)
+      // Nie angelaufener Live-Stream belegt sonst den Tuner weiter
+      else if (stream?.source.LiveStreamId) closeLiveStream(api, stream.source.LiveStreamId)
       stopped.current = true
+      // Video freigeben (Decoder und Verbindung), sonst lädt es im Hintergrund weiter
+      if (element) {
+        try {
+          element.pause()
+          element.removeAttribute('src')
+          element.load()
+        } catch {
+          // schon entfernt
+        }
+      }
     }
   }, [stream])
 
@@ -453,6 +471,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
           }}
           onTimeUpdate={() => {
             setTime(video.current?.currentTime ?? 0)
+            if (video.current && video.current.currentTime > 0) lastTime.current = video.current.currentTime
             checkSeek()
           }}
           onSeeked={startSeekClock}
@@ -472,7 +491,16 @@ export function PlayerPage({ api, id, startTicks }: Props) {
             if (body && started.current && !stopped.current) reportProgress(api, body)
           }}
           onEnded={() => (next && !nextCancelled ? playNext() : router.pop())}
-          onError={() => setError(t.playbackFailed)}
+          onError={() => {
+            // Direkt abspielen ging nicht (Codec, Container …): einmal vom Server umrechnen lassen
+            if (stream.method !== 'Transcode' && !live && !errorFallback.current) {
+              errorFallback.current = true
+              console.info('[Quallenkino] Direkt abspielen fehlgeschlagen – Umrechnung')
+              open(audio, subtitle, lastTime.current || startAt.current, true, true).catch(() => setError(t.playbackFailed))
+              return
+            }
+            setError(t.playbackFailed)
+          }}
         />
       )}
       {cue && !dialog && <div class={`qk-subtitle ${osd ? 'raised' : ''}`}>{cue.split('\n').map(line => <div>{line}</div>)}</div>}

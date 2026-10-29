@@ -1,5 +1,16 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.19.1 – 2026-10-29
+
+Fehlerbehebungen nach einer Durchsicht:
+
+- **Anmeldung bleibt bei Server-Neustart erhalten:** Die gespeicherte Anmeldung wird nur noch verworfen, wenn der Server sie ablehnt – nicht mehr bei Zeitüberschreitung oder Neustart (z. B. nach einem Plugin-Update).
+- **Abspielfehler:** Klappt das direkte Abspielen nicht, rechnet der Server einmal um, statt nur eine Fehlermeldung zu zeigen.
+- **LG mit webOS 6 (2021):** Abstände zwischen Knöpfen und Karten fehlten dort, weil Chromium 79 `gap` in Flexbox nicht kennt – der Ersatz, den bisher nur Samsung bekam, gilt jetzt auch für LG. (Die Angabe „LG unverändert“ zu 1.9.2 stimmte für webOS 6 nicht.)
+- **HDR-Ausschluss** im Geräteprofil wie in Jellyfin Web über die erlaubten Arten („EqualsAny“) – der bisherige Vergleich griff nur zufällig.
+- **Player:** Beim Spurwechsel wird die richtige Position gemeldet (statt etwa 0); ein nie angelaufener Live-Stream gibt den Tuner frei; das Video wird beim Verlassen entladen.
+- Prüfungen, ob Plugin-Funktionen (Verhaltenssignale, Banner, Erinnerungen, Profilbilder, Jellyseerr) verfügbar sind, merken sich einen Aussetzer nicht mehr bis zum Neustart.
+
 ## 1.19.0 – 2026-10-27
 
 - **Welten chronologisch** (Plugin ab 12.55): Hat eine Welt eine Reihenfolge nach Handlungszeit (z. B. Star Trek), erscheinen oben die Knöpfe „Erscheinungsjahr“ und „Chronologisch (Handlungszeit)“. Chronologisch stehen die Titel in Abschnitten, unter jeder Karte die Handlungszeit und bei Serien die Staffeln, z. B. „2256–2258 · Staffel 1–2“. Standard bleibt das Erscheinungsjahr.
