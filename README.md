@@ -16,6 +16,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.20.0:** Vorschaubilder beim Spulen (Trickplay) wie im Web.
+
 **1.19.1:** Fehlerbehebungen (Anmeldung bleibt bei Server-Neustart, Umrechnung bei Abspielfehlern, Abstände auf webOS 6, HDR-Profil wie Jellyfin Web, Player-Meldungen).
 
 **Neu ab 1.19.0** (Plugin ab 12.55): Welten wie Star Trek auch „Chronologisch (Handlungszeit)“ – mit Abschnitten und Zeitangabe unter jeder Karte.

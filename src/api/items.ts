@@ -27,6 +27,8 @@ export interface Item {
   SeriesThumbImageTag?: string
   SeriesPrimaryImageTag?: string
   LocalTrailerCount?: number
+  /** Vorschaubilder beim Spulen je Quelle und Breite (Jellyfin Trickplay). */
+  Trickplay?: Record<string, Record<string, import('../player/trickplay').TrickplayInfo>>
   Path?: string
   RemoteTrailers?: { Url?: string; Name?: string }[]
   UserData?: { PlayedPercentage?: number; PlaybackPositionTicks?: number; Played?: boolean; Likes?: boolean | null; IsFavorite?: boolean }
@@ -165,7 +167,7 @@ export const item = (api: Api, id: string) => get<Item>(api, `/Users/${api.userI
 
 /** Vollständiger Titel für die Detailseite (mit Besetzung, Taglines, Bewertung). */
 export const fullItem = (api: Api, id: string) =>
-  get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=${FIELDS},People,Taglines,ProductionLocations,ChildCount,RemoteTrailers`)
+  get<Item>(api, `/Users/${api.userId}/Items/${id}?Fields=${FIELDS},People,Taglines,ProductionLocations,ChildCount,RemoteTrailers,Trickplay`)
 
 /** Ähnliche Titel („Das könnte dir auch gefallen“). */
 export const similar = (api: Api, id: string, limit = 20) =>

@@ -291,3 +291,16 @@ describe('Welten chronologisch (Plugin ab 12.55)', () => {
     expect(seasonsText([1, 3])).toBe('Staffel 1, 3')
   })
 })
+
+describe('Trickplay-Vorschau', () => {
+  it('rechnet Kachel und Ausschnitt aus', async () => {
+    const { trickplayFrame } = await import('../src/player/trickplay')
+    const item = { Id: 'abc', Trickplay: { src1: { '320': { Width: 320, Height: 180, TileWidth: 10, TileHeight: 10, ThumbnailCount: 300, Interval: 10_000 } } } }
+    // 1234 s → Bild 123 → Kachel 1, Platz 23 (Spalte 3, Zeile 2)
+    const frame = trickplayFrame(item, 'src1', 1234)!
+    expect(frame.path).toBe('/Videos/abc/Trickplay/320/1.jpg?mediaSourceId=src1')
+    expect([frame.x, frame.y]).toEqual([960, 360])
+    expect(frame.sheetWidth).toBe(3200)
+    expect(trickplayFrame({ Id: 'x' }, 'src1', 10)).toBeNull()
+  })
+})

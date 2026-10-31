@@ -1,3 +1,5 @@
+import { trickplayFrame, type TrickplayFrame } from './trickplay'
+import { useAuthorizedImage } from '../ui/authImage'
 import { FocusContext, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { fullItem, get, ratingTarget, setRating, type Api, type Item } from '../api/items'
@@ -29,6 +31,8 @@ import { programProgress, timeRange } from '../api/livetv'
 import { loadSettings } from '../settings'
 import { audioStreams, audioTrackPosition, cueAt, directAudioPossible, fileDefaultAudio, isForced, parseVtt, pickAudio, pickSubtitle, subtitleStreams, trackLabel, type Cue } from './tracks'
 
+/** So lange bleibt das Vorschaubild nach dem letzten Spul-Tastendruck stehen. */
+const PREVIEW_MS = 1_500
 const OSD_TIMEOUT_MS = 5_000
 const PROGRESS_INTERVAL_MS = 10_000
 const SEEK_SECONDS = 10
@@ -103,6 +107,9 @@ export function PlayerPage({ api, id, startTicks }: Props) {
   /** Nach „gestoppt“ keine Meldungen mehr (beim Schließen feuert das Video noch „pause“). */
   const stopped = useRef(false)
   const osdTimer = useRef<ReturnType<typeof setTimeout>>()
+  /** Stelle für das Vorschaubild beim Spulen (null = keins). */
+  const [previewTime, setPreviewTime] = useState<number | null>(null)
+  const previewTimer = useRef<ReturnType<typeof setTimeout>>()
 
   // Titel, Abspiel-Infos, Intro/Abspann, nächste Folge
   useEffect(() => {
@@ -320,6 +327,10 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     if (!element || live) return
     seekTarget.current = null
     element.currentTime = Math.max(0, Math.min((duration || element.duration || 0) - 1, element.currentTime + seconds))
+    // Vorschaubild an der neuen Stelle (Trickplay), kurz nach dem letzten Tastendruck wieder weg
+    setPreviewTime(element.currentTime)
+    clearTimeout(previewTimer.current)
+    previewTimer.current = setTimeout(() => setPreviewTime(null), PREVIEW_MS)
     showOsd()
   }
 
@@ -513,7 +524,8 @@ export function PlayerPage({ api, id, startTicks }: Props) {
       <div class={`qk-osd ${osd ? 'visible' : ''}`}>
         <div class="qk-osd-title">{name}</div>
         {sub && <div class="qk-osd-subtitle">{sub}</div>}
-        {live ? <LiveBar program={nowOn} paused={paused} onToggle={togglePause} /> : <SeekBar time={time} duration={duration} paused={paused} onSeek={seekBy} onToggle={togglePause} />}
+        {live ? <LiveBar program={nowOn} paused={paused} onToggle={togglePause} /> : <SeekBar time={time} duration={duration} paused={paused} onSeek={seekBy} onToggle={togglePause}
+          preview={previewTime !== null && item && stream ? { api, frame: trickplayFrame(item, stream.source.Id, previewTime), time: previewTime } : null} />}
         <OsdButtons
           hasNext={!!next}
           canRate={!live && !!item && !!ratingTarget(item)}
@@ -575,7 +587,13 @@ function LiveBar({ program, paused, onToggle }: { program: Item | null; paused: 
   )
 }
 
-function SeekBar({ time, duration, paused, onSeek, onToggle }: { time: number; duration: number; paused: boolean; onSeek: (s: number) => void; onToggle: () => void }) {
+interface SeekPreview {
+  api: Api
+  frame: TrickplayFrame | null
+  time: number
+}
+
+function SeekBar({ time, duration, paused, onSeek, onToggle, preview }: { time: number; duration: number; paused: boolean; onSeek: (s: number) => void; onToggle: () => void; preview?: SeekPreview | null }) {
   const { ref, focused } = useFocusable({
     focusKey: 'player-bar',
     onEnterPress: onToggle,
@@ -592,7 +610,11 @@ function SeekBar({ time, duration, paused, onSeek, onToggle }: { time: number; d
       {/* Zeigt, was OK bewirkt: läuft → Pause, pausiert → Abspielen */}
       <span class="qk-seek-state"><Icon name={paused ? 'play' : 'pause'} size={30} /></span>
       <span class="qk-seek-time">{formatTime(time)}</span>
-      <div class="qk-seek-track"><div class="qk-seek-fill" style={{ width: `${percent}%` }} /><div class="qk-seek-knob" style={{ left: `${percent}%` }} /></div>
+      <div class="qk-seek-track">
+        <div class="qk-seek-fill" style={{ width: `${percent}%` }} />
+        <div class="qk-seek-knob" style={{ left: `${percent}%` }} />
+        {preview?.frame && <TrickplayPreview api={preview.api} frame={preview.frame} time={preview.time} left={duration > 0 ? Math.min(100, (preview.time / duration) * 100) : percent} />}
+      </div>
       <span class="qk-seek-time">{duration > 0 ? '-' + formatTime(duration - time) : ''}</span>
     </div>
   )
@@ -685,6 +707,27 @@ function NextPanel({ item, onPlay }: { item: Item; onPlay: () => void }) {
       <div class="qk-next-label">{t.nextEpisodeIn(left)}</div>
       <div class="qk-next-title">{sub ?? item.Name}</div>
       <div class="qk-next-hint">{t.nextEpisodeHint}</div>
+    </div>
+  )
+}
+
+/** Vorschaubild über der Leiste: Ausschnitt aus der Trickplay-Kachel (Bild mit Anmeldung geladen). */
+function TrickplayPreview({ api, frame, time, left }: { api: Api; frame: TrickplayFrame; time: number; left: number }) {
+  const sheet = useAuthorizedImage(api, `${api.url.replace(/\/+$/, '')}${frame.path}`)
+  if (!sheet) return null
+  return (
+    <div class="qk-seek-preview" style={{ left: `${left}%`, width: `${frame.width}px` }}>
+      <div
+        class="qk-seek-preview-image"
+        style={{
+          width: `${frame.width}px`,
+          height: `${frame.height}px`,
+          backgroundImage: `url(${sheet})`,
+          backgroundPosition: `-${frame.x}px -${frame.y}px`,
+          backgroundSize: `${frame.sheetWidth}px ${frame.sheetHeight}px`,
+        }}
+      />
+      <div class="qk-seek-preview-time">{formatTime(time)}</div>
     </div>
   )
 }

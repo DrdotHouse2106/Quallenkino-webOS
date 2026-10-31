@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.20.0 – 2026-10-31
+
+- **Vorschaubilder beim Spulen** wie im Web: Beim Vor- und Zurückspulen erscheint über der Leiste das Bild an der neuen Stelle mit Uhrzeit (Trickplay vom Server, falls dort erzeugt).
+
 ## 1.19.1 – 2026-10-29
 
 Fehlerbehebungen nach einer Durchsicht:

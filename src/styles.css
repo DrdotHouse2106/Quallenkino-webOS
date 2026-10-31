@@ -401,3 +401,8 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-series-head { padding: 0 0 12px 28px; }
 .qk-series-actions { display: flex; gap: 16px; margin-top: 20px; }
 .qk-poster.watched .qk-poster-image::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 18px; background: rgba(46, 125, 50, 0.92); color: #fff; font-size: 24px; font-weight: 800; text-align: center; line-height: 36px; }
+
+/* Vorschaubild beim Spulen (Trickplay) über der Leiste */
+.qk-seek-preview { position: absolute; bottom: 24px; transform: translateX(-50%); pointer-events: none; text-align: center; }
+.qk-seek-preview-image { border-radius: 6px; box-shadow: 0 0 0 2px #fff, 0 8px 24px rgba(0, 0, 0, 0.6); background-repeat: no-repeat; }
+.qk-seek-preview-time { margin-top: 6px; font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }

@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+New in 1.20.0: preview pictures while seeking (trickplay), like Jellyfin Web.
+
 1.19.1: fixes – sign-in kept on server restart, transcoding fallback on playback errors, spacing on webOS 6, HDR profile like Jellyfin Web, player reporting.
 
 New in 1.19.0 (Local Recommendations 12.55+): worlds such as Star Trek can be shown chronologically by story time.
