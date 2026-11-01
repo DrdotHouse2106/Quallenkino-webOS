@@ -130,7 +130,7 @@ export function RequestPage({ api, type, id, covered }: { api: Api; type: MediaT
             </div>
             <ActionRow focusKey="r-buttons">
               {local && <ActionButton focusKey="r-open" icon="play" label={t.seerrOpen} onPress={() => openItem(router, local)} />}
-              {canRequest && <ActionButton focusKey="r-request" icon="add" label={info.type === 'tv' && info.seasons.length > 1 ? t.seerrRequestAll : t.seerrRequest} onPress={() => send()} />}
+              {canRequest && <ActionButton focusKey="r-request" icon="add" label={info.type !== 'tv' ? t.seerrRequest : openSeasons.length < info.seasons.length ? t.seerrRequestMissing : t.seerrRequestAll} onPress={() => send()} />}
               {canRequest && openSeasons.length > 1 && <ActionButton focusKey="r-seasons" label={t.seerrPickSeasons} onPress={() => setPicking(true)} />}
               {local?.LocalTrailerCount || info.trailer ? <ActionButton focusKey="r-trailer" icon="trailer" label={!local?.LocalTrailerCount && info.trailer?.label ? `${t.trailer} (${info.trailer.label})` : t.trailer} onPress={playTrailer} /> : null}
               {!local && !canRequest && !info.trailer && <ActionButton focusKey="r-back" label={t.back} onPress={() => router.pop()} />}
