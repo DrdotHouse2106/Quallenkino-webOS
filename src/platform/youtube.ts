@@ -43,8 +43,28 @@ export function launchApp(id: string, params: Record<string, unknown> = {}): Pro
 export const PLAYER_PAGE = 'https://drdothouse2106.github.io/Quallenkino-webOS/yt.html'
 const PLAYER_ORIGIN = new URL(PLAYER_PAGE).origin
 
-export function playerUrl(key: string, volume: number): string {
-  return `${PLAYER_PAGE}?v=${encodeURIComponent(key)}&vol=${Math.round(volume * 100)}`
+/** cc=1: deutsche Untertitel an (nur fremdsprachige Trailer); cc=0: keine erzwingen. */
+export function playerUrl(key: string, volume: number, subtitles = false): string {
+  return `${PLAYER_PAGE}?v=${encodeURIComponent(key)}&vol=${Math.round(volume * 100)}&cc=${subtitles ? 1 : 0}`
+}
+
+const GERMAN = ['de', 'deu', 'ger', 'german', 'deutsch']
+
+/**
+ * Deutsche Untertitel nur bei fremdsprachigen Trailern: Sprache aus /LocalRecs/Discover („de“, „OmU“,
+ * „en“ …) oder die Kennzeichnung („EN“, „OmU“; leer = deutsch). Deutsch, OmU (meist eingebrannt) und
+ * Unbekanntes: keine.
+ */
+export function subtitlesFor(language?: string | null): boolean {
+  const lang = (language ?? '').trim().toLowerCase()
+  return lang !== '' && lang !== 'omu' && !GERMAN.includes(lang.split(/[-_]/)[0])
+}
+
+/** „Trailer ansehen (EN)“ bzw. „(OmU)“ wie im Web; deutsche oder unbekannte ohne Zusatz. */
+export function trailerButtonLabel(text: string, language?: string | null): string {
+  const lang = (language ?? '').trim()
+  if (lang.toLowerCase() === 'omu') return `${text} (OmU)`
+  return subtitlesFor(lang) ? `${text} (${lang.toUpperCase()})` : text
 }
 
 /** Meldung der Player-Seite: bereit, Zustand (1 läuft, 2 Pause, 0 Ende) oder Fehler. */

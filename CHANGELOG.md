@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.20.4 – 2026-11-01
+
+- **Untertitel nur bei fremdsprachigen Trailern:** YouTube-Trailer mit deutschem Ton (und OmU, dort sind sie meist eingebrannt) laufen ohne Untertitel; englische und andere fremdsprachige mit deutschen Untertiteln. Die Sprache kommt aus Entdecken (`TrailerLanguage`, ab Quallenkino 12.57) bzw. aus Jellyseerr.
+- **„Trailer ansehen (EN)“ / „(OmU)“** auch bei „Demnächst“ in Entdecken, wie im Web.
+
 ## 1.20.3 – 2026-11-01
 
 - **Kein Bildschirmschoner, solange ein Video läuft:** Auch Banner-Trailer und die YouTube-Vorschau auf Detail- und Anfrage-Seiten halten ihn jetzt zurück – vorher konnte er mit eigenem Trailer-Ton dazwischenstarten.

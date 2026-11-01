@@ -58,7 +58,7 @@ Version **1.0** – alle 7 Etappen:
 - [x] Einstellungen: Untertitel und Ton beim Start, Trailer-Vorschau, Profil/Server wechseln, Abmelden, Über
 - [x] Empfehlungen nach Tageszeit und aus Suchen und angesehenen Titeln (Plugin Local Recommendations ab 12.36) – abschaltbar und löschbar in den Einstellungen
 - [x] Profilbild selbst wählen (Figur + Hintergrundfarbe, Bild erzeugt das Plugin Local Recommendations ab 12.22) – in „Wer schaut?“ und in den Einstellungen
-- [x] Bildschirmschoner mit persönlichen Titeln und Trailern (startet nie, solange ein Video läuft), „Quallenkino beenden?“ bei „Zurück“ auf der Startseite, YouTube-Trailer im eigenen Fenster und automatisch oben rechts
+- [x] Bildschirmschoner mit persönlichen Titeln und Trailern (startet nie, solange ein Video läuft), Trailer im Vollbild mit deutschen Untertiteln nur bei fremdsprachigen Trailern, „Quallenkino beenden?“ bei „Zurück“ auf der Startseite, YouTube-Trailer im eigenen Fenster und automatisch oben rechts
 
 ## YouTube-Trailer
 

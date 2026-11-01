@@ -18,7 +18,7 @@ const READY_TIMEOUT_MS = 10_000
  * Player bildschirmfüllend, ohne etwas darüberzulegen oder ihn zu beschneiden. OK bzw. Play/Pause hält
  * an, „Zurück“ schließt. Geht der Player nicht (Fehler, nicht einbettbar), öffnet sich die YouTube-App.
  */
-export function YouTubePage({ videoKey }: { videoKey: string }) {
+export function YouTubePage({ videoKey, subtitles = false }: { videoKey: string; subtitles?: boolean }) {
   const router = useRouter()
   // Samsung: Der eingebettete Player ruckelt dort (Software-Dekodierung im Browser) – zuerst die YouTube-App
   // des Fernsehers öffnen, nur wenn das nicht geht, der eingebettete Player
@@ -36,10 +36,10 @@ export function YouTubePage({ videoKey }: { videoKey: string }) {
     }
   }, [videoKey])
   if (!embedded) return <Page focusKey="youtube" class="qk-youtube-page"><FocusHolder onEnter={() => {}} /></Page>
-  return <YouTubeFrame videoKey={videoKey} />
+  return <YouTubeFrame videoKey={videoKey} subtitles={subtitles} />
 }
 
-function YouTubeFrame({ videoKey }: { videoKey: string }) {
+function YouTubeFrame({ videoKey, subtitles }: { videoKey: string; subtitles: boolean }) {
   const router = useRouter()
   const frame = useRef<HTMLIFrameElement>(null)
 
@@ -84,7 +84,7 @@ function YouTubeFrame({ videoKey }: { videoKey: string }) {
 
   return (
     <Page focusKey="youtube" class="qk-youtube-page">
-      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, FULL_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
+      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, FULL_VOLUME, subtitles)} allow="autoplay; encrypted-media" tabIndex={-1} />
       <FocusHolder onEnter={() => commandPlayer(frame.current, 'toggle')} />
     </Page>
   )

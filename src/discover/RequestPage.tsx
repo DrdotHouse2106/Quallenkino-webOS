@@ -29,6 +29,7 @@ import { YouTubeInline } from '../ui/YouTubeInline'
 import { isTizen } from '../platform/platform'
 import { loadSettings } from '../settings'
 import { focusSoon } from '../nav/focus'
+import { subtitlesFor } from '../platform/youtube'
 
 /**
  * Titel aus Jellyseerr: Eckdaten, Regie bzw. Idee, Beschreibung; „In Jellyfin öffnen“, wenn er schon
@@ -97,7 +98,7 @@ export function RequestPage({ api, type, id, covered }: { api: Api; type: MediaT
   async function playTrailer() {
     const url = local?.LocalTrailerCount ? await localTrailerUrl(api, local) : null
     if (url) return router.push({ name: 'trailer', url })
-    if (info?.trailer) router.push({ name: 'youtube', key: info.trailer.key })
+    if (info?.trailer) router.push({ name: 'youtube', key: info.trailer.key, subtitles: subtitlesFor(info.trailer.label) })
   }
 
   const meta = info

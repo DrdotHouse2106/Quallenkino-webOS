@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { TRAILER_VOLUME } from '../home/TrailerVideo'
-import { listenToPlayer, playerUrl } from '../platform/youtube'
+import { listenToPlayer, playerUrl, subtitlesFor } from '../platform/youtube'
 import { holdScreensaver } from '../platform/videoHold'
 
 /** Wartezeit bis zur Vorschau (wie Android) und wie lange der Player höchstens zum Start braucht. */
@@ -47,7 +47,7 @@ export function YouTubeInline({ videoKey, label }: { videoKey: string; label?: s
   return (
     <div class={`qk-yt-inline ${visible ? 'visible' : ''}`}>
       <div class="qk-yt-inline-player">
-        <iframe ref={frame} src={playerUrl(videoKey, TRAILER_VOLUME)} allow="autoplay; encrypted-media" tabIndex={-1} />
+        <iframe ref={frame} src={playerUrl(videoKey, TRAILER_VOLUME, subtitlesFor(label))} allow="autoplay; encrypted-media" tabIndex={-1} />
       </div>
       {label && <span class="qk-yt-inline-label">{label}</span>}
     </div>

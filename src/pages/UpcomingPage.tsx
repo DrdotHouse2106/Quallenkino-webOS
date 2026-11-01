@@ -8,6 +8,7 @@ import { focusSoon } from '../nav/focus'
 import { useRouter } from '../nav/router'
 import { ActionButton } from './ActionButton'
 import { Page } from './Page'
+import { subtitlesFor, trailerButtonLabel } from '../platform/youtube'
 
 /**
  * Eintrag aus „Demnächst“ wie im Web (Plugin ab 12.49):
@@ -62,7 +63,7 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
               <div class="qk-series-actions">
                 {/* Öffnet die Anfrage-Seite (Status, Staffelwahl) – angefragt wird erst dort per Knopf */}
                 {canRequest && <ActionButton focusKey="discover-request" icon="add" label={t.discoverRequest} onPress={() => router.push({ name: 'request', type: item.Discover!.mediaType, id: item.Discover!.tmdbId })} />}
-                {item.Discover.trailerKey && <ActionButton focusKey="discover-trailer" icon="trailer" label={t.discoverTrailer} onPress={() => router.push({ name: 'youtube', key: item.Discover!.trailerKey! })} />}
+                {item.Discover.trailerKey && <ActionButton focusKey="discover-trailer" icon="trailer" label={trailerButtonLabel(t.discoverTrailer, item.Discover.trailerLanguage)} onPress={() => router.push({ name: 'youtube', key: item.Discover!.trailerKey!, subtitles: subtitlesFor(item.Discover!.trailerLanguage) })} />}
               </div>
             )}
           </HeroInfo>

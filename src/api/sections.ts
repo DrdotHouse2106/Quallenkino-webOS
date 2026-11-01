@@ -370,6 +370,8 @@ export interface DiscoverInfo {
   releaseText?: string
   providers: string[]
   trailerKey?: string
+  /** Sprache des Trailers („de“, „OmU“, „en“ …), seit LocalRecs 12.57. */
+  trailerLanguage?: string
   inLibrary: boolean
   jellyfinId?: string
   /** Schon erschienen (Kino bzw. Streaming)? Fehlt die Angabe, gilt „ja“. */
@@ -390,6 +392,7 @@ interface RawDiscoverItem {
   RuntimeMinutes?: number
   Providers?: string[]
   TrailerKey?: string
+  TrailerLanguage?: string
   InLibrary?: boolean
   JellyfinId?: string
   Released?: boolean
@@ -411,6 +414,7 @@ export function parseDiscover(baseUrl: string, raw: { Rows?: { Key?: string; Tit
         releaseText: entry.ReleaseText,
         providers: entry.Providers ?? [],
         trailerKey: entry.TrailerKey,
+        trailerLanguage: entry.TrailerLanguage,
         inLibrary: !!entry.InLibrary,
         jellyfinId: entry.JellyfinId,
         released: entry.Released !== false,

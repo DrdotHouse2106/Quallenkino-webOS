@@ -7,7 +7,7 @@ export type Page =
   | { name: 'person'; id: string }
   | { name: 'search' }
   | { name: 'trailer'; url: string }
-  | { name: 'youtube'; key: string }
+  | { name: 'youtube'; key: string; subtitles?: boolean }
   | { name: 'player'; id: string; startTicks?: number }
   | { name: 'settings' }
   | { name: 'guide' }
