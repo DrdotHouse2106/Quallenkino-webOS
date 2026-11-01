@@ -10,6 +10,8 @@ German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](C
 
 ## Status
 
+1.20.1: "Request …" in the discover rows (Jellyseerr), also for upcoming cinema releases.
+
 New in 1.20.0: preview pictures while seeking (trickplay), like Jellyfin Web.
 
 1.19.1: fixes – sign-in kept on server restart, transcoding fallback on playback errors, spacing on webOS 6, HDR profile like Jellyfin Web, player reporting.

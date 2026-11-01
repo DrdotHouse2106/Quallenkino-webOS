@@ -372,6 +372,8 @@ export interface DiscoverInfo {
   trailerKey?: string
   inLibrary: boolean
   jellyfinId?: string
+  /** Schon erschienen (Kino bzw. Streaming)? Fehlt die Angabe, gilt „ja“. */
+  released: boolean
 }
 
 interface RawDiscoverItem {
@@ -390,6 +392,7 @@ interface RawDiscoverItem {
   TrailerKey?: string
   InLibrary?: boolean
   JellyfinId?: string
+  Released?: boolean
 }
 
 /** Antwort von GET /LocalRecs/Discover als Reihen (testbar); Bilder von TMDb oder relativ zum Server. */
@@ -410,6 +413,7 @@ export function parseDiscover(baseUrl: string, raw: { Rows?: { Key?: string; Tit
         trailerKey: entry.TrailerKey,
         inLibrary: !!entry.InLibrary,
         jellyfinId: entry.JellyfinId,
+        released: entry.Released !== false,
       }
       items.push({
         Id: `discover-${info.mediaType}-${info.tmdbId}`,

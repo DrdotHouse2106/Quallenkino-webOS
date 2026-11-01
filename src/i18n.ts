@@ -113,6 +113,8 @@ export const t = {
   rowDiscover: 'Entdecken',
   discoverProviders: (names: string) => `Im Abo bei ${names}`,
   discoverTrailer: 'Trailer ansehen',
+  discoverRequest: 'Anfragen …',
+  discoverAfterCinema: 'Kommt nach dem Kinostart, sobald er digital verfügbar ist.',
   toSeries: 'Zur Serie',
   upcomingMore: (n: number) => (n === 1 ? 'Dazu 1 weitere neue Folge' : `Dazu ${n} weitere neue Folgen`),
   seriesContinue: (n: number) => `Weiter mit Teil ${n}`,

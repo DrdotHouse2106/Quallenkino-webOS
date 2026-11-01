@@ -1,4 +1,5 @@
-import { useEffect } from 'preact/hooks'
+import { useEffect, useState } from 'preact/hooks'
+import { available as jellyseerrAvailable } from '../api/jellyseerr'
 import type { Api, Item } from '../api/items'
 import { episodeLine, episodeWhen } from '../api/sections'
 import { HeroBackdrop, HeroInfo } from '../home/Hero'
@@ -17,6 +18,20 @@ import { Page } from './Page'
 export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
   const router = useRouter()
   const episode = item.UpcomingEpisode
+  // „Anfragen …“ nur mit erreichbarem Jellyseerr
+  const [canRequest, setCanRequest] = useState(false)
+  useEffect(() => {
+    if (!item.Discover || item.Discover.inLibrary) return
+    let active = true
+    jellyseerrAvailable(api).then(ok => {
+      if (!active) return
+      setCanRequest(ok)
+      if (ok) focusSoon('discover-request')
+    })
+    return () => {
+      active = false
+    }
+  }, [item])
   useEffect(() => {
     if (episode) focusSoon('upcoming-series')
     else if (item.Discover?.trailerKey) focusSoon('discover-trailer')
@@ -41,9 +56,13 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
         ) : item.Discover ? (
           <HeroInfo api={api} item={item} reason={item.Discover.releaseText} overview={item.Overview}>
             {item.Discover.providers.length > 0 && <div class="qk-hero-subtitle">{t.discoverProviders(item.Discover.providers.join(', '))}</div>}
-            {item.Discover.trailerKey && (
+            {/* Kinofilm vor dem Start: Anfrage wartet, bis er digital zu haben ist */}
+            {canRequest && !item.Discover.released && item.Discover.mediaType === 'movie' && <div class="qk-hero-facts">{t.discoverAfterCinema}</div>}
+            {(canRequest || item.Discover.trailerKey) && (
               <div class="qk-series-actions">
-                <ActionButton focusKey="discover-trailer" icon="trailer" label={t.discoverTrailer} onPress={() => router.push({ name: 'youtube', key: item.Discover!.trailerKey! })} />
+                {/* Öffnet die Anfrage-Seite (Status, Staffelwahl) – angefragt wird erst dort per Knopf */}
+                {canRequest && <ActionButton focusKey="discover-request" icon="add" label={t.discoverRequest} onPress={() => router.push({ name: 'request', type: item.Discover!.mediaType, id: item.Discover!.tmdbId })} />}
+                {item.Discover.trailerKey && <ActionButton focusKey="discover-trailer" icon="trailer" label={t.discoverTrailer} onPress={() => router.push({ name: 'youtube', key: item.Discover!.trailerKey! })} />}
               </div>
             )}
           </HeroInfo>
