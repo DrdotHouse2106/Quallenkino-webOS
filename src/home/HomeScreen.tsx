@@ -1,5 +1,5 @@
 import { FocusContext, getCurrentFocusKey, setFocus, useFocusable } from '@noriginmedia/norigin-spatial-navigation'
-import { useEffect, useRef, useState } from 'preact/hooks'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { backdropUrl } from '../api/images'
 import { item as loadItem, localTrailerUrl, reasonKey, type Api, type Item } from '../api/items'
 import { clientLog } from '../api/behavior'
@@ -10,6 +10,9 @@ import { useRouter } from '../nav/router'
 import { focusSoon } from '../nav/focus'
 import { openItem } from '../nav/open'
 import { Logo } from '../ui/Logo'
+import { ChoiceDialog } from '../ui/ChoiceDialog'
+import { FeedbackDialog } from '../livetv/FeedbackDialog'
+import { isHiddenProgram } from '../api/livetvFeedback'
 import { Icon, type IconName } from '../ui/Icon'
 import { toast } from '../ui/Toast'
 import { billboardAvailable, billboardLater } from '../api/billboard'
@@ -56,6 +59,9 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
 
   const [index, setIndex] = useState(0)
   const [rowItem, setRowItem] = useState<Item | null>(null)
+  // „Heute im TV für dich“: Menü „Seltener vorschlagen“ … für diese Sendung; Zähler zeichnet die Reihen neu
+  const [feedback, setFeedback] = useState<Item | null>(null)
+  const [hiddenVersion, setHiddenVersion] = useState(0)
   const [rowTitle, setRowTitle] = useState<string | null>(null)
   const [billboardFocused, setBillboardFocused] = useState(false)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null)
@@ -194,12 +200,48 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
     setDialog(null)
     if (focusBeforeDialog.current) focusSoon(focusBeforeDialog.current)
   }
+  // Ausgeblendete Sendungen sofort weglassen (auch nach „Seltener vorschlagen“ auf der Sendungsseite)
+  const visibleRows = useMemo(() => rows
+    .map(row => {
+      const items = row.items.filter(entry => !isHiddenProgram(entry))
+      return items.length === row.items.length ? row : { ...row, items }
+    })
+    .filter(row => row.items.length > 0), [rows, hiddenVersion, covered])
+
+  function openFeedback(target: Item) {
+    if (target.Type !== 'Program') return
+    focusBeforeDialog.current = getCurrentFocusKey()
+    setFeedback(target)
+  }
+  function closeFeedback() {
+    const target = feedback
+    setFeedback(null)
+    const previous = focusBeforeDialog.current
+    // Karte weg: die Reihe übernimmt den Fokus (nächste Karte), sonst zurück zur Karte
+    const row = target && rows.find(entry => entry.items.includes(target))
+    if (target && isHiddenProgram(target)) focusSoon(row && visibleRows.some(entry => entry.key === row.key) ? `row-${row.key}` : visibleRows[0] ? `row-${visibleRows[0].key}` : 'bb-play')
+    else if (previous) focusSoon(previous)
+  }
+
+  // Info-/Optionstaste (LG und Samsung: 457) auf einer Sendung öffnet dasselbe Menü
+  useEffect(() => {
+    const keys = (event: KeyboardEvent) => {
+      if (event.keyCode !== 457 || covered || dialog || feedback || rowItem?.Type !== 'Program') return
+      if (!getCurrentFocusKey()?.startsWith('card-')) return
+      event.preventDefault()
+      openFeedback(rowItem)
+    }
+    window.addEventListener('keydown', keys)
+    return () => window.removeEventListener('keydown', keys)
+  }, [covered, dialog, feedback, rowItem])
+
   useEffect(() => onBack(() => {
     if (covered) return false
-    if (dialog) closeDialog()
+    if (feedback) closeFeedback()
+    else if (dialog) closeDialog()
     else openDialog('exit')
     return true
-  }), [covered, dialog])
+  }), [covered, dialog, feedback])
 
   function step(delta: number): boolean {
     if (billboard.length < 2) return false
@@ -277,12 +319,13 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
           />
         </div>
         <div class="qk-rows">
-          {rows.map(row => (
-            <Row key={row.key} api={api} row={row} onFocusItem={focused => { setRowItem(focused); setRowTitle(row.title) }} onOpen={opened => openItem(router, opened)} />
+          {visibleRows.map(row => (
+            <Row key={row.key} api={api} row={row} onFocusItem={focused => { setRowItem(focused); setRowTitle(row.title) }} onOpen={opened => openItem(router, opened)} onMenu={openFeedback} />
           ))}
         </div>
       </div>
       <Clock />
+      {feedback && <FeedbackDialog api={api} item={feedback} onClose={closeFeedback} onChanged={() => setHiddenVersion(v => v + 1)} />}
       {dialog === 'exit' && (
         <ChoiceDialog
           title={t.exitTitle}
@@ -395,34 +438,6 @@ function WorldInfo({ api, world }: { api: Api; world: World }) {
       {world.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}</div> : null}
     </div>
   )
-}
-
-interface Choice {
-  key: string
-  label: string
-  onPress: () => void
-}
-
-/** Kleine Auswahl über der Startseite (Beenden, Profil); „Zurück“ schließt sie (bei der Startseite). */
-function ChoiceDialog({ title, choices, initial }: { title: string; choices: Choice[]; initial: string }) {
-  const { ref, focusKey } = useFocusable({ focusKey: 'choice-dialog', isFocusBoundary: true, trackChildren: true })
-  useEffect(() => focusSoon(`choice-${initial}`), [])
-  return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={ref} class="qk-overlay">
-        <Logo size={120} />
-        <h1>{title}</h1>
-        <div class="qk-actions">
-          {choices.map(choice => <DialogButton key={choice.key} focusKey={`choice-${choice.key}`} label={choice.label} onPress={choice.onPress} />)}
-        </div>
-      </div>
-    </FocusContext.Provider>
-  )
-}
-
-function DialogButton({ focusKey, label, onPress }: { focusKey: string; label: string; onPress: () => void }) {
-  const { ref, focused, focusSelf } = useFocusable({ focusKey, onEnterPress: onPress })
-  return <div ref={ref} class={`qk-button ${focused ? 'focused' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>{label}</div>
 }
 
 /** Uhr oben rechts (24 Stunden). */

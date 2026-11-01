@@ -31,7 +31,12 @@ interface RowProps {
   onOpen: (item: Item) => void
   /** Pfeiltasten an einer Karte; true = normal weiter navigieren. */
   onArrow?: (direction: string) => boolean
+  /** Langer OK-Druck auf einer Sendung („Seltener vorschlagen“ …). */
+  onMenu?: (item: Item) => void
 }
+
+/** Ab so langem Halten von OK gilt der Druck als „lang“ (Menü statt Öffnen). */
+const LONG_PRESS_MS = 600
 
 /** Ausgewählte Reihe ganz nach oben schieben, ausgewählte Karte waagerecht ins Bild holen. */
 function scrollIntoPlace(node: HTMLElement) {
@@ -53,10 +58,10 @@ function scrollIntoPlace(node: HTMLElement) {
  */
 export const Row = memo(RowView, (a, b) => a.api === b.api && a.row === b.row)
 
-function RowView({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
+function RowView({ api, row, onFocusItem, onOpen, onArrow, onMenu }: RowProps) {
   const { ref, focusKey } = useFocusable({ focusKey: `row-${row.key}`, trackChildren: true, saveLastFocusedChild: true })
-  const latest = useRef({ onFocusItem, onOpen, onArrow })
-  latest.current = { onFocusItem, onOpen, onArrow }
+  const latest = useRef({ onFocusItem, onOpen, onArrow, onMenu })
+  latest.current = { onFocusItem, onOpen, onArrow, onMenu }
   const arrow = useRef((direction: string) => (latest.current.onArrow ? latest.current.onArrow(direction) : true)).current
   return (
     <FocusContext.Provider value={focusKey}>
@@ -76,6 +81,7 @@ function RowView({ api, row, onFocusItem, onOpen, onArrow }: RowProps) {
                 latest.current.onFocusItem(item)
               }}
               onOpen={() => latest.current.onOpen(item)}
+              onMenu={item.Type === 'Program' ? () => latest.current.onMenu?.(item) : undefined}
               onArrow={arrow}
             />
           ))}
@@ -94,16 +100,39 @@ interface CardProps {
   onFocus: (node: HTMLElement) => void
   onOpen: () => void
   onArrow?: (direction: string) => boolean
+  onMenu?: () => void
 }
 
 /** Karte im Querformat ohne Titel (der steht im Infobereich), bei Top 10 Plakat mit großer Zahl. */
 /** Karte (mit memo: zeichnet nur neu, wenn sich Titel, Art oder Platz ändern). */
 const Card = memo(CardView, (a, b) => a.focusKey === b.focusKey && a.api === b.api && a.item === b.item && a.kind === b.kind && a.rank === b.rank)
 
-function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow }: CardProps) {
+function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow, onMenu }: CardProps) {
+  // Mit Menü (Sendungen): kurzer Druck öffnet beim Loslassen, langer Druck öffnet das Menü
+  const press = useRef<{ timer?: ReturnType<typeof setTimeout>; long: boolean }>({ long: false })
   const { ref, focused, focusSelf } = useFocusable({
     focusKey,
-    onEnterPress: onOpen,
+    onEnterPress: (_props: unknown, details?: { pressedKeys?: Record<string, number> }) => {
+      if (!onMenu) return onOpen()
+      // Gehaltene Taste wiederholt sich – nur der erste Druck zählt
+      if ((details?.pressedKeys?.enter ?? 1) > 1 || press.current.timer) return
+      press.current.long = false
+      press.current.timer = setTimeout(() => {
+        press.current.timer = undefined
+        press.current.long = true
+        onMenu()
+      }, LONG_PRESS_MS)
+    },
+    onEnterRelease: () => {
+      if (!onMenu) return
+      const pending = press.current.timer
+      press.current.timer = undefined
+      if (pending) {
+        clearTimeout(pending)
+        onOpen()
+      }
+      press.current.long = false
+    },
     onArrowPress: direction => (onArrow ? onArrow(direction) : true),
     onFocus: layout => onFocus(layout.node as HTMLElement),
   })

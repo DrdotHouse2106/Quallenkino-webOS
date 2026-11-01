@@ -15,6 +15,8 @@ import { ActionButton, ActionRow } from '../pages/ActionButton'
 import { Page } from '../pages/Page'
 import { toast } from '../ui/Toast'
 import { focusSoon } from '../nav/focus'
+import { onBack } from '../nav/keys'
+import { FeedbackDialog } from './FeedbackDialog'
 
 const ended = (item: Item) => !!item.EndDate && new Date(item.EndDate).getTime() < Date.now()
 
@@ -38,6 +40,13 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
   // Merken (Kalender aufs Handy): undefined = nicht gemerkt, false = einzeln, true = über die Serie
   const [canRemind, setCanRemind] = useState(false)
   const [reminder, setReminderState] = useState<boolean | undefined>(undefined)
+  // „Seltener vorschlagen“ … (Heute im TV für dich); „Zurück“ schließt zuerst das Menü
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  useEffect(() => (feedbackOpen ? onBack(() => { closeFeedback(); return true }) : undefined), [feedbackOpen])
+  function closeFeedback() {
+    setFeedbackOpen(false)
+    focusSoon('p-less')
+  }
   useEffect(() => {
     let active = true
     remindersAvailable(api).then(available => {
@@ -129,6 +138,7 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
               <ActionButton focusKey="p-watch" icon="liveTv" label={`${t.watchChannel}${program.ChannelName ? ` (${program.ChannelName})` : ''}`} onPress={() => program.ChannelId && router.push({ name: 'player', id: program.ChannelId })} />
               {canRemind && !ended(program) && <ActionButton focusKey="p-remind" icon={reminder !== undefined ? 'check' : 'add'} label={reminder !== undefined ? t.reminderSaved : t.reminderSave} active={reminder !== undefined} onPress={() => toggleReminder(false)} />}
               {canRemind && !ended(program) && program.IsSeries && <ActionButton focusKey="p-remind-series" icon={reminder === true ? 'check' : 'add'} label={reminder === true ? t.reminderSeriesSaved : t.reminderSeriesSave} active={reminder === true} onPress={() => toggleReminder(true)} />}
+              <ActionButton focusKey="p-less" icon="thumbDown" label={t.tvLess} onPress={() => setFeedbackOpen(true)} />
               {channel && <ActionButton focusKey="p-favorite" icon="star" label={t.favoriteChannel} active={!!channel.UserData?.IsFavorite} onPress={toggleFavorite} />}
             </ActionRow>
           </div>
@@ -139,6 +149,7 @@ export function ProgramPage({ api, id }: { api: Api; id: string }) {
           )}
         </div>
       </div>
+    {feedbackOpen && program && <FeedbackDialog api={api} item={program} onClose={closeFeedback} onChanged={() => {}} />}
     </Page>
   )
 }
