@@ -8,6 +8,7 @@ import { focusSoon } from '../nav/focus'
 import { openItem } from '../nav/open'
 import { loadSettings } from '../settings'
 import { Screensaver } from './Screensaver'
+import { videoActive } from '../platform/videoHold'
 import { DetailsPage } from '../pages/DetailsPage'
 import { PersonPage } from '../pages/PersonPage'
 import { SearchPage } from '../pages/SearchPage'
@@ -70,7 +71,8 @@ export function Shell({ server, session, onSwitchProfile, onSignOut, onChangeSer
     const restart = () => {
       clearTimeout(timer)
       const minutes = loadSettings().screensaver
-      if (minutes > 0) timer = setTimeout(() => setIdle(true), minutes * 60_000)
+      // Läuft gerade ein Video (Banner-Trailer, YouTube-Vorschau …), wird nur neu gewartet
+      if (minutes > 0) timer = setTimeout(() => (videoActive() ? restart() : setIdle(true)), minutes * 60_000)
     }
     restart()
     window.addEventListener('keydown', restart, true)

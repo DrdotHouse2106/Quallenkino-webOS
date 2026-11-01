@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { TRAILER_VOLUME } from '../home/TrailerVideo'
 import { listenToPlayer, playerUrl } from '../platform/youtube'
+import { holdScreensaver } from '../platform/videoHold'
 
 /** Wartezeit bis zur Vorschau (wie Android) und wie lange der Player höchstens zum Start braucht. */
 const START_DELAY_MS = 2_000
@@ -38,6 +39,9 @@ export function YouTubeInline({ videoKey, label }: { videoKey: string; label?: s
       stop()
     }
   }, [videoKey])
+
+  // Solange die Vorschau läuft, kein Bildschirmschoner (sonst zwei Trailer mit Ton)
+  useEffect(() => (visible && !gone ? holdScreensaver() : undefined), [visible, gone])
 
   if (gone || !started) return null
   return (

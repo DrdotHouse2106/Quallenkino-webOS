@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.20.3 – 2026-11-01
+
+- **Kein Bildschirmschoner, solange ein Video läuft:** Auch Banner-Trailer und die YouTube-Vorschau auf Detail- und Anfrage-Seiten halten ihn jetzt zurück – vorher konnte er mit eigenem Trailer-Ton dazwischenstarten.
+
 ## 1.20.2 – 2026-11-01
 
 - **Anfrage-Seite mit den Begriffen aus dem Web:** „Schon vorhanden“, „Teilweise vorhanden“, „Schon angefragt“; Knöpfe „Anfragen“ (Film), „Serie anfragen“ bzw. „Fehlende Staffeln anfragen“.
