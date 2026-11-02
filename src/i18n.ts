@@ -128,6 +128,7 @@ export const t = {
   toSeries: 'Zur Serie',
   upcomingMore: (n: number) => (n === 1 ? 'Dazu 1 weitere neue Folge' : `Dazu ${n} weitere neue Folgen`),
   seriesContinue: (n: number) => `Weiter mit Teil ${n}`,
+  seriesCatchUp: (n: number) => `Teil ${n} nachholen`,
   seriesFromStart: 'Von vorn (Teil 1)',
   seriesParts: (n: number) => `Alle ${n} Teile`,
   moreParts: 'Weitere Teile der Reihe',

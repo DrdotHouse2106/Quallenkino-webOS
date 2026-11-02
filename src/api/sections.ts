@@ -26,6 +26,7 @@ interface RawSeries {
   Total?: number
   Watched?: number
   NextIndex?: number
+  NextIsGap?: boolean
   Reason?: string
   HasBackdrop?: boolean
   HasPoster?: boolean
@@ -39,6 +40,8 @@ export interface SeriesInfo {
   Total: number
   Watched: number
   NextIndex: number
+  /** Ein früherer Teil fehlt noch, obwohl ein späterer gesehen ist (Plugin ab 12.58.2). */
+  NextIsGap?: boolean
   Reason?: string
   HasBackdrop?: boolean
 }
@@ -54,6 +57,8 @@ export function seriesImage(api: Api, series: SeriesInfo): string | null {
 
 /** „2 von 4 gesehen · Weiter mit Teil 3“ bzw. „4 Teile“ (testbar). */
 export function seriesCaption(series: SeriesInfo): string {
+  // Lücke: Text vom Server übernehmen („Teil 1 fehlt noch“), sonst selbst bauen
+  if (series.NextIsGap) return series.Reason || `${series.Watched} von ${series.Total} gesehen · Teil ${series.NextIndex + 1} fehlt noch`
   if (series.Watched > 0 && series.Watched < series.Total) return `${series.Watched} von ${series.Total} gesehen · Weiter mit Teil ${series.NextIndex + 1}`
   if (series.Watched >= series.Total && series.Total > 0) return `Alle ${series.Total} Teile gesehen`
   return series.Reason || `${series.Total} Teile`
@@ -66,6 +71,7 @@ function info(raw: RawSeries): SeriesInfo {
     Total: raw.Total ?? 0,
     Watched: raw.Watched ?? 0,
     NextIndex: raw.NextIndex ?? 0,
+    NextIsGap: raw.NextIsGap === true,
     Reason: raw.Reason,
     HasBackdrop: raw.HasBackdrop,
   }

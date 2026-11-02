@@ -32,7 +32,7 @@ export function MovieSeriesPage({ api, id }: { api: Api; id: string }) {
 
   const next = series ? series.Parts[Math.min(series.NextIndex, series.Parts.length - 1)] : undefined
   const allWatched = !!series && series.Total > 0 && series.Watched >= series.Total
-  const label = allWatched ? t.seriesFromStart : t.seriesContinue((series?.NextIndex ?? 0) + 1)
+  const label = allWatched ? t.seriesFromStart : series?.NextIsGap ? t.seriesCatchUp(series.NextIndex + 1) : t.seriesContinue((series?.NextIndex ?? 0) + 1)
   const backdropItem = next ?? series?.Parts[0] ?? null
   const image = series ? seriesImage(api, series) : null
   return (
