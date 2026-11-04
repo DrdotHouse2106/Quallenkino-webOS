@@ -306,3 +306,24 @@ describe('Trickplay-Vorschau', () => {
     expect(trickplayFrame({ Id: 'x' }, 'src1', 10)).toBeNull()
   })
 })
+
+describe('Welten: fehlende Titel (Plugin 12.60)', () => {
+  it('Karten abgedunkelt mit „Fehlt“, Chronologie an der richtigen Stelle', async () => {
+    const { parseMissing, chronologyGroups } = await import('../src/api/worlds')
+    const missing = parseMissing('http://srv', {
+      Enabled: true,
+      Items: [{ TmdbId: 828023, MediaType: 'movie', Title: 'Fehlender Film', PosterUrl: 'https://image.tmdb.org/p.jpg', ReleaseText: 'Erschienen 2020' }],
+      Chronology: [
+        { Section: 'Hauptzeitlinie' },
+        { ItemId: 'abc', Label: '2151' },
+        { Missing: true, TmdbId: 828023, MediaType: 'movie', Label: 'um 2160' },
+      ],
+    })!
+    expect(missing.items[0].Missing).toBe(true)
+    expect(missing.items[0].Badge?.label).toBe('Fehlt')
+    expect(missing.items[0].ImageUrl).toBe('https://image.tmdb.org/p.jpg')
+    expect(missing.items[0].Discover?.tmdbId).toBe(828023)
+    expect(chronologyGroups(missing.chronology!)[0].entries.map(e => e.Label)).toEqual(['2151', 'um 2160'])
+    expect(parseMissing('http://srv', { Enabled: false, Items: [] })).toBeNull()
+  })
+})

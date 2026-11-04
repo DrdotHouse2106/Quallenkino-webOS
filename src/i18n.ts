@@ -129,6 +129,8 @@ export const t = {
   upcomingMore: (n: number) => (n === 1 ? 'Dazu 1 weitere neue Folge' : `Dazu ${n} weitere neue Folgen`),
   seriesContinue: (n: number) => `Weiter mit Teil ${n}`,
   seriesCatchUp: (n: number) => `Teil ${n} nachholen`,
+  worldMissingRow: 'Noch nicht in der Bibliothek',
+  worldMissingCount: (n: number) => (n === 1 ? '1 fehlt' : `${n} fehlen`),
   seriesFromStart: 'Von vorn (Teil 1)',
   seriesParts: (n: number) => `Alle ${n} Teile`,
   moreParts: 'Weitere Teile der Reihe',

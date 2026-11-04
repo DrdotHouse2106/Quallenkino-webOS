@@ -384,7 +384,7 @@ export interface DiscoverInfo {
   released: boolean
 }
 
-interface RawDiscoverItem {
+export interface RawDiscoverItem {
   TmdbId?: number
   MediaType?: 'movie' | 'tv'
   Title?: string
@@ -404,42 +404,55 @@ interface RawDiscoverItem {
   Released?: boolean
 }
 
+/** Bild-Adresse von TMDb bzw. relativ zum Server. */
+function absoluteUrl(baseUrl: string, path?: string): string | undefined {
+  return !path ? undefined : /^https?:/.test(path) ? path : `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
+}
+
+/**
+ * Entdecken-Eintrag als Karte (testbar). [poster]: Plakat statt Hintergrundbild (Welten: fehlende Titel,
+ * abgedunkelt mit „Fehlt“).
+ */
+export function discoverItem(baseUrl: string, entry: RawDiscoverItem, poster = false): Item {
+  const backdrop = absoluteUrl(baseUrl, entry.BackdropUrl)
+  const posterUrl = absoluteUrl(baseUrl, entry.PosterUrl)
+  const info: DiscoverInfo = {
+    tmdbId: entry.TmdbId ?? 0,
+    mediaType: entry.MediaType === 'tv' ? 'tv' : 'movie',
+    releaseText: entry.ReleaseText,
+    providers: entry.Providers ?? [],
+    trailerKey: entry.TrailerKey,
+    trailerLanguage: entry.TrailerLanguage,
+    inLibrary: !!entry.InLibrary,
+    jellyfinId: entry.JellyfinId,
+    released: entry.Released !== false,
+  }
+  return {
+    Id: `discover-${info.mediaType}-${info.tmdbId}`,
+    Name: entry.Title,
+    Type: info.mediaType === 'tv' ? 'Series' : 'Movie',
+    ProductionYear: entry.Year,
+    Overview: entry.Overview,
+    OfficialRating: entry.OfficialRating,
+    Genres: entry.Genres,
+    RunTimeTicks: entry.RuntimeMinutes ? entry.RuntimeMinutes * 600_000_000 : undefined,
+    ImageUrl: (poster ? posterUrl ?? backdrop : backdrop ?? posterUrl) ?? null,
+    BackdropUrl: backdrop,
+    // Termin unter der Karte, Titel aus der Bibliothek mit Hinweis
+    Caption: [entry.ReleaseText, info.inLibrary ? 'In der Bibliothek' : ''].filter(Boolean).join(' · ') || undefined,
+    Discover: info,
+  }
+}
+
 /** Antwort von GET /LocalRecs/Discover als Reihen (testbar); Bilder von TMDb oder relativ zum Server. */
 export function parseDiscover(baseUrl: string, raw: { Rows?: { Key?: string; Title?: string; Items?: RawDiscoverItem[] }[] } | null): Section[] {
-  const abs = (path?: string) => (!path ? undefined : /^https?:/.test(path) ? path : `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`)
   const sections: Section[] = []
   for (const row of raw?.Rows ?? []) {
     if (!row.Title) continue
     const items: Item[] = []
     for (const entry of row.Items ?? []) {
       if (!entry.Title || entry.TmdbId == null) continue
-      const backdrop = abs(entry.BackdropUrl)
-      const info: DiscoverInfo = {
-        tmdbId: entry.TmdbId,
-        mediaType: entry.MediaType === 'tv' ? 'tv' : 'movie',
-        releaseText: entry.ReleaseText,
-        providers: entry.Providers ?? [],
-        trailerKey: entry.TrailerKey,
-        trailerLanguage: entry.TrailerLanguage,
-        inLibrary: !!entry.InLibrary,
-        jellyfinId: entry.JellyfinId,
-        released: entry.Released !== false,
-      }
-      items.push({
-        Id: `discover-${info.mediaType}-${info.tmdbId}`,
-        Name: entry.Title,
-        Type: info.mediaType === 'tv' ? 'Series' : 'Movie',
-        ProductionYear: entry.Year,
-        Overview: entry.Overview,
-        OfficialRating: entry.OfficialRating,
-        Genres: entry.Genres,
-        RunTimeTicks: entry.RuntimeMinutes ? entry.RuntimeMinutes * 600_000_000 : undefined,
-        ImageUrl: backdrop ?? abs(entry.PosterUrl) ?? null,
-        BackdropUrl: backdrop,
-        // Termin unter der Karte, Titel aus der Bibliothek mit Hinweis
-        Caption: [entry.ReleaseText, info.inLibrary ? 'In der Bibliothek' : ''].filter(Boolean).join(' · ') || undefined,
-        Discover: info,
-      })
+      items.push(discoverItem(baseUrl, entry))
     }
     if (items.length) sections.push({ title: row.Title, items, reasons: {} })
   }

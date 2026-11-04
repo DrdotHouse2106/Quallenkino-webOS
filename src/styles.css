@@ -406,3 +406,7 @@ h1 { font-size: 56px; margin: 32px 0 12px; font-weight: 700; }
 .qk-seek-preview { position: absolute; bottom: 24px; transform: translateX(-50%); pointer-events: none; text-align: center; }
 .qk-seek-preview-image { border-radius: 6px; box-shadow: 0 0 0 2px #fff, 0 8px 24px rgba(0, 0, 0, 0.6); background-repeat: no-repeat; }
 .qk-seek-preview-time { margin-top: 6px; font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
+
+/* Welten: fehlende Titel abgedunkelt (Abzeichen „Fehlt“), beim Fokus etwas heller */
+.qk-poster.missing .qk-poster-image img { opacity: 0.4; filter: grayscale(0.4); }
+.qk-poster.missing.focused .qk-poster-image img { opacity: 0.7; }

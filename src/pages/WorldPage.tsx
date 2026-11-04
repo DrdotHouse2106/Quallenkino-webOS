@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'preact/hooks'
 import type { Api } from '../api/items'
 import { backdropUrl } from '../api/images'
-import { chronologySections, worlds as loadWorlds, worldLogo, worldSections, type World, type WorldSection } from '../api/worlds'
+import { chronologySections, worldMissing, worlds as loadWorlds, worldLogo, worldSections, type World, type WorldMissing, type WorldSection } from '../api/worlds'
+import { available as jellyseerrAvailable } from '../api/jellyseerr'
+import { openItem } from '../nav/open'
 import { ActionButton } from './ActionButton'
 import { useAuthorizedImage } from '../ui/authImage'
 import { HeroBackdrop } from '../home/Hero'
@@ -23,16 +25,31 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
   // „Chronologisch (Handlungszeit)“ nur, wenn die Welt eine Reihenfolge hat (Plugin ab 12.55); Standard bleibt das Erscheinungsjahr
   const [chronological, setChronological] = useState(false)
   const [chronoSections, setChronoSections] = useState<WorldSection[] | null>(null)
-  const hasChronology = !!world?.Chronology?.some(entry => entry.ItemId)
+  // Fehlende Titel (Plugin ab 12.60) nur mit verknüpftem Jellyseerr – im Hintergrund, die Seite wartet nicht darauf
+  const [missing, setMissing] = useState<WorldMissing | null>(null)
   useEffect(() => {
-    if (!chronological || !world || chronoSections) return
+    if (!world) return
     let active = true
-    chronologySections(api, world).then(result => active && setChronoSections(result)).catch(() => active && setChronoSections([]))
+    jellyseerrAvailable(api)
+      .then(ok => (ok ? worldMissing(api, world) : null))
+      .then(result => active && setMissing(result))
+      .catch(() => {})
     return () => {
       active = false
     }
-  }, [chronological, world?.Id])
-  const shownSections = chronological ? chronoSections : sections
+  }, [world?.Id])
+  const hasChronology = !!(missing?.chronology ?? world?.Chronology)?.some(entry => entry.ItemId || entry.Missing)
+  useEffect(() => {
+    if (!chronological || !world) return
+    let active = true
+    chronologySections(api, world, missing).then(result => active && setChronoSections(result)).catch(() => active && setChronoSections([]))
+    return () => {
+      active = false
+    }
+  }, [chronological, world?.Id, missing])
+  // Normale Ansicht: am Ende „Noch nicht in der Bibliothek“ (abgedunkelt, „Fehlt“)
+  const normalSections = sections && missing ? [...sections, { key: 'missing', title: t.worldMissingRow, items: missing.items }] : sections
+  const shownSections = chronological ? chronoSections : normalSections
 
   useEffect(() => {
     let active = true
@@ -61,7 +78,7 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
         <div class="qk-world-head">
           {logo && !logoFailed && <img class="qk-world-logo" src={logo} alt="" onError={() => setLogoFailed(true)} />}
           <div class={logo && !logoFailed ? 'qk-hero-subtitle' : 'qk-hero-title'}>{world?.Name}</div>
-          {world?.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}</div> : null}
+          {world?.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}{missing ? ` · ${t.worldMissingCount(missing.items.length)}` : ''}</div> : null}
           {hasChronology && (
             <div class="qk-series-actions">
               <ActionButton focusKey="world-order-year" label={t.worldOrderYear} active={!chronological} onPress={() => setChronological(false)} />
@@ -74,7 +91,7 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
           {shownSections?.length === 0 && <p class="qk-muted">{t.worldEmpty}</p>}
           {shownSections?.map(section => (
             <Row key={section.key} api={api} row={{ key: `w-${section.key}`, title: section.title, items: section.items, kind: 'posters' }}
-              onFocusItem={() => {}} onOpen={item => router.push({ name: 'details', id: item.Id })} />
+              onFocusItem={() => {}} onOpen={item => (item.Missing ? openItem(router, item) : router.push({ name: 'details', id: item.Id }))} />
           ))}
         </div>
       </div>

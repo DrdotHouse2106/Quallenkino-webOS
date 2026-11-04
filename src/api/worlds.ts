@@ -1,4 +1,6 @@
 import { byIds, get, items, type Api, type Item } from './items'
+import { request } from './http'
+import { discoverItem, type RawDiscoverItem } from './sections'
 
 /** Welten (z. B. Marvel, Pixar) vom Plugin Local Recommendations. */
 export interface World {
@@ -18,6 +20,10 @@ export interface World {
 export interface ChronologyEntry {
   Section?: string
   ItemId?: string
+  /** Fehlender Titel (aus /Worlds/{id}/Missing, Plugin ab 12.60) – mit TMDb-ID statt Jellyfin-ID. */
+  Missing?: boolean
+  TmdbId?: number
+  MediaType?: string
   Label?: string | null
   Seasons?: number[] | null
 }
@@ -129,7 +135,7 @@ export function chronologyGroups(entries: ChronologyEntry[]): { title: string; e
   const groups: { title: string; entries: ChronologyEntry[] }[] = []
   for (const entry of entries) {
     if (entry.Section) groups.push({ title: entry.Section, entries: [] })
-    else if (entry.ItemId) {
+    else if (entry.ItemId || (entry.Missing && entry.TmdbId != null)) {
       if (!groups.length) groups.push({ title: 'Chronologisch', entries: [] })
       groups[groups.length - 1].entries.push(entry)
     }
@@ -137,10 +143,38 @@ export function chronologyGroups(entries: ChronologyEntry[]): { title: string; e
   return groups.filter(group => group.entries.length > 0)
 }
 
-/** Welt-Seite „Chronologisch (Handlungszeit)“: Abschnitte und Karten in Handlungsreihenfolge mit Zeitangabe. */
-export async function chronologySections(api: Api, world: World): Promise<WorldSection[]> {
-  const groups = chronologyGroups(world.Chronology ?? [])
-  const ids = [...new Set(groups.flatMap(g => g.entries.map(e => e.ItemId!)))]
+/** Fehlende Titel einer Welt (Plugin ab 12.60): Karten und die vollständige, fertig sortierte Chronologie. */
+export interface WorldMissing {
+  items: Item[]
+  chronology: ChronologyEntry[] | null
+}
+
+const missingKey = (mediaType?: string, tmdbId?: number) => `${mediaType === 'tv' ? 'tv' : 'movie'}-${tmdbId}`
+
+/** Antwort von GET /LocalRecs/Worlds/{id}/Missing (testbar); null, wenn ausgeschaltet oder leer. */
+export function parseMissing(baseUrl: string, raw: { Enabled?: boolean; Items?: RawDiscoverItem[]; Chronology?: ChronologyEntry[] | null } | null): WorldMissing | null {
+  if (!raw || raw.Enabled === false) return null
+  const items = (raw.Items ?? [])
+    .filter(entry => entry.Title && entry.TmdbId != null)
+    .map(entry => ({ ...discoverItem(baseUrl, entry, true), Missing: true, Badge: { label: 'Fehlt', color: '#5A5A5A' } }))
+  if (!items.length) return null
+  return { items, chronology: raw.Chronology ?? null }
+}
+
+export async function worldMissing(api: Api, world: World): Promise<WorldMissing | null> {
+  // Erster Abruf einer großen Welt kann ein paar Sekunden dauern
+  const raw = await request<Parameters<typeof parseMissing>[1]>(api.url, `/LocalRecs/Worlds/${encodeURIComponent(world.Id)}/Missing`, { token: api.token, timeoutMs: 30_000 }).catch(() => null)
+  return parseMissing(api.url, raw)
+}
+
+/**
+ * Welt-Seite „Chronologisch (Handlungszeit)“: Abschnitte und Karten in Handlungsreihenfolge mit Zeitangabe.
+ * Mit [missing] die Chronologie vom Server inklusive fehlender Titel an ihrer Stelle.
+ */
+export async function chronologySections(api: Api, world: World, missing?: WorldMissing | null): Promise<WorldSection[]> {
+  const groups = chronologyGroups(missing?.chronology ?? world.Chronology ?? [])
+  const missingById = new Map((missing?.items ?? []).map(item => [missingKey(item.Discover?.mediaType, item.Discover?.tmdbId), item]))
+  const ids = [...new Set(groups.flatMap(g => g.entries.filter(e => e.ItemId).map(e => e.ItemId!)))]
   const loaded = await byIds(api, ids).catch(() => [] as Item[])
   const norm = (id: string) => id.replace(/-/g, '').toLowerCase()
   const byId = new Map(loaded.map(item => [norm(item.Id), item]))
@@ -149,6 +183,10 @@ export async function chronologySections(api: Api, world: World): Promise<WorldS
     title: group.title,
     items: group.entries
       .map((entry, n): Item | null => {
+        if (entry.Missing) {
+          const gap = missingById.get(missingKey(entry.MediaType, entry.TmdbId))
+          return gap ? { ...gap, Caption: chronologyCaption(entry) || gap.Caption, CardKey: `${gap.Id}-${index}-${n}` } : null
+        }
         const item = byId.get(norm(entry.ItemId!))
         return item ? { ...item, Caption: chronologyCaption(entry) || undefined, CardKey: `${item.Id}-${index}-${n}` } : null
       })

@@ -179,7 +179,7 @@ function CardView({ focusKey, api, item, kind, rank, onFocus, onOpen, onArrow, o
   if (kind === 'posters') {
     const poster = primaryUrl(api, item, 240)
     return (
-      <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''} ${item.UserData?.Played ? 'watched' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
+      <div ref={ref} class={`qk-poster ${focused ? 'focused' : ''} ${item.UserData?.Played ? 'watched' : ''} ${item.Missing ? 'missing' : ''}`} onClick={onOpen} onMouseEnter={() => focusSelf()}>
         <div class="qk-poster-image">
           <Img src={poster} fallback={<span>{title(item)}</span>} />
           {item.Badge && <span class="qk-badge" style={{ background: item.Badge.color }}>{item.Badge.label}</span>}

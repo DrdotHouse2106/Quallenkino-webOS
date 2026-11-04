@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.22.0 – 2026-11-04
+
+- **Welten zeigen fehlende Filme und Serien** (Quallenkino ab 12.60, nur mit verknüpftem Jellyseerr): Im Kopf steht „x Titel · y fehlen“, am Ende die Reihe „Noch nicht in der Bibliothek“ mit abgedunkelten Plakaten und „Fehlt“. In der Ansicht „Chronologisch“ stehen sie an ihrer Stelle. OK öffnet das Entdecken-Fenster (Im Abo, Kinotermin, „Anfragen …“, Trailer im Vollbild mit Untertitel-Regel) – angefragt wird erst dort per Knopf. Die Liste lädt im Hintergrund.
+
 ## 1.21.2 – 2026-11-04
 
 Sicherheit (zweiter Prüfdurchgang):
