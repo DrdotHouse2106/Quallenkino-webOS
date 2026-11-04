@@ -64,6 +64,8 @@ export interface Item {
   Badge?: { label: string; color: string }
   /** Welt: Titel fehlt in der Bibliothek (abgedunkelt, „Fehlt“, öffnet das Entdecken-Fenster). */
   Missing?: boolean
+  /** Karte „Alle anzeigen (n weitere)“: klappt die wenig bekannten fehlenden Titel dieser Reihe auf. */
+  ShowMore?: string
   /** Nur in der App: Eintrag aus Jellyseerr (Titel bzw. Person). */
   Seerr?: { type: 'movie' | 'tv' | 'person'; id: number; jellyfinId?: string }
   /** Nur in der App: Karte einer Welt (Startseite). */

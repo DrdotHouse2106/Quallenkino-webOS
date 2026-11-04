@@ -382,6 +382,10 @@ export interface DiscoverInfo {
   jellyfinId?: string
   /** Schon erschienen (Kino bzw. Streaming)? Fehlt die Angabe, gilt „ja“. */
   released: boolean
+  /** Welten (Plugin ab 12.61): persönlicher Grund („Weil du „Halloween“ gesehen hast“). */
+  reason?: string
+  /** Wenig bekannter Titel – erst hinter „Alle anzeigen“. */
+  minor?: boolean
 }
 
 export interface RawDiscoverItem {
@@ -402,6 +406,8 @@ export interface RawDiscoverItem {
   InLibrary?: boolean
   JellyfinId?: string
   Released?: boolean
+  Reason?: string | null
+  Minor?: boolean
 }
 
 /** Bild-Adresse von TMDb bzw. relativ zum Server. */
@@ -426,6 +432,8 @@ export function discoverItem(baseUrl: string, entry: RawDiscoverItem, poster = f
     inLibrary: !!entry.InLibrary,
     jellyfinId: entry.JellyfinId,
     released: entry.Released !== false,
+    reason: entry.Reason || undefined,
+    minor: entry.Minor === true,
   }
   return {
     Id: `discover-${info.mediaType}-${info.tmdbId}`,

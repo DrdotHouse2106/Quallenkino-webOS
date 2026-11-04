@@ -55,7 +55,9 @@ export function UpcomingPage({ api, item }: { api: Api; item: Item }) {
             </div>
           </div>
         ) : item.Discover ? (
-          <HeroInfo api={api} item={item} reason={item.Discover.releaseText} overview={item.Overview}>
+          <HeroInfo api={api} item={item} reason={item.Discover.reason ?? item.Discover.releaseText} overview={item.Overview}>
+            {/* Mit persönlichem Grund (Welten) steht der Termin darunter */}
+            {item.Discover.reason && item.Discover.releaseText && <div class="qk-hero-facts">{item.Discover.releaseText}</div>}
             {item.Discover.providers.length > 0 && <div class="qk-hero-subtitle">{t.discoverProviders(item.Discover.providers.join(', '))}</div>}
             {/* Kinofilm vor dem Start: Anfrage wartet, bis er digital zu haben ist */}
             {canRequest && !item.Discover.released && item.Discover.mediaType === 'movie' && <div class="qk-hero-facts">{t.discoverAfterCinema}</div>}

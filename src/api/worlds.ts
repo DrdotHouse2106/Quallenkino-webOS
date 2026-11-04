@@ -14,6 +14,8 @@ export interface World {
   Collections?: string[]
   /** Reihenfolge nach Handlungszeit (Plugin ab 12.55), sonst null. */
   Chronology?: ChronologyEntry[] | null
+  /** Eigene Abschnitte statt flacher Film-/Serien-Liste (Plugin ab 12.61). */
+  HasSections?: boolean
 }
 
 /** Eintrag der Chronologie: Abschnitts-Überschrift oder Titel mit Zeitangabe (bei Serien ggf. nur Staffeln). */
@@ -72,25 +74,72 @@ export interface WorldSection {
   key: string
   title: string
   items: Item[]
+  /** Fehlende Titel dieses Abschnitts (persönlich sortiert); nur mit Jellyseerr anzeigen. */
+  missing?: Item[]
+}
+
+/** Fehlende Titel als Karten: abgedunkelt, „Fehlt“, Grund (sonst Termin) unter der Karte. */
+function missingCard(baseUrl: string, entry: RawDiscoverItem): Item {
+  const item = discoverItem(baseUrl, entry, true)
+  return { ...item, Missing: true, Badge: { label: 'Fehlt', color: '#5A5A5A' }, Caption: item.Discover?.reason ?? item.Caption }
+}
+
+/**
+ * Bekannte fehlende Titel zuerst; wenig bekannte (Minor) erst nach „Alle anzeigen (n weitere)“ (testbar).
+ * [rowKey] kennzeichnet die Karte, [expanded] zeigt alle.
+ */
+export function withShowMore(missing: Item[], rowKey: string, expanded: boolean, label: (n: number) => string): Item[] {
+  const minor = missing.filter(item => item.Discover?.minor)
+  if (expanded || !minor.length) return missing
+  const main = missing.filter(item => !item.Discover?.minor)
+  return [...main, { Id: `more-${rowKey}`, Name: label(minor.length), ImageUrl: null, ShowMore: rowKey }]
+}
+
+/** Abschnitte der Welt vom Plugin (ab 12.61): eigene Titel (neueste zuerst) und fehlende je Abschnitt (testbar). */
+export function parseWorldSections(baseUrl: string, raw: { MissingEnabled?: boolean; Sections?: { Key?: string; Title?: string; ItemIds?: string[]; Missing?: RawDiscoverItem[] }[] } | null, loaded: Item[]): WorldSection[] {
+  const norm = (id: string) => id.replace(/-/g, '').toLowerCase()
+  const byId = new Map(loaded.map(item => [norm(item.Id), item]))
+  return (raw?.Sections ?? [])
+    .filter(section => section.Title)
+    .map((section, index) => ({
+      key: `section-${section.Key ?? index}`,
+      title: section.Title!,
+      items: (section.ItemIds ?? []).map(id => byId.get(norm(id))).filter((item): item is Item => !!item),
+      missing: raw?.MissingEnabled === false ? [] : (section.Missing ?? []).filter(entry => entry.Title && entry.TmdbId != null).map(entry => missingCard(baseUrl, entry)),
+    }))
+    .filter(section => section.items.length > 0 || (section.missing?.length ?? 0) > 0)
+}
+
+async function pluginSections(api: Api, world: World): Promise<WorldSection[]> {
+  type Raw = Parameters<typeof parseWorldSections>[1]
+  const raw = await request<Raw>(api.url, `/LocalRecs/Worlds/${encodeURIComponent(world.Id)}/Sections`, { token: api.token, timeoutMs: 30_000 })
+  const ids = [...new Set((raw?.Sections ?? []).flatMap(section => section.ItemIds ?? []))]
+  const loaded = ids.length ? await byIds(api, ids) : []
+  return parseWorldSections(api.url, raw, loaded)
 }
 
 /** Abschnitte der Welt-Seite in der Reihenfolge der Android-App; leere fallen weg. */
 export async function worldSections(api: Api, world: World): Promise<WorldSection[]> {
   const id = encodeURIComponent(world.Id)
-  const [forYou, added, movies, series, collections] = await Promise.all([
+  const [forYou, added, movies, series, collections, sections] = await Promise.all([
     ids(api, `/LocalRecs/Worlds/${id}/Recommendations?limit=20`).then(list => byIds(api, list)).catch(() => []),
     ids(api, `/LocalRecs/Worlds/${id}/Items?sort=added&limit=20`).then(list => byIds(api, list)).catch(() => []),
     ids(api, `/LocalRecs/Worlds/${id}/Items?type=movies&sort=year&limit=40`).then(list => byIds(api, list)).catch(() => []),
     ids(api, `/LocalRecs/Worlds/${id}/Items?type=series&sort=year&limit=40`).then(list => byIds(api, list)).catch(() => []),
     collectionSections(api, world).catch(() => []),
+    world.HasSections ? pluginSections(api, world).catch(() => [] as WorldSection[]) : Promise.resolve([] as WorldSection[]),
   ])
+  // Abschnitte vom Plugin ersetzen die flache Film-/Serien-Liste (ohne Abschnitte bleibt sie)
+  const flat = sections.length ? sections : [
+    { key: 'movies', title: 'Filme', items: movies },
+    { key: 'series', title: `Serien aus der Welt von ${world.Name}`, items: series },
+  ]
   return [
     { key: 'for-you', title: 'Für dich in dieser Welt', items: forYou },
     { key: 'added', title: 'Neu dazugekommen', items: added },
     ...collections,
-    { key: 'movies', title: 'Filme', items: movies },
-    { key: 'series', title: `Serien aus der Welt von ${world.Name}`, items: series },
-  ].filter(section => section.items.length > 0)
+    ...flat,
+  ].filter(section => section.items.length > 0 || (section.missing?.length ?? 0) > 0)
 }
 
 /** Eine Reihe je Sammlung der Welt (z. B. „Iron Man“), Teile in Erscheinungsreihenfolge. */
@@ -156,7 +205,7 @@ export function parseMissing(baseUrl: string, raw: { Enabled?: boolean; Items?: 
   if (!raw || raw.Enabled === false) return null
   const items = (raw.Items ?? [])
     .filter(entry => entry.Title && entry.TmdbId != null)
-    .map(entry => ({ ...discoverItem(baseUrl, entry, true), Missing: true, Badge: { label: 'Fehlt', color: '#5A5A5A' } }))
+    .map(entry => missingCard(baseUrl, entry))
   if (!items.length) return null
   return { items, chronology: raw.Chronology ?? null }
 }

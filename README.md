@@ -20,6 +20,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 **1.19.1:** Fehlerbehebungen (Anmeldung bleibt bei Server-Neustart, Umrechnung bei Abspielfehlern, Abstände auf webOS 6, HDR-Profil wie Jellyfin Web, Player-Meldungen).
 
+**Neu ab 1.23.0** (Plugin ab 12.61): Welten mit eigenen Abschnitten wie bei Disney+ (z. B. Animation, Realverfilmungen); fehlende Titel persönlich sortiert, mit Grund unter der Karte und „Alle anzeigen“ für wenig bekannte.
+
 **Neu ab 1.22.0** (Plugin ab 12.60, mit Jellyseerr): Welten zeigen auch fehlende Filme und Serien – abgedunkelt mit „Fehlt“, am Ende in „Noch nicht in der Bibliothek“ bzw. chronologisch an ihrer Stelle; OK öffnet das Entdecken-Fenster mit „Anfragen …“ und Trailer.
 
 **Neu ab 1.19.0** (Plugin ab 12.55): Welten wie Star Trek auch „Chronologisch (Handlungszeit)“ – mit Abschnitten und Zeitangabe unter jeder Karte.

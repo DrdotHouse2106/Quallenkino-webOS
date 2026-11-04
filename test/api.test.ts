@@ -327,3 +327,27 @@ describe('Welten: fehlende Titel (Plugin 12.60)', () => {
     expect(parseMissing('http://srv', { Enabled: false, Items: [] })).toBeNull()
   })
 })
+
+describe('Welten: Abschnitte und persönliche Reihenfolge (Plugin 12.61)', () => {
+  it('Abschnitte mit eigenen und fehlenden Titeln, Grund unter der Karte, Minor hinter „Alle anzeigen“', async () => {
+    const { parseWorldSections, withShowMore } = await import('../src/api/worlds')
+    const sections = parseWorldSections('http://srv', {
+      MissingEnabled: true,
+      Sections: [
+        { Key: 'real', Title: 'Realverfilmungen', ItemIds: ['a1'], Missing: [
+          { TmdbId: 1, MediaType: 'movie', Title: 'Bekannt', Reason: 'Weil du „Halloween“ gesehen hast' },
+          { TmdbId: 2, MediaType: 'movie', Title: 'Unbekannt', Minor: true, ReleaseText: 'Erschienen 1999' },
+        ] },
+        { Key: 'leer', Title: 'Leer', ItemIds: [], Missing: [] },
+      ],
+    }, [{ Id: 'a1', Name: 'Vorhanden' }])
+    expect(sections.map(s => s.title)).toEqual(['Realverfilmungen'])
+    expect(sections[0].items.map(i => i.Name)).toEqual(['Vorhanden'])
+    expect(sections[0].missing![0].Caption).toBe('Weil du „Halloween“ gesehen hast')
+    expect(sections[0].missing![0].Discover?.reason).toBe('Weil du „Halloween“ gesehen hast')
+    const collapsed = withShowMore(sections[0].missing!, 'real', false, n => `Alle anzeigen (${n} weitere)`)
+    expect(collapsed.map(i => i.Name)).toEqual(['Bekannt', 'Alle anzeigen (1 weitere)'])
+    expect(collapsed[1].ShowMore).toBe('real')
+    expect(withShowMore(sections[0].missing!, 'real', true, () => '').map(i => i.Name)).toEqual(['Bekannt', 'Unbekannt'])
+  })
+})

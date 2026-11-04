@@ -130,6 +130,7 @@ export const t = {
   seriesContinue: (n: number) => `Weiter mit Teil ${n}`,
   seriesCatchUp: (n: number) => `Teil ${n} nachholen`,
   worldMissingRow: 'Noch nicht in der Bibliothek',
+  worldShowMore: (n: number) => `Alle anzeigen (${n} weitere)`,
   worldMissingCount: (n: number) => (n === 1 ? '1 fehlt' : `${n} fehlen`),
   seriesFromStart: 'Von vorn (Teil 1)',
   seriesParts: (n: number) => `Alle ${n} Teile`,

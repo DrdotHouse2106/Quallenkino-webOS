@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'preact/hooks'
-import type { Api } from '../api/items'
+import { useEffect, useMemo, useState } from 'preact/hooks'
+import type { Api, Item } from '../api/items'
 import { backdropUrl } from '../api/images'
-import { chronologySections, worldMissing, worlds as loadWorlds, worldLogo, worldSections, type World, type WorldMissing, type WorldSection } from '../api/worlds'
+import { chronologySections, worldMissing, worlds as loadWorlds, worldLogo, worldSections, withShowMore, type World, type WorldMissing, type WorldSection } from '../api/worlds'
 import { available as jellyseerrAvailable } from '../api/jellyseerr'
 import { openItem } from '../nav/open'
 import { ActionButton } from './ActionButton'
@@ -27,11 +27,17 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
   const [chronoSections, setChronoSections] = useState<WorldSection[] | null>(null)
   // Fehlende Titel (Plugin ab 12.60) nur mit verknüpftem Jellyseerr – im Hintergrund, die Seite wartet nicht darauf
   const [missing, setMissing] = useState<WorldMissing | null>(null)
+  const [seerr, setSeerr] = useState(false)
+  // Reihen, in denen „Alle anzeigen“ die wenig bekannten fehlenden Titel aufgeklappt hat
+  const [expanded, setExpanded] = useState<string[]>([])
   useEffect(() => {
     if (!world) return
     let active = true
     jellyseerrAvailable(api)
-      .then(ok => (ok ? worldMissing(api, world) : null))
+      .then(ok => {
+        if (active) setSeerr(ok)
+        return ok ? worldMissing(api, world) : null
+      })
       .then(result => active && setMissing(result))
       .catch(() => {})
     return () => {
@@ -47,8 +53,15 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
       active = false
     }
   }, [chronological, world?.Id, missing])
-  // Normale Ansicht: am Ende „Noch nicht in der Bibliothek“ (abgedunkelt, „Fehlt“)
-  const normalSections = sections && missing ? [...sections, { key: 'missing', title: t.worldMissingRow, items: missing.items }] : sections
+  // Normale Ansicht: Abschnitte vom Plugin zeigen ihre fehlenden Titel hinter den eigenen (persönlich sortiert);
+  // ohne Abschnitte am Ende „Noch nicht in der Bibliothek“. Wenig bekannte erst nach „Alle anzeigen“.
+  const normalSections = useMemo(() => {
+    if (!sections) return null
+    const more = (list: Item[], key: string) => withShowMore(list, key, expanded.includes(key), t.worldShowMore)
+    const withGaps = sections.map(section => (seerr && section.missing?.length ? { ...section, items: [...section.items, ...more(section.missing, section.key)] } : section))
+    const inSections = sections.some(section => section.missing?.length)
+    return missing && !inSections ? [...withGaps, { key: 'missing', title: t.worldMissingRow, items: more(missing.items, 'missing') }] : withGaps
+  }, [sections, missing, seerr, expanded])
   const shownSections = chronological ? chronoSections : normalSections
 
   useEffect(() => {
@@ -91,7 +104,13 @@ export function WorldPage({ api, id }: { api: Api; id: string }) {
           {shownSections?.length === 0 && <p class="qk-muted">{t.worldEmpty}</p>}
           {shownSections?.map(section => (
             <Row key={section.key} api={api} row={{ key: `w-${section.key}`, title: section.title, items: section.items, kind: 'posters' }}
-              onFocusItem={() => {}} onOpen={item => (item.Missing ? openItem(router, item) : router.push({ name: 'details', id: item.Id }))} />
+              onFocusItem={() => {}} onOpen={item => {
+                if (item.ShowMore) {
+                  setExpanded(list => [...list, item.ShowMore!])
+                  focusSoon(`row-w-${section.key}`)
+                } else if (item.Missing) openItem(router, item)
+                else router.push({ name: 'details', id: item.Id })
+              }} />
           ))}
         </div>
       </div>

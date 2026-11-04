@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.23.0 – 2026-11-05
+
+- **Welten mit Abschnitten** wie bei Disney+ (Quallenkino ab 12.61, z. B. Animation, Realverfilmungen, Familienfilme): Sie ersetzen die Reihen „Filme“ und „Serien“. Jeder Abschnitt zeigt die eigenen Titel (neueste zuerst) und dahinter – mit Jellyseerr – die fehlenden.
+- **Fehlende Titel persönlich sortiert** statt nach Jahr, mit Grund unter der Karte und im Entdecken-Fenster (z. B. „Weil du „Halloween“ gesehen hast“). Wenig bekannte erst nach „Alle anzeigen (n weitere)“. Die Chronologie bleibt in Handlungszeit-Reihenfolge.
+
 ## 1.22.0 – 2026-11-04
 
 - **Welten zeigen fehlende Filme und Serien** (Quallenkino ab 12.60, nur mit verknüpftem Jellyseerr): Im Kopf steht „x Titel · y fehlen“, am Ende die Reihe „Noch nicht in der Bibliothek“ mit abgedunkelten Plakaten und „Fehlt“. In der Ansicht „Chronologisch“ stehen sie an ihrer Stelle. OK öffnet das Entdecken-Fenster (Im Abo, Kinotermin, „Anfragen …“, Trailer im Vollbild mit Untertitel-Regel) – angefragt wird erst dort per Knopf. Die Liste lädt im Hintergrund.
