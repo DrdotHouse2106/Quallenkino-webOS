@@ -1,5 +1,12 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.21.2 – 2026-11-04
+
+Sicherheit (zweiter Prüfdurchgang):
+- **Samsung:** Navigation nur noch zur Player-Seite und zu YouTube statt zu beliebigen Adressen; ungenutztes Recht `network.public` entfernt; die Samsung-Geräte-APIs (`webapis.js`) werden geladen, damit die HDR-Erkennung greifen kann.
+- **YouTube-Player** laufen in einem eingeschränkten iframe (`sandbox="allow-scripts allow-same-origin"`, keine Navigation der App-Seite, keine Pop-ups). Die Player-Seite nimmt Befehle nur noch von der App an, die sie eingebettet hat.
+- Das gemerkte Banner eines Profils wird beim Abmelden bzw. Serverwechsel gelöscht.
+
 ## 1.21.1 – 2026-11-02
 
 - **Filmreihen mit Lücke:** Ist ein späterer Teil gesehen, ein früherer aber nicht, steht jetzt „Teil n fehlt noch“ (Text vom Server, ab Quallenkino 12.58.2) und der Knopf heißt „Teil n nachholen“ statt „Weiter mit Teil n“.

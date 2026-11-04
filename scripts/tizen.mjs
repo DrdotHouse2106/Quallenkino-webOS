@@ -11,4 +11,9 @@ for (const file of ['appinfo.json', 'largeIcon.png', 'splash.png']) {
 }
 // Samsung zeigt die Kachel sehr groß (bis ca. 500 px) – das 80-px-Symbol von webOS wäre verpixelt
 copyFileSync('assets/quallenkino-icon-512.png', `${out}/icon.png`)
+// Samsung-Geräte-APIs (webapis.avinfo für die HDR-Erkennung): Tizen löst $WEBAPIS selbst auf; vor dem App-Skript laden
+const html = readFileSync(`${out}/index.html`, 'utf8')
+if (!html.includes('$WEBAPIS')) {
+  writeFileSync(`${out}/index.html`, html.replace('<script', '<script src="$WEBAPIS/webapis/webapis.js"></script>\n    <script'))
+}
 console.log(`config.xml (Tizen): Version ${pkg.version}, Symbol 512 px`)

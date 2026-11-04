@@ -33,6 +33,8 @@
   }
 
   window.addEventListener('message', function (message) {
+    // Befehle nur von der App, die diese Seite eingebettet hat
+    if (message.source !== window.parent) return
     var command = message.data && message.data.qk === 'yt' && message.data.cmd
     if (!command || !player) return
     if (command === 'play') player.playVideo()

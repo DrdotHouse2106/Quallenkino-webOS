@@ -47,7 +47,7 @@ export function YouTubeInline({ videoKey, label }: { videoKey: string; label?: s
   return (
     <div class={`qk-yt-inline ${visible ? 'visible' : ''}`}>
       <div class="qk-yt-inline-player">
-        <iframe ref={frame} src={playerUrl(videoKey, TRAILER_VOLUME, subtitlesFor(label))} allow="autoplay; encrypted-media" tabIndex={-1} />
+        <iframe ref={frame} src={playerUrl(videoKey, TRAILER_VOLUME, subtitlesFor(label))} allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin" tabIndex={-1} />
       </div>
       {label && <span class="qk-yt-inline-label">{label}</span>}
     </div>

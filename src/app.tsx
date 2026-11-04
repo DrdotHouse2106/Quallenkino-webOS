@@ -6,6 +6,7 @@ import { LoginScreen } from './screens/LoginScreen'
 import { ProfileScreen } from './screens/ProfileScreen'
 import { ServerScreen } from './screens/ServerScreen'
 import { loadState, saveState, withSession, withoutSession, type SavedState } from './store'
+import { forgetBillboard } from './home/useHomeData'
 
 type View =
   | { name: 'server' }
@@ -68,6 +69,7 @@ export function App() {
   function signOut(userId: string) {
     const session = state.sessions.find(s => s.userId === userId)
     if (session && server) void logout(server.url, session.token)
+    forgetBillboard(userId)
     setState(s => withoutSession(s, userId))
   }
 
@@ -76,6 +78,7 @@ export function App() {
     if (state.server && state.server.id !== next.id) {
       const old = state.server
       state.sessions.forEach(s => void logout(old.url, s.token))
+      forgetBillboard()
     }
     setState(s => (s.server?.id === next.id ? { ...s, server: next } : { server: next, sessions: [] }))
     setView({ name: 'profiles' })

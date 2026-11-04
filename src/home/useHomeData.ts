@@ -102,6 +102,16 @@ async function clientBillboard(api: Api): Promise<Item[]> {
 
 const CACHE_PREFIX = 'qk.billboard.'
 
+/** Gemerktes Banner eines Profils löschen (beim Abmelden bzw. Serverwechsel). */
+export function forgetBillboard(userId?: string) {
+  try {
+    if (userId) localStorage.removeItem(CACHE_PREFIX + userId)
+    else Object.keys(localStorage).filter(key => key.startsWith(CACHE_PREFIX)).forEach(key => localStorage.removeItem(key))
+  } catch {
+    // Speicher nicht verfügbar – nichts zu löschen
+  }
+}
+
 function cachedBillboard(userId: string): Item[] {
   try {
     return JSON.parse(localStorage.getItem(CACHE_PREFIX + userId) ?? '[]') as Item[]

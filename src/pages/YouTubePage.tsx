@@ -84,7 +84,7 @@ function YouTubeFrame({ videoKey, subtitles }: { videoKey: string; subtitles: bo
 
   return (
     <Page focusKey="youtube" class="qk-youtube-page">
-      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, FULL_VOLUME, subtitles)} allow="autoplay; encrypted-media" tabIndex={-1} />
+      <iframe ref={frame} class="qk-youtube" src={playerUrl(videoKey, FULL_VOLUME, subtitles)} allow="autoplay; encrypted-media" sandbox="allow-scripts allow-same-origin" tabIndex={-1} />
       <FocusHolder onEnter={() => commandPlayer(frame.current, 'toggle')} />
     </Page>
   )
