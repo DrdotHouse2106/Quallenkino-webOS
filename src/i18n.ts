@@ -196,6 +196,7 @@ export const t = {
   settingsAbout: 'Über',
   settingsUpdates: 'Updates',
   settingsUpdateCheck: 'Beim Öffnen nach Updates suchen',
+  settingsDiagnostics: 'Fehlerhinweise an den Server senden (ohne Zugangsdaten und Titel)',
   reminderSave: 'Merken',
   reminderSaved: 'Gemerkt',
   reminderSeriesSave: 'Serie merken',

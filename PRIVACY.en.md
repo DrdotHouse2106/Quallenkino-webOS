@@ -1,6 +1,6 @@
 # Privacy policy – Quallenkino for LG TVs (webOS) and Samsung (Tizen)
 
-*Last updated: 18 October 2026* · [Deutsche Fassung](PRIVACY.md)
+*Last updated: 5 November 2026* · [Deutsche Fassung](PRIVACY.md)
 
 Quallenkino ("the app") is an app for LG TVs with webOS for watching media from **your own Jellyfin server**. It is not an official product of the Jellyfin project. The same app, built from the same code, is available for Samsung TVs with Tizen; everything here applies there as well (the Jellyfin dashboard shows the device as "Samsung Tizen").
 
@@ -26,6 +26,8 @@ The app stores the server address, the sign-in per profile (an access token, not
 
 - **Images from TMDB**: for titles not yet on your server (e.g. under "Discover"), the app loads posters directly from `image.tmdb.org`. TMDB thereby learns your connection's IP address; TMDB's privacy policy applies.
 - **Searches and viewed titles** (with the Local Recommendations plugin 12.36 or newer): your search terms (after a short typing pause) and the movie and series detail pages you open are sent to your Jellyfin server to improve your recommendations, together with your time offset from UTC for time-of-day suggestions. The server only stores this if the admin enabled it and you did not turn it off – under Settings → "Use searches and viewed titles for recommendations" you can turn it off and delete what was stored; the retention period (default 365 days) is shown there.
+- **Error notes** to the server's client log (e.g. "no trailer found"): app version, platform and the technical message. Credentials are redacted and quoted titles replaced with "…"; item IDs may be included. Can be turned off under Settings → "Send error notes to the server".
+- **"Suggest less often"** in "TV for you today" (plugin 12.58+): the programme (ID, series, title) or genre and the chosen kind; "Undo" deletes it.
 - **Update check**: at most every 20 hours the app asks GitHub's public release list (`api.github.com`) for a newer version; GitHub receives the usual connection data (including the IP address). The result is stored on the TV. It can be turned off in the settings ("Beim Öffnen nach Updates suchen").
 - **YouTube trailers**: YouTube trailers are shown with the official YouTube player, embedded through a small page on GitHub Pages (`drdothouse2106.github.io`). GitHub and Google/YouTube receive the usual connection data (including the IP address); Google's privacy policy applies to YouTube. With Settings → Trailer preview "Off", no trailer starts on its own; YouTube is then only loaded when you press the "Trailer" button.
 

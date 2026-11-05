@@ -351,3 +351,15 @@ describe('Welten: Abschnitte und persönliche Reihenfolge (Plugin 12.61)', () =>
     expect(withShowMore(sections[0].missing!, 'real', true, () => '').map(i => i.Name)).toEqual(['Bekannt', 'Unbekannt'])
   })
 })
+
+describe('Audit-Nachtrag', () => {
+  it('Bilder nur von TMDb bzw. dem eigenen Server, Trailer-Ids geprüft, Log geschwärzt', async () => {
+    const { absoluteUrl, discoverItem } = await import('../src/api/sections')
+    const { redactLog } = await import('../src/api/behavior')
+    expect(absoluteUrl('http://srv', 'https://image.tmdb.org/t/p/a.jpg')).toBe('https://image.tmdb.org/t/p/a.jpg')
+    expect(absoluteUrl('http://srv', '/LocalRecs/x.jpg')).toBe('http://srv/LocalRecs/x.jpg')
+    expect(absoluteUrl('http://srv', 'https://evil.example/a.jpg')).toBeUndefined()
+    expect(discoverItem('http://srv', { TmdbId: 1, Title: 'X', TrailerKey: 'bad"key' }).Discover?.trailerKey).toBeUndefined()
+    expect(redactLog('Reihe „Für dich“, „Tatort“ api_key=geheim')).toBe('Reihe „…“, „…“ api_key=***')
+  })
+})

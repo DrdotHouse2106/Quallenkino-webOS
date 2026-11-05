@@ -13,7 +13,9 @@ for (const file of ['appinfo.json', 'largeIcon.png', 'splash.png']) {
 copyFileSync('assets/quallenkino-icon-512.png', `${out}/icon.png`)
 // Samsung-Geräte-APIs (webapis.avinfo für die HDR-Erkennung): Tizen löst $WEBAPIS selbst auf; vor dem App-Skript laden
 const html = readFileSync(`${out}/index.html`, 'utf8')
-if (!html.includes('$WEBAPIS')) {
-  writeFileSync(`${out}/index.html`, html.replace('<script', '<script src="$WEBAPIS/webapis/webapis.js"></script>\n    <script'))
-}
+// Tizen löst $WEBAPIS zu einer lokalen Datei des Fernsehers auf (file:) – die liegt nicht unter 'self', deshalb
+// erlauben die Inhaltsrichtlinien (hier und in config.xml) zusätzlich Skripte von file:
+let tizenHtml = html.replace("script-src 'self';", "script-src 'self' file:;")
+if (!tizenHtml.includes('$WEBAPIS')) tizenHtml = tizenHtml.replace('<script', '<script src="$WEBAPIS/webapis/webapis.js"></script>\n    <script')
+writeFileSync(`${out}/index.html`, tizenHtml)
 console.log(`config.xml (Tizen): Version ${pkg.version}, Symbol 512 px`)

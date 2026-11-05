@@ -1,6 +1,6 @@
 # Datenschutzerklärung – Quallenkino für LG-Fernseher (webOS) und Samsung (Tizen)
 
-*Stand: 18. Oktober 2026* · [English version](PRIVACY.en.md)
+*Stand: 5. November 2026* · [English version](PRIVACY.en.md)
 
 Quallenkino („die App“) ist eine App für LG-Fernseher mit webOS, mit der man Medien von einem **eigenen Jellyfin-Server** ansieht. Sie ist kein offizielles Produkt des Jellyfin-Projekts. Für Samsung-Fernseher mit Tizen gibt es dieselbe App aus demselben Code; alles hier Gesagte gilt dort genauso (im Jellyfin-Dashboard erscheint das Gerät als „Samsung Tizen“).
 
@@ -26,6 +26,8 @@ Die App speichert auf dem Fernseher die Serveradresse, die Anmeldung pro Profil 
 
 - **Bilder von TMDB**: Für Titel, die noch nicht auf deinem Server sind (z. B. unter „Entdecken“), lädt die App Plakate direkt von `image.tmdb.org`. Dabei erfährt TMDB die IP-Adresse deines Anschlusses. Es gelten die Datenschutzbestimmungen von TMDB.
 - **Suchen und angesehene Titel** (mit dem Plugin Local Recommendations ab 12.36): Deine Suchbegriffe (nach einer kurzen Tipp-Pause) und die Detailseiten von Filmen und Serien, die du öffnest, gehen an deinen Jellyfin-Server und verbessern dort deine Empfehlungen; dazu die Abweichung deiner Uhrzeit von UTC für Vorschläge nach Tageszeit. Der Server speichert das nur, wenn der Admin es eingeschaltet hat und du es nicht abgeschaltet hast – unter Einstellungen → „Suchen und angesehene Titel für Empfehlungen nutzen“ lässt es sich abschalten und das Gespeicherte löschen; dort steht auch die Speicherdauer (Standard 365 Tage).
+- **Fehlerhinweise** ins Client-Log des Servers (z. B. „kein Trailer gefunden“): App-Version, Plattform und die technische Meldung. Zugangsdaten werden geschwärzt, Titel in Anführungszeichen durch „…“ ersetzt; Element-IDs können enthalten sein. Abschaltbar unter Einstellungen → „Fehlerhinweise an den Server senden“.
+- **„Seltener vorschlagen“** in „Heute im TV für dich“ (ab Plugin 12.58): Sendung (ID, Serie, Titel) bzw. Genre und die gewählte Art; „Rückgängig“ löscht es wieder.
 - **Update-Prüfung**: Höchstens alle 20 Stunden fragt die App die öffentliche Release-Liste bei GitHub (`api.github.com`) nach einer neueren Version; dabei erhält GitHub die üblichen Verbindungsdaten (u. a. IP-Adresse). Das Ergebnis merkt sich die App auf dem Fernseher. In den Einstellungen lässt sich das mit „Beim Öffnen nach Updates suchen“ abschalten.
 - **YouTube-Trailer**: Trailer von YouTube zeigt die App mit dem offiziellen YouTube-Player. Dieser wird über eine kleine Seite bei GitHub Pages (`drdothouse2106.github.io`) eingebettet. Dabei erhalten GitHub und Google/YouTube die üblichen Verbindungsdaten (u. a. IP-Adresse); für YouTube gelten die Datenschutzbestimmungen von Google. Mit Einstellungen → Trailer-Vorschau „Aus“ startet kein Trailer mehr von selbst; YouTube wird dann nur noch geladen, wenn du die Taste „Trailer“ drückst.
 

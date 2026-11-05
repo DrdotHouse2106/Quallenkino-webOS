@@ -3,6 +3,7 @@ import { authorizationHeader, deviceId } from './auth'
 import { APP_VERSION } from '../brand'
 import { PLATFORM } from '../platform/platform'
 import type { Api } from './items'
+import { loadSettings } from '../settings'
 
 /**
  * Verhaltenssignale für das Plugin Local Recommendations (ab 12.36): Suchbegriffe und geöffnete Detailseiten
@@ -103,7 +104,20 @@ export function reorderRows<T>(rows: T[], kindOf: (row: T) => string | null, ord
 }
 
 /** Kurze Fehlermeldung ins Client-Log des Servers (Dashboard → Protokolle), wie bei Android. */
+/** Titel in Anführungszeichen („Tatort“) durch „…“ ersetzen, Zugangsdaten schwärzen, Länge begrenzen (testbar). */
+export function redactLog(text: string): string {
+  return text
+    .replace(/„[^“\n]*“/g, '„…“')
+    .replace(/"[^"\n]*"/g, '"…"')
+    .replace(/(api_?key=)[^&\s"]+/gi, '$1***')
+    .replace(/(token=\"?)[^"\s,]+/gi, '$1***')
+    .slice(0, 2000)
+}
+
 export async function clientLog(api: Api, text: string): Promise<void> {
+  // Abschaltbar unter Einstellungen → „Fehlerhinweise an den Server senden“
+  if (!loadSettings().diagnostics) return
+  text = redactLog(text)
   try {
     await fetch(`${api.url.replace(/\/+$/, '')}/ClientLog/Document`, {
       method: 'POST',

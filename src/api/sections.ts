@@ -410,9 +410,23 @@ export interface RawDiscoverItem {
   Minor?: boolean
 }
 
-/** Bild-Adresse von TMDb bzw. relativ zum Server. */
-function absoluteUrl(baseUrl: string, path?: string): string | undefined {
-  return !path ? undefined : /^https?:/.test(path) ? path : `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
+/** Nur echte YouTube-Ids (11 Zeichen) – der Schlüssel landet in der Player-Adresse. */
+export const YOUTUBE_KEY = /^[A-Za-z0-9_-]{11}$/
+
+/** Fremde Bild-Hosts: nur TMDb (sonst nur Adressen auf dem eigenen Server). */
+const IMAGE_HOSTS = ['image.tmdb.org']
+
+/** Bild-Adresse von TMDb bzw. relativ zum Server (testbar); andere Hosts fallen weg. */
+export function absoluteUrl(baseUrl: string, path?: string): string | undefined {
+  if (!path) return undefined
+  const base = baseUrl.replace(/\/+$/, '')
+  if (!/^https?:/i.test(path)) return `${base}/${path.replace(/^\/+/, '')}`
+  try {
+    const url = new URL(path)
+    return url.protocol === 'https:' && IMAGE_HOSTS.includes(url.hostname) ? path : path.startsWith(`${base}/`) ? path : undefined
+  } catch {
+    return undefined
+  }
 }
 
 /**
@@ -427,7 +441,7 @@ export function discoverItem(baseUrl: string, entry: RawDiscoverItem, poster = f
     mediaType: entry.MediaType === 'tv' ? 'tv' : 'movie',
     releaseText: entry.ReleaseText,
     providers: entry.Providers ?? [],
-    trailerKey: entry.TrailerKey,
+    trailerKey: entry.TrailerKey && YOUTUBE_KEY.test(entry.TrailerKey) ? entry.TrailerKey : undefined,
     trailerLanguage: entry.TrailerLanguage,
     inLibrary: !!entry.InLibrary,
     jellyfinId: entry.JellyfinId,

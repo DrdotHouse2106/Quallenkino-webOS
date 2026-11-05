@@ -41,6 +41,7 @@ const CHOICES: { key: keyof Settings; title: string; options: { value: Settings[
   { key: 'screensaverTrailers', title: t.settingsScreensaverTrailers, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
   { key: 'screensaverVolume', title: t.settingsScreensaverVolume, options: [{ value: 0, label: t.volumeMute }, { value: 0.3, label: t.volumeQuiet }, { value: 0.75, label: t.volumeNormal }] },
   { key: 'updateCheck', title: t.settingsUpdateCheck, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
+  { key: 'diagnostics', title: t.settingsDiagnostics, options: [{ value: true, label: t.trailersOn }, { value: false, label: t.trailersOff }] },
 ]
 
 /** Einstellungen: Untertitel, Ton und Trailer, Konto (Profil, Abmelden, Server) und „Über“. */

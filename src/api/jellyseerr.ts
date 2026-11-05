@@ -339,7 +339,8 @@ const isGerman = (v: Video) => (v.iso_639_1 ?? v.language) === 'de' || /deutsch|
  * werden gekennzeichnet: „OmU“ (untertitelt bzw. Japanisch, Koreanisch, Chinesisch), sonst die Sprache.
  */
 export function pickTrailer(videos: Video[], originalLanguage?: string): { key: string; label: string } | undefined {
-  const usable = videos.filter(v => v.site === 'YouTube' && v.key && (v.type === 'Trailer' || v.type === 'Teaser'))
+  // Nur echte YouTube-Ids (11 Zeichen) – der Schlüssel landet in der Player-Adresse
+  const usable = videos.filter(v => v.site === 'YouTube' && v.key && /^[A-Za-z0-9_-]{11}$/.test(v.key) && (v.type === 'Trailer' || v.type === 'Teaser'))
   const score = (v: Video) => (isGerman(v) ? 0 : 2) + (v.type === 'Trailer' ? 0 : 1)
   const best = [...usable].sort((a, b) => score(a) - score(b))[0]
   if (!best) return undefined

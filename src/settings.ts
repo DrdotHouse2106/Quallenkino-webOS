@@ -21,12 +21,14 @@ export interface Settings {
   screensaverVolume: number
   /** Beim Öffnen nach einer neuen Version suchen (GitHub, höchstens alle 20 Stunden). */
   updateCheck: boolean
+  /** Kurze Fehlerhinweise ins Client-Log des Servers (ohne Zugangsdaten und Titel). */
+  diagnostics: boolean
   /** HDR: automatisch (nur was der Fernseher kann direkt), immer umwandeln oder immer direkt. */
   hdr: import('./player/hdr').HdrMode
 }
 
 const KEY = 'qk.settings'
-const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, rowTrailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0, updateCheck: true, hdr: 'auto' }
+const DEFAULTS: Settings = { subtitles: 'smart', audio: 'own', trailers: true, rowTrailers: true, screensaver: 2, screensaverTrailers: false, screensaverVolume: 0, updateCheck: true, diagnostics: true, hdr: 'auto' }
 let memory: Settings | null = null
 
 export function loadSettings(): Settings {

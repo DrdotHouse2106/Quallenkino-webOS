@@ -64,11 +64,11 @@ describe('Jellyseerr', () => {
 describe('Jellyseerr-Trailer', () => {
   const yt = (key: string, type: string, name: string, lang?: string) => ({ site: 'YouTube', key, type, name, iso_639_1: lang })
   it('deutsch zuerst, Trailer vor Teaser', () => {
-    expect(pickTrailer([yt('a', 'Teaser', 'Teaser', 'de'), yt('b', 'Trailer', 'Official Trailer', 'en'), yt('c', 'Trailer', 'Trailer Deutsch', 'en')])).toEqual({ key: 'c', label: '' })
+    expect(pickTrailer([yt('aaaaaaaaaaa', 'Teaser', 'Teaser', 'de'), yt('bbbbbbbbbbb', 'Trailer', 'Official Trailer', 'en'), yt('ccccccccccc', 'Trailer', 'Trailer Deutsch', 'en')])).toEqual({ key: 'ccccccccccc', label: '' })
   })
   it('Kennzeichnung fremder Sprachen', () => {
-    expect(pickTrailer([yt('a', 'Trailer', 'Official Trailer', 'en')])).toEqual({ key: 'a', label: 'EN' })
-    expect(pickTrailer([yt('a', 'Trailer', 'Trailer', 'ja')], 'ja')).toEqual({ key: 'a', label: 'OmU' })
+    expect(pickTrailer([yt('aaaaaaaaaaa', 'Trailer', 'Official Trailer', 'en')])).toEqual({ key: 'aaaaaaaaaaa', label: 'EN' })
+    expect(pickTrailer([yt('aaaaaaaaaaa', 'Trailer', 'Trailer', 'ja')], 'ja')).toEqual({ key: 'aaaaaaaaaaa', label: 'OmU' })
     expect(pickTrailer([{ site: 'Vimeo', key: 'x', type: 'Trailer' }])).toBeUndefined()
   })
 })
