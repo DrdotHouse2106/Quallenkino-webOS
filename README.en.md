@@ -2,6 +2,9 @@
 
 [![Buy me a coffee](https://img.shields.io/badge/☕_Buy_me_a_coffee-PayPal-0070ba?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/DrdotHouse)
 
+> [!TIP]
+> **Testers wanted!** Want to try my apps before everyone else – on iPhone, Android, Fire TV, Android TV or LG webOS? Send a short e-mail to **tester.entwickler@zockerdb.de** with your name, your devices and the e-mail address of your Apple ID or Google account. I'll add you and let you know whenever there is a new app or version to test. Your details stay private and are only used for this.
+
 Standalone TV app for **LG TVs running webOS** that talks to your own media server (Jellyfin) – cinematic home screen, personal recommendations, worlds and live TV. It is its own codebase (TypeScript, Preact, remote-control navigation), **not** a fork of the Jellyfin web client. The sister app for Android TV and Fire TV is [Quallenkino](https://github.com/DrdotHouse2106/Jellyfin-TV-Client).
 
 German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](CHANGELOG.md)
