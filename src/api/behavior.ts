@@ -123,6 +123,7 @@ export async function clientLog(api: Api, text: string): Promise<void> {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain', Authorization: authorizationHeader(deviceId(), api.token) },
       body: `Quallenkino ${APP_VERSION} (${PLATFORM})\n${text}\n`,
+      redirect: 'error',
     })
   } catch {
     // ohne Server-Log geht es auch

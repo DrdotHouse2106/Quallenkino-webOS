@@ -234,7 +234,7 @@ export function PlayerPage({ api, id, startTicks }: Props) {
     setCues([])
     const track = subtitleStreams(current.source).find(s => s.Index === index)
     if (!track || isBurnedIn(track)) return
-    fetch(subtitleUrl(api, id, current.source, track), { headers: { Authorization: authorizationHeader(deviceId(), api.token) } })
+    fetch(subtitleUrl(api, id, current.source, track), { headers: { Authorization: authorizationHeader(deviceId(), api.token) }, redirect: 'error' })
       .then(response => response.text())
       .then(text => setCues(parseVtt(text)))
       .catch(() => setCues([]))

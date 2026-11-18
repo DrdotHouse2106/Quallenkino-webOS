@@ -14,7 +14,7 @@ export function authorizedImage(api: Api, url: string): Promise<string | null> {
   if (!url.startsWith(`${base}/`)) return Promise.resolve(url)
   let cached = loaded.get(url)
   if (!cached) {
-    cached = fetch(url, { headers: { Authorization: authorizationHeader(deviceId(), api.token) } })
+    cached = fetch(url, { headers: { Authorization: authorizationHeader(deviceId(), api.token) }, redirect: 'error' })
       .then(response => (response.ok ? response.blob() : Promise.reject(new Error(`HTTP ${response.status}`))))
       .then(blob => URL.createObjectURL(blob))
       .catch(() => {

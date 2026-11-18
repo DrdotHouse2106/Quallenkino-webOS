@@ -1,5 +1,9 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.24.1 – 2026-11-18
+
+Sicherheit: Auch Bilder, Untertitel, der Kalender-QR-Code und Fehlerhinweise ans Server-Protokoll folgen keinen Weiterleitungen mehr (`redirect: 'error'` wie bei allen anderen Anfragen) – ältere webOS-Browser schicken die Anmeldung sonst an das Weiterleitungsziel mit.
+
 ## 1.24.0 – 2026-11-18
 
 - **Genre-Zeilen zum Weiterscrollen** (wie auf Android TV): Unter „Kürzlich hinzugefügt“ folgen bis zu 12 Genres (z. B. Action, Komödie, Anime) mit je 30 zufälligen Filmen und Serien. Die Titel werden bei jedem Öffnen neu gemischt, die Auswahl der Genres bleibt 30 Minuten gleich.

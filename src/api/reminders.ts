@@ -60,6 +60,7 @@ export function calendar(api: Api, renew = false): Promise<Calendar> {
 export async function calendarQr(api: Api, target: 'page' | 'webcal' | 'https'): Promise<string> {
   const response = await fetch(`${api.url.replace(/\/+$/, '')}/LocalRecs/Calendar/Qr?target=${target}`, {
     headers: { Authorization: authorizationHeader(deviceId(), api.token) },
+    redirect: 'error',
   })
   if (!response.ok) throw new HttpError(response.status, `HTTP ${response.status}`)
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(await response.text())}`
