@@ -152,6 +152,11 @@ Hürden, auf die wir selbst gestoßen sind – jeweils mit Symptom, Ursache und 
 - *Ursache:* Updates laufen über den Homebrew Channel, der auf dem Fernseher fehlt.
 - *Lösung:* Homebrew Channel installieren und dort unter Einstellungen → Repositories die Quelle aus „Updates“ eintragen – oder die neue IPK wie beim ersten Mal per `ares-install` aufspielen.
 
+### Sicherheit
+
+- **http oder https:** Mit einer IP-Adresse (z. B. `http://192.168.1.10:8096`) verbindet sich die App unverschlüsselt – Passwort und Anmeldung gehen im Klartext durchs Heimnetz. Die Einstellungen zeigen das unter „Über“ an. Für den Zugang von unterwegs immer eine https-Adresse eintragen.
+- **Videos:** Für `<video>` muss die Anmeldung als `ApiKey=` in der Adresse stehen (Fernseher-Browser können dafür keinen Header setzen). Hinter einem Reverse-Proxy (nginx, Caddy …) daher die Abfrageparameter nicht protokollieren lassen, sonst steht der Schlüssel im Zugriffsprotokoll.
+
 ### Ton und Untertitel (LG und Samsung)
 
 **Film mit DTS- oder TrueHD-Ton: Server rechnet um**

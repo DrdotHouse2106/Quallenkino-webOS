@@ -11,12 +11,15 @@ on:
         type: boolean
         default: false
 
+# Build und Tests nur mit Leserecht; Schreibrecht hat nur der Release-Job
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -42,6 +45,10 @@ jobs:
           cp "$IPK" out/quallenkino-webos.ipk
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
+      - name: Version merken
+        id: version
+        run: echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
       # Samsung (Tizen): unsigniertes .wgt – signiert wird auf dem PC mit dem eigenen Samsung-Zertifikat (README)
       - name: Tizen bauen und packen
         run: |
@@ -55,11 +62,25 @@ jobs:
           path: |
             out/quallenkino-webos-v*.ipk
             out/quallenkino-tizen-v*.wgt
+            out/quallenkino-webos.ipk
+            out/quallenkino-tizen.wgt
 
+  release:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: quallenkino-webos-${{ needs.build.outputs.version }}
+          path: out
       - name: Release
-        if: github.event_name == 'workflow_dispatch' && inputs.release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
           NOTES=$(awk "/^## ${VERSION}/{flag=1;next}/^## /{flag=0}flag" CHANGELOG.md)
           gh release create "v${VERSION}" out/quallenkino-webos-v${VERSION}.ipk out/quallenkino-webos.ipk \

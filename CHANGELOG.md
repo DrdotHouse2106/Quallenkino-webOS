@@ -1,5 +1,11 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.24.2 – 2026-11-18
+
+Sicherheit:
+- Unter Einstellungen → „Über“ steht ein Hinweis, wenn die Verbindung zum Server unverschlüsselt ist (http); README mit Hinweisen zu https und zum Protokoll eines Reverse-Proxys.
+- Build: Tests und Bauen laufen nur noch mit Leserecht, nur der Release-Schritt darf schreiben.
+
 ## 1.24.1 – 2026-11-18
 
 Sicherheit: Auch Bilder, Untertitel, der Kalender-QR-Code und Fehlerhinweise ans Server-Protokoll folgen keinen Weiterleitungen mehr (`redirect: 'error'` wie bei allen anderen Anfragen) – ältere webOS-Browser schicken die Anmeldung sonst an das Weiterleitungsziel mit.

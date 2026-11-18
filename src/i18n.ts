@@ -9,6 +9,7 @@ export const t = {
   whoIsWatching: 'Wer schaut gerade?',
   otherProfile: 'Anderes Profil',
   changeServer: 'Server wechseln',
+  serverInsecure: 'Verbindung unverschlüsselt (http) – im Heimnetz üblich; für den Zugang von unterwegs besser eine https-Adresse eintragen.',
   loadingProfiles: 'Profile werden geladen …',
   profilesFailed: 'Die Profile konnten nicht geladen werden.',
   signInAs: (name: string) => `Anmelden als ${name}`,
