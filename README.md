@@ -19,6 +19,8 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 ## Stand
 
+**Neu ab 1.24.0:** Lange weiterscrollen wie auf Android TV – unter „Kürzlich hinzugefügt“ folgen bis zu 12 **Genre-Zeilen** mit je 30 zufälligen Filmen und Serien (bei jedem Öffnen neu gemischt). Ganz unten führt **„Alle Titel durchstöbern“** zu allen Filmen und Serien: Banner-Karten, oben der große Infobereich zum ausgewählten Titel, Filter Filme/Serien und Sortierung A–Z, neu hinzugefügt, Jahr oder Bewertung.
+
 **Neu ab 1.20.0:** Vorschaubilder beim Spulen (Trickplay) wie im Web.
 
 **1.19.1:** Fehlerbehebungen (Anmeldung bleibt bei Server-Neustart, Umrechnung bei Abspielfehlern, Abstände auf webOS 6, HDR-Profil wie Jellyfin Web, Player-Meldungen).

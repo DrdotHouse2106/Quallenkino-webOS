@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'preact/hooks'
 import {
   byIds,
+  genreItems,
+  genres as loadGenres,
   latest,
   newestWithBackdrop,
   nextUp,
@@ -24,6 +26,37 @@ import { daypartOrder, reorderRows } from '../api/behavior'
 const DAYPART_KIND: Record<string, string> = { 'recs-movies': 'movies', 'recs-series': 'series', tv: 'livetv' }
 
 const BILLBOARD_SIZE = 8
+
+/** Genre-Zeilen zum Weiterscrollen (wie Android/Netflix): bis zu 12 Genres mit je 30 zufälligen Titeln. */
+const GENRE_ROWS = 12
+const GENRE_ITEMS = 30
+/** Genre-Auswahl je Profil 30 Minuten merken, damit die Zeilen nicht bei jedem Neuladen wechseln. */
+const GENRE_CACHE_MS = 30 * 60 * 1000
+let genreCache: { key: string; at: number; names: string[] } | null = null
+
+/** Zufällige Auswahl ohne Doppelte (Groß-/Kleinschreibung egal). */
+export function pickGenres(names: string[], max = GENRE_ROWS, random: () => number = Math.random): string[] {
+  const seen = new Set<string>()
+  const unique = names.filter(name => {
+    const key = name.toLowerCase()
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+  for (let i = unique.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1))
+    ;[unique[i], unique[j]] = [unique[j], unique[i]]
+  }
+  return unique.slice(0, max)
+}
+
+async function genreNames(api: Api): Promise<string[]> {
+  const key = `${api.url}|${api.userId}`
+  if (genreCache && genreCache.key === key && Date.now() - genreCache.at < GENRE_CACHE_MS) return genreCache.names
+  const names = pickGenres(await loadGenres(api))
+  genreCache = { key, at: Date.now(), names }
+  return names
+}
 
 /**
  * „Als Nächstes“ ohne das, was schon in „Weiterschauen“ steht – weder dieselbe Folge noch eine
@@ -132,6 +165,7 @@ export function useHomeData(api: Api) {
   const [seriesReasons, setSeriesReasons] = useState<Record<string, string>>({})
   const [momentKeys, setMomentKeys] = useState<string[]>([])
   const [discoverKeys, setDiscoverKeys] = useState<string[]>([])
+  const [genreKeys, setGenreKeys] = useState<string[]>([])
   const [rowConfig, setRowConfig] = useState<{ movies?: string; series?: string; liveTv?: string; liveTvRow: boolean }>({ liveTvRow: true })
   /** Banner fertig geladen (auch wenn leer) – erst dann darf der Startfokus in die Reihen. */
   const [billboardDone, setBillboardDone] = useState(false)
@@ -194,6 +228,16 @@ export function useHomeData(api: Api) {
       setDiscoverKeys(list.map((_, index) => `discover-${index}`))
       setRows(current => list.reduce<Record<string, RowData>>((all, section, index) => ({ ...all, [`discover-${index}`]: { key: `discover-${index}`, title: section.title, kind: 'cards', items: section.items } }), { ...current }))
     }).catch(() => {})
+    // Genre-Zeilen ganz unten (bei jedem Öffnen neu gemischt, die Auswahl der Genres bleibt 30 Minuten)
+    genreNames(api).then(names => {
+      if (!active || !names.length) return
+      setGenreKeys(names.map((_, index) => `genre-${index}`))
+      names.forEach((name, index) => {
+        genreItems(api, name, GENRE_ITEMS).then(list => {
+          if (active && list.length) setRows(current => ({ ...current, [`genre-${index}`]: { key: `genre-${index}`, title: name, kind: 'cards', items: list } }))
+        }).catch(() => {})
+      })
+    }).catch(() => {})
     // Zeilentitel und Live-TV-Schalter wie im Web (Plugin ab 12.48)
     rowSettings(api).then(settings => active && setRowConfig(settings)).catch(() => {})
     seasonal(api).then(section => {
@@ -216,7 +260,7 @@ export function useHomeData(api: Api) {
   }, [api.url, api.userId, api.token])
 
   // Empfehlungszeilen in der Reihenfolge der Tageszeit (Plugin ab 12.36), „tv“ = Live-TV für dich
-  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'upcoming', ...discoverKeys, ...(rowConfig.liveTvRow ? ['tv'] : []), 'worlds', 'top10', 'latest'], key => DAYPART_KIND[key] ?? null, daypart)
+  const order = reorderRows(['resume', 'nextup', 'seasonal', 'recs-movies', 'recs-series', ...momentKeys, 'movie-series', 'upcoming', ...discoverKeys, ...(rowConfig.liveTvRow ? ['tv'] : []), 'worlds', 'top10', 'latest', ...genreKeys], key => DAYPART_KIND[key] ?? null, daypart)
   const titled = (row: RowData | undefined): RowData | undefined => {
     const title = row?.key === 'recs-movies' ? rowConfig.movies : row?.key === 'recs-series' ? rowConfig.series : row?.key === 'tv' ? rowConfig.liveTv : undefined
     return row && title ? { ...row, title } : row

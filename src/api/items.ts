@@ -155,6 +155,25 @@ export const recommendations = (api: Api, type: 'movies' | 'series', limit = 30)
   once(`recs|${api.url}|${api.userId}|${type}`, () => items(api, `/LocalRecs/Recommendations?type=${type}&limit=30&utcOffsetMinutes=${-new Date().getTimezoneOffset()}`).catch(() => [] as Item[]))
     .then(list => list.slice(0, limit))
 
+/** Genres mit Filmen oder Serien (Namen, für die Genre-Zeilen). */
+export const genres = (api: Api) =>
+  items(api, `/Genres?userId=${api.userId}&IncludeItemTypes=Movie,Series&Recursive=true&EnableTotalRecordCount=false`)
+    .then(list => list.map(g => g.Name ?? '').filter(Boolean))
+
+/** Zufällige Filme und Serien eines Genres (Genre-Zeilen der Startseite). */
+export const genreItems = (api: Api, genre: string, limit = 30) =>
+  items(api, `/Users/${api.userId}/Items?Genres=${encodeURIComponent(genre)}&IncludeItemTypes=Movie,Series&Recursive=true&SortBy=Random&Limit=${limit}&EnableTotalRecordCount=false&Fields=${FIELDS}&${IMAGES}`)
+
+export type AllTitlesType = 'Movie,Series' | 'Movie' | 'Series'
+export type AllTitlesSort = 'SortName' | 'DateCreated' | 'ProductionYear' | 'CommunityRating'
+
+/** Seite „Alle Titel“: Filme und/oder Serien in Seiten zu `limit` Titeln, mit Gesamtzahl. */
+export async function allTitles(api: Api, type: AllTitlesType, sort: AllTitlesSort, start: number, limit: number): Promise<{ items: Item[]; total: number }> {
+  const order = sort === 'SortName' ? 'Ascending' : 'Descending'
+  const result = await get<QueryResult>(api, `/Users/${api.userId}/Items?IncludeItemTypes=${type}&Recursive=true&SortBy=${sort},SortName&SortOrder=${order}&StartIndex=${start}&Limit=${limit}&Fields=${FIELDS}&${IMAGES}`)
+  return { items: result?.Items ?? [], total: result?.TotalRecordCount ?? 0 }
+}
+
 /** Top 10 aller Benutzer der letzten 180 Tage (Plugin). */
 export const top10 = (api: Api) =>
   items(api, '/LocalRecs/Top10?type=all&days=180&limit=10').catch(() => [] as Item[])

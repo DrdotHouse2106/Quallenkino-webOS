@@ -322,6 +322,7 @@ export function HomeScreen({ api, session, covered, onSwitchProfile, onSignOut }
           {visibleRows.map(row => (
             <Row key={row.key} api={api} row={row} onFocusItem={focused => { setRowItem(focused); setRowTitle(row.title) }} onOpen={opened => openItem(router, opened)} onMenu={openFeedback} />
           ))}
+          {visibleRows.length > 0 && <AllTitlesLink onPress={() => router.push({ name: 'allTitles' })} />}
         </div>
       </div>
       <Clock />
@@ -436,6 +437,26 @@ function WorldInfo({ api, world }: { api: Api; world: World }) {
       {logo && !failed ? <img class="qk-hero-logo qk-world-logo" src={logo} alt={world.Name} onError={() => setFailed(true)} /> : null}
       <div class={logo && !failed ? 'qk-hero-subtitle' : 'qk-hero-title'}>{world.Name}</div>
       {world.ItemCount ? <div class="qk-hero-facts">{t.worldCount(world.ItemCount)}</div> : null}
+    </div>
+  )
+}
+
+/** Link ganz unten: „Alle Titel durchstöbern“ (eigene Zeile, damit „Runter“ aus der letzten Reihe hier landet). */
+function AllTitlesLink({ onPress }: { onPress: () => void }) {
+  const { ref, focused, focusSelf } = useFocusable({
+    focusKey: 'all-titles-link',
+    onEnterPress: onPress,
+    onFocus: layout => {
+      const row = (layout.node as HTMLElement).closest('.qk-row') as HTMLElement | null
+      if (row?.parentElement) row.parentElement.scrollTop = row.offsetTop
+    },
+  })
+  return (
+    <div class="qk-row qk-all-link-row">
+      <div ref={ref} class={`qk-bb-button ${focused ? 'focused' : ''}`} onClick={onPress} onMouseEnter={() => focusSelf()}>
+        <Icon name="search" />
+        <span class="qk-label">{t.allTitlesLink}</span>
+      </div>
     </div>
   )
 }

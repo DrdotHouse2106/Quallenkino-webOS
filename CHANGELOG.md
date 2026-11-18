@@ -1,5 +1,10 @@
 # Änderungen – Quallenkino für webOS
 
+## 1.24.0 – 2026-11-18
+
+- **Genre-Zeilen zum Weiterscrollen** (wie auf Android TV): Unter „Kürzlich hinzugefügt“ folgen bis zu 12 Genres (z. B. Action, Komödie, Anime) mit je 30 zufälligen Filmen und Serien. Die Titel werden bei jedem Öffnen neu gemischt, die Auswahl der Genres bleibt 30 Minuten gleich.
+- **„Alle Titel durchstöbern“** ganz unten auf der Startseite: alle Filme und Serien als Banner-Karten, der große Infobereich oben zeigt den ausgewählten Titel. Filter Filme/Serien, Sortierung A–Z, neu hinzugefügt, Erscheinungsjahr oder Bewertung; weitere Titel laden beim Scrollen nach.
+
 ## 1.23.1 – 2026-11-05
 
 Sicherheit (Nachtrag zum Prüfdurchgang):
