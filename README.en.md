@@ -9,7 +9,7 @@ Standalone TV app for **LG TVs running webOS** that talks to your own media serv
 
 German documentation (main): [README.md](README.md) · Changes: [CHANGELOG.md](CHANGELOG.md)
 
-**Server plugins** (all optional): [Local Recommendations](https://github.com/DrdotHouse2106/Lokal-Vorschlag-Jellyfin) (recommendations with reasons, Top 10, worlds, live TV cast), [Jellyfin Enhanced](https://github.com/n00bcodr/Jellyfin-Enhanced) with Jellyseerr (requests), [Intro Skipper](https://github.com/intro-skipper/intro-skipper) (skip intro/credits).
+**Server plugins** (all optional): [Local Recommendations](https://github.com/DrdotHouse2106/Quallenkino-Empfehlungen) (recommendations with reasons, Top 10, worlds, live TV cast), [Jellyfin Enhanced](https://github.com/n00bcodr/Jellyfin-Enhanced) with Jellyseerr (requests), [Intro Skipper](https://github.com/intro-skipper/intro-skipper) (skip intro/credits).
 
 ## Status
 

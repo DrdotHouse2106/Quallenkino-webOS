@@ -11,7 +11,7 @@ Eigenständige TV-App für **LG-Fernseher mit webOS**, die mit einem eigenen Med
 
 | Plugin | Wofür |
 |---|---|
-| [Local Recommendations](https://github.com/DrdotHouse2106/Lokal-Vorschlag-Jellyfin) (empfohlen) | Empfehlungen mit Begründung, Top 10, Welten, Live-TV-Besetzung |
+| [Local Recommendations](https://github.com/DrdotHouse2106/Quallenkino-Empfehlungen) (empfohlen) | Empfehlungen mit Begründung, Top 10, Welten, Live-TV-Besetzung |
 | [Jellyfin Enhanced](https://github.com/n00bcodr/Jellyfin-Enhanced) mit Jellyseerr | Filme und Serien anfragen |
 | [Intro Skipper](https://github.com/intro-skipper/intro-skipper) | Intro und Abspann überspringen |
 
